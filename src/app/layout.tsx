@@ -15,12 +15,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <AppRouterCacheProvider>
-        <ThemeProvider theme={theme}>
-          <body>{children}</body>
-        </ThemeProvider>
-      </AppRouterCacheProvider>
-    </html>
+    <>
+      <link
+        type="image/png"
+        sizes="96x96"
+        rel="icon"
+        href="/favicon.png"></link>
+      <html lang="en">
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            <body>{children}</body>
+          </ThemeProvider>
+        </AppRouterCacheProvider>
+      </html>
+    </>
   );
 }
