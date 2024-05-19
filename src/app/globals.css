@@ -4,3 +4,8 @@ body {
   overflow-x: hidden;
   font-family: "Roboto", sans-serif;
 }
+
+.center {
+  display: grid;
+  place-items: center;
+}
