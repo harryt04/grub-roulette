@@ -5,7 +5,10 @@ import Tab from '@mui/material/Tab'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
+import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
+import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
+import { getRestaurants } from '../client-utils/getRestaurants'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -33,12 +36,11 @@ function CustomTabPanel(props: TabPanelProps) {
   )
 }
 
-export type TabBarProps = {
-  children?: React.ReactNode
-}
-
-export default function TabBar(props: TabBarProps) {
+export default function TabBar() {
   const [value, setValue] = React.useState(0)
+  const { location, geoLocationError } = useGeolocation()
+  console.log('location: ', location)
+  console.log('geoLocationError: ', geoLocationError)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
@@ -58,10 +60,33 @@ export default function TabBar(props: TabBarProps) {
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-          Current Location
+          {geoLocationError &&
+            geoLocationError === GeoLocationError.PERMISSION_DENIED && (
+              <>Please allow geolocation permissions</>
+            )}
+
+          {location && (
+            <>
+              <Button
+                onClick={() => {
+                  getRestaurants({
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    radius: 1,
+                    radiusUnits: 'miles',
+                    type: 'restaurant',
+                  }).then((restaurants) => {
+                    console.log('restaurants: ', restaurants)
+                  })
+                }}
+              >
+                Get new restaurant
+              </Button>
+            </>
+          )}
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          Zipcode
+          zipcode support coming soon
         </CustomTabPanel>
         {/* <CustomTabPanel value={value} index={2}>
           Address

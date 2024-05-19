@@ -5,9 +5,13 @@ export type LatLong = {
   longitude: number
 }
 
+export enum GeoLocationError {
+  PERMISSION_DENIED = 'Geolocation permission denied',
+}
+
 export const useGeolocation = () => {
-  const [location, setLocation] = useState<LatLong>()
-  const [error, setError] = useState<string>()
+  const [location, setLocation] = useState<LatLong | null>(null)
+  const [geoLocationError, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -22,14 +26,29 @@ export const useGeolocation = () => {
       })
     }
 
-    const error = () => {
-      setError('Unable to retrieve your location')
+    const error = (err: GeolocationPositionError) => {
+      console.log('err: ', err)
+      switch (err.code) {
+        case err.PERMISSION_DENIED:
+          setError('Geolocation permission denied')
+          break
+        case err.POSITION_UNAVAILABLE:
+          setError('Position unavailable')
+          break
+        case err.TIMEOUT:
+          setError('Geolocation request timed out')
+          break
+        default:
+          setError('An unknown error occurred')
+          break
+      }
     }
 
+    // Request geolocation access directly
     navigator.geolocation.getCurrentPosition(success, error)
   }, [])
 
-  return { location, error }
+  return { location, geoLocationError }
 }
 
 export default useGeolocation
