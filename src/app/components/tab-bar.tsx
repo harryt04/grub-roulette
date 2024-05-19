@@ -4,6 +4,8 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -30,33 +32,39 @@ function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
-export default function TabBar() {
+export type TabBarProps = {
+  children?: React.ReactNode;
+};
+
+export default function TabBar(props: TabBarProps) {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
   return (
-    <div className="center">
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="basic tabs example">
-          <Tab label="Item One" />
-          <Tab label="Item Two" />
-          <Tab label="Item Three" />
-        </Tabs>
-      </Box>
-      <CustomTabPanel value={value} index={0}>
-        Item One
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        Item Two
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
-        Item Three
-      </CustomTabPanel>
-    </div>
+    <Card className="center">
+      <CardContent>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="GrubRoulette Spinner Options">
+            <Tab label="Current location" />
+            <Tab label="Zipcode" />
+            {/* <Tab label="Address" /> */}
+          </Tabs>
+        </Box>
+        <CustomTabPanel value={value} index={0}>
+          Current Location
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          Zipcode
+        </CustomTabPanel>
+        {/* <CustomTabPanel value={value} index={2}>
+          Address
+        </CustomTabPanel> */}
+      </CardContent>
+    </Card>
   );
 }
