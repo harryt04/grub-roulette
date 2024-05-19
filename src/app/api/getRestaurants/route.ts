@@ -1,29 +1,24 @@
-// api/getRestaurants.ts
-
-import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
-import { GetRestaurantRequest } from '../types/location'
+import { GetRestaurantRequest } from '../../types/location'
+import { NextRequest, NextResponse } from 'next/server'
 
-export const config = {
-  api: {
-    externalResolver: true,
-  },
-}
-
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest, res: NextResponse) {
+  const body: GetRestaurantRequest = await req.json()
   const {
     latitude,
     longitude,
     radius,
     radiusUnits = 'miles',
     type = 'restaurant',
-  } = req.query as any as GetRestaurantRequest
+  } = body
 
   console.log('harry made it')
 
   if (!latitude || !longitude || !radius) {
-    res.status(400).json({ error: 'Missing required parameters' })
-    return
+    return NextResponse.json(
+      { error: 'Missing required parameters' },
+      { status: 400 },
+    )
   }
 
   const endpoint = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
@@ -40,9 +35,12 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
       },
     })
 
-    res.status(200).json(response.data)
+    return NextResponse.json(response.data, { status: 200 })
   } catch (error) {
     console.error('Error fetching restaurants:', error)
-    res.status(500).json({ error: 'Error fetching restaurants' })
+    return NextResponse.json(
+      { error: 'Error fetching restaurants' },
+      { status: 500 },
+    )
   }
 }
