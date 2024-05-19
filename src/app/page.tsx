@@ -1,3 +1,4 @@
+'use client'
 import TabBar from './components/tab-bar'
 import Typography from '@mui/material/Typography'
 
