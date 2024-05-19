@@ -7,6 +7,9 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
+import TextField from '@mui/material/TextField'
+import Switch from '@mui/material/Switch'
+
 import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
 import { getRestaurants } from '../client-utils/getRestaurants'
 
@@ -37,21 +40,40 @@ function CustomTabPanel(props: TabPanelProps) {
 }
 
 export default function TabBar() {
-  const [value, setValue] = React.useState(0)
+  const [currentTab, setCurrentTab] = React.useState(0)
   const { location, geoLocationError } = useGeolocation()
   console.log('location: ', location)
   console.log('geoLocationError: ', geoLocationError)
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue)
+  const [keywords, setKeywords] = React.useState('')
+  const [radius, setRadius] = React.useState(5)
+
+  const handleTabChanged = (event: React.SyntheticEvent, newValue: number) => {
+    setCurrentTab(newValue)
   }
   return (
     <Card className="center">
       <CardContent>
+        <TextField
+          id="keywords"
+          label="Keywords i.e. 'sushi'"
+          variant="outlined"
+          value={keywords}
+          onChange={(event) => setKeywords(event.target.value)}
+        />
+
+        <TextField
+          id="radius"
+          label="Search within radius (miles)"
+          variant="outlined"
+          value={radius}
+          onChange={(event) => setRadius(Number(event.target.value))}
+        />
+
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs
-            value={value}
-            onChange={handleChange}
+            value={currentTab}
+            onChange={handleTabChanged}
             aria-label="GrubRoulette Spinner Options"
           >
             <Tab label="Current location" />
@@ -59,7 +81,7 @@ export default function TabBar() {
             {/* <Tab label="Address" /> */}
           </Tabs>
         </Box>
-        <CustomTabPanel value={value} index={0}>
+        <CustomTabPanel value={currentTab} index={0}>
           {geoLocationError &&
             geoLocationError === GeoLocationError.PERMISSION_DENIED && (
               <>Please allow geolocation permissions</>
@@ -69,12 +91,14 @@ export default function TabBar() {
             <>
               <Button
                 onClick={() => {
+                  console.log('radius: ', radius)
+                  console.log('keywords: ', keywords)
                   getRestaurants({
                     latitude: location.latitude,
                     longitude: location.longitude,
-                    radius: 1,
+                    radius,
                     radiusUnits: 'miles',
-                    type: 'restaurant',
+                    keywords,
                   }).then((restaurants) => {
                     console.log('restaurants: ', restaurants)
                   })
@@ -85,7 +109,7 @@ export default function TabBar() {
             </>
           )}
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
+        <CustomTabPanel value={currentTab} index={1}>
           zipcode support coming soon
         </CustomTabPanel>
         {/* <CustomTabPanel value={value} index={2}>

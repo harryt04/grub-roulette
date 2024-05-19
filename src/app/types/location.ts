@@ -3,5 +3,5 @@ export type GetRestaurantRequest = {
   longitude: number
   radius: number
   radiusUnits?: 'miles' | 'kilometers'
-  type?: string
+  keywords?: string
 }

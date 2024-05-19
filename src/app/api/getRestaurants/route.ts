@@ -4,15 +4,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const body: GetRestaurantRequest = await req.json()
-  const {
-    latitude,
-    longitude,
-    radius,
-    radiusUnits = 'miles',
-    type = 'restaurant',
-  } = body
-
-  console.log('harry made it')
+  const { latitude, longitude, radius, radiusUnits = 'miles', keywords } = body
+  console.log('body: ', body)
 
   if (!latitude || !longitude || !radius) {
     return NextResponse.json(
@@ -28,9 +21,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const response = await axios.get(endpoint, {
       params: {
         location: `${latitude},${longitude}`,
-        radius: radiusUnits === 'kilometers' ? radius * 1000 : radius * 1609.34, // Convert radius to meters
+        radius: radiusUnits === 'kilometers' ? radius * 1609.34 : radius * 1000, // Convert radius to meters
         type: 'restaurant',
-        keyword: type,
+        keyword: keywords,
         key: apiKey,
       },
     })
