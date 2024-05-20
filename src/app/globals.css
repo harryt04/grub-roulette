@@ -5,6 +5,10 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+.card {
+  min-width: 30vw;
+}
+
 .center {
   display: grid;
   place-items: center;
@@ -17,4 +21,11 @@ body {
 
 .body {
   max-width: 30vw;
+}
+
+.form-container {
+  display: grid;
+  place-items: center;
+  row-gap: 1rem;
+  padding-bottom: 1rem;
 }

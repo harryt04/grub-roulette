@@ -56,23 +56,25 @@ export default function TabBar() {
     setCurrentTab(newValue)
   }
   return (
-    <Card className="center">
+    <Card className="center card">
       <CardContent>
-        <TextField
-          id="keywords"
-          label="Keywords i.e. 'sushi'"
-          variant="outlined"
-          value={keywords}
-          onChange={(event) => setKeywords(event.target.value)}
-        />
+        <div className="form-container">
+          <TextField
+            id="keywords"
+            label="Keywords i.e. 'sushi'"
+            variant="outlined"
+            value={keywords}
+            onChange={(event) => setKeywords(event.target.value)}
+          />
 
-        <TextField
-          id="radius"
-          label="Search within radius (miles)"
-          variant="outlined"
-          value={radius}
-          onChange={(event) => setRadius(Number(event.target.value))}
-        />
+          <TextField
+            id="radius"
+            label="Search radius (miles)"
+            variant="outlined"
+            value={radius}
+            onChange={(event) => setRadius(Number(event.target.value))}
+          />
+        </div>
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs
