@@ -11,11 +11,9 @@ import TextField from '@mui/material/TextField'
 import Switch from '@mui/material/Switch'
 
 import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
-import {
-  buildGoogleMapsUrl,
-  getRestaurants,
-} from '../client-utils/getRestaurants'
-import { GetRestaurantResponse } from '../types/location'
+import { getPlaceDetails, getRestaurants } from '../client-utils/getRestaurants'
+import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
+import { PlaceDetails } from './placeDetails'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -51,6 +49,7 @@ export default function TabBar() {
   const [radius, setRadius] = React.useState(5)
   const [currentPlace, setCurrentPlace] =
     React.useState<GetRestaurantResponse>()
+  const [allPlaces, setAllPlaces] = React.useState<GetRestaurantResponse[]>()
 
   const handleTabChanged = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue)
@@ -103,7 +102,7 @@ export default function TabBar() {
                     radius,
                     radiusUnits: 'miles',
                     keywords,
-                  }).then((restaurants) => {
+                  }).then(async (restaurants) => {
                     const openPlaces = restaurants.filter(
                       (r: any) => r.opening_hours?.open_now,
                     )
@@ -111,7 +110,7 @@ export default function TabBar() {
                     if (openPlaces.length === 0) {
                       setCurrentPlace({
                         name: 'No places found',
-                        directionsUrl: '',
+                        place_id: '',
                       })
                     }
 
@@ -119,30 +118,30 @@ export default function TabBar() {
                     const randomIndex = Math.floor(
                       Math.random() * openPlaces.length,
                     )
-                    setCurrentPlace({
-                      name: openPlaces[randomIndex].name,
-                      directionsUrl: buildGoogleMapsUrl(
-                        openPlaces[randomIndex].vicinity,
-                      ),
-                    })
+                    const places = openPlaces.map((place: any) => ({
+                      name: place.name,
+                      directionsUrl: buildGoogleMapsUrl(place.vicinity),
+                      rating: place.rating,
+                      totalRatings: place.user_ratings_total,
+                      icon: place.icon,
+                      place_id: place.place_id,
+                    }))
+                    setAllPlaces(places)
+                    const place = places[randomIndex]
+                    const placeDetails = await getPlaceDetails(place.place_id)
+                    const thePlaceToBe = {
+                      ...place,
+                      description: placeDetails.editorial_summary.overview,
+                      address: placeDetails.formatted_address,
+                      phone: placeDetails.formatted_phone_number,
+                    }
+                    setCurrentPlace(thePlaceToBe)
                   })
                 }}
               >
                 Get new restaurant
               </Button>
-              {currentPlace && (
-                <div>
-                  <Typography variant="h6">{currentPlace.name}</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    href={currentPlace.directionsUrl}
-                    target="_blank"
-                  >
-                    Directions
-                  </Button>
-                </div>
-              )}
+              {currentPlace && <PlaceDetails place={currentPlace} />}
             </>
           )}
         </CustomTabPanel>

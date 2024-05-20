@@ -7,6 +7,32 @@ export type GetRestaurantRequest = {
 }
 
 export type GetRestaurantResponse = {
-  directionsUrl: string
+  address?: string
+  description?: string
+  directionsUrl?: string
+  icon?: string
   name: string
+  place_id: string
+  phone?: string
+  rating?: number
+  totalRatings?: number
+  website?: string
+}
+
+export const mapRestaurantResponse = (
+  restaurants: any,
+): GetRestaurantResponse => {
+  return restaurants.map((r: any) => ({
+    directionsUrl: buildGoogleMapsUrl(r.vicinity),
+    name: r.name,
+    rating: r.rating,
+    totalRatings: r.user_ratings_total,
+    icon: r.icon,
+  }))
+}
+
+export const buildGoogleMapsUrl = (address: string): string => {
+  const baseUrl = 'https://www.google.com/maps/dir/?api=1'
+  const destination = encodeURIComponent(address)
+  return `${baseUrl}&destination=${destination}`
 }

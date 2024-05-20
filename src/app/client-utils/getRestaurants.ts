@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { GetRestaurantRequest } from '../types/location'
 
 export const getRestaurants = async (options: GetRestaurantRequest) => {
   if (!options.latitude || !options.longitude || !options.radius) return null
@@ -21,8 +20,18 @@ export const getRestaurants = async (options: GetRestaurantRequest) => {
   }
 }
 
-export function buildGoogleMapsUrl(address: string): string {
-  const baseUrl = 'https://www.google.com/maps/dir/?api=1'
-  const destination = encodeURIComponent(address)
-  return `${baseUrl}&destination=${destination}`
+export const getPlaceDetails = async (placeId: string) => {
+  if (!placeId) return null
+
+  try {
+    const response = await axios.post('/api/getPlaceDetails', {
+      place_id: placeId,
+    })
+
+    const placeDetails = response.data
+    return placeDetails
+  } catch (error) {
+    console.error('Error fetching place details:', JSON.stringify(error))
+    return null
+  }
 }
