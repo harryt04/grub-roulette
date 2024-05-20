@@ -18,8 +18,8 @@ export default function Home() {
       <div className="spacer"></div>
       <Typography variant="body1" className="body">
         Ever play russian roulette? Well, this is the same thing, but with food.
-        Sometimes you'll get something good, sometimes it'll be a miss. But hey,
-        that's the fun of trying new things!
+        Sometimes you&apos;ll get something good, sometimes it&apos;ll be a
+        miss. But hey, that&apos;s the fun of trying new things!
       </Typography>
       <div className="spacer"></div>
       <Image
