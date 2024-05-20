@@ -46,8 +46,6 @@ function CustomTabPanel(props: TabPanelProps) {
 export default function TabBar() {
   const [currentTab, setCurrentTab] = React.useState(0)
   const { location, geoLocationError } = useGeolocation()
-  console.log('location: ', location)
-  console.log('geoLocationError: ', geoLocationError)
 
   const [keywords, setKeywords] = React.useState('')
   const [radius, setRadius] = React.useState(5)
@@ -97,8 +95,6 @@ export default function TabBar() {
             <>
               <Button
                 onClick={() => {
-                  console.log('radius: ', radius)
-                  console.log('keywords: ', keywords)
                   getRestaurants({
                     latitude: location.latitude,
                     longitude: location.longitude,
@@ -107,7 +103,7 @@ export default function TabBar() {
                     keywords,
                   }).then((restaurants) => {
                     const openPlaces = restaurants.filter(
-                      (r) => r.opening_hours?.open_now,
+                      (r: any) => r.opening_hours?.open_now,
                     )
 
                     if (openPlaces.length === 0) {

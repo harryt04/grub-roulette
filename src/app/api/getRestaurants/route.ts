@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest, res: NextResponse) {
   const body: GetRestaurantRequest = await req.json()
   const { latitude, longitude, radius, radiusUnits = 'miles', keywords } = body
-  console.log('body: ', body)
 
   if (!latitude || !longitude || !radius) {
     return NextResponse.json(

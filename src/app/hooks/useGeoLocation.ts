@@ -27,7 +27,6 @@ export const useGeolocation = () => {
     }
 
     const error = (err: GeolocationPositionError) => {
-      console.log('err: ', err)
       switch (err.code) {
         case err.PERMISSION_DENIED:
           setError('Geolocation permission denied')
