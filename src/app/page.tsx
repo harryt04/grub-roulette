@@ -6,17 +6,28 @@ import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
+import Image from 'next/image'
 
 export default function Home() {
   return (
     <div className="center">
       <Typography variant="h2">Welcome to GrubRoulette</Typography>
       <div className="spacer"></div>
-      <Typography variant="h5">
-        This app helps you find a random, delicious restaurant near you!
+
+      <TabBar />
+      <div className="spacer"></div>
+      <Typography variant="body1" className="body">
+        Ever play russian roulette? Well, this is the same thing, but with food.
+        Sometimes you'll get something good, sometimes it'll be a miss. But hey,
+        that's the fun of trying new things!
       </Typography>
       <div className="spacer"></div>
-      <TabBar />
+      <Image
+        src="/roulette.gif"
+        width={400}
+        height={250}
+        alt="GIF description"
+      />
     </div>
   )
 }
