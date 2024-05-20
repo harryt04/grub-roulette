@@ -10,7 +10,7 @@ export const getRestaurants = async (options: GetRestaurantRequest) => {
       longitude: options.longitude,
       radius: options.radius,
       radiusUnits: options.radiusUnits,
-      type: options.type,
+      keywords: options.keywords,
     })
 
     const restaurants = response.data.results
@@ -19,4 +19,10 @@ export const getRestaurants = async (options: GetRestaurantRequest) => {
     console.error('Error fetching restaurants:', JSON.stringify(error))
     return []
   }
+}
+
+export function buildGoogleMapsUrl(address: string): string {
+  const baseUrl = 'https://www.google.com/maps/dir/?api=1'
+  const destination = encodeURIComponent(address)
+  return `${baseUrl}&destination=${destination}`
 }

@@ -11,7 +11,11 @@ import TextField from '@mui/material/TextField'
 import Switch from '@mui/material/Switch'
 
 import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
-import { getRestaurants } from '../client-utils/getRestaurants'
+import {
+  buildGoogleMapsUrl,
+  getRestaurants,
+} from '../client-utils/getRestaurants'
+import { GetRestaurantResponse } from '../types/location'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -47,6 +51,8 @@ export default function TabBar() {
 
   const [keywords, setKeywords] = React.useState('')
   const [radius, setRadius] = React.useState(5)
+  const [currentPlace, setCurrentPlace] =
+    React.useState<GetRestaurantResponse>()
 
   const handleTabChanged = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue)
@@ -100,12 +106,45 @@ export default function TabBar() {
                     radiusUnits: 'miles',
                     keywords,
                   }).then((restaurants) => {
-                    console.log('restaurants: ', restaurants)
+                    const openPlaces = restaurants.filter(
+                      (r) => r.opening_hours?.open_now,
+                    )
+
+                    if (openPlaces.length === 0) {
+                      setCurrentPlace({
+                        name: 'No places found',
+                        directionsUrl: '',
+                      })
+                    }
+
+                    // select random openPlace and set to currentPlace
+                    const randomIndex = Math.floor(
+                      Math.random() * openPlaces.length,
+                    )
+                    setCurrentPlace({
+                      name: openPlaces[randomIndex].name,
+                      directionsUrl: buildGoogleMapsUrl(
+                        openPlaces[randomIndex].vicinity,
+                      ),
+                    })
                   })
                 }}
               >
                 Get new restaurant
               </Button>
+              {currentPlace && (
+                <div>
+                  <Typography variant="h6">{currentPlace.name}</Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    href={currentPlace.directionsUrl}
+                    target="_blank"
+                  >
+                    Directions
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </CustomTabPanel>

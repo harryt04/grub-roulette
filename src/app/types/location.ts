@@ -5,3 +5,8 @@ export type GetRestaurantRequest = {
   radiusUnits?: 'miles' | 'kilometers'
   keywords?: string
 }
+
+export type GetRestaurantResponse = {
+  directionsUrl: string
+  name: string
+}
