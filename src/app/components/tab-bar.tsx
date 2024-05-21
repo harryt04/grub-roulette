@@ -24,6 +24,8 @@ interface TabPanelProps {
   value: number
 }
 
+const NOT_FOUND = '404'
+
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props
 
@@ -52,11 +54,6 @@ export default function TabBar() {
   const [radius, setRadius] = React.useState(5)
   const [currentPlace, setCurrentPlace] =
     React.useState<GetRestaurantResponse>()
-  const [allPlaces, setAllPlaces] = React.useState<GetRestaurantResponse[]>()
-
-  const handleTabChanged = (event: React.SyntheticEvent, newValue: number) => {
-    setCurrentTab(newValue)
-  }
 
   const getNewRestaurants = async (location: LatLong) => {
     getRestaurants({
@@ -67,12 +64,13 @@ export default function TabBar() {
       keywords,
     }).then(async (restaurants) => {
       const openPlaces = restaurants.filter(
-        (r: any) => r.opening_hours?.open_now,
+        (r: any) =>
+          r.opening_hours?.open_now && r.place_id !== currentPlace?.place_id,
       )
 
       if (openPlaces.length === 0) {
         setCurrentPlace({
-          name: 'No places found',
+          name: NOT_FOUND,
           place_id: '',
         })
       }
@@ -86,7 +84,6 @@ export default function TabBar() {
         totalRatings: place.user_ratings_total,
         place_id: place.place_id,
       }))
-      setAllPlaces(places)
       const place = places[randomIndex]
       const placeDetails = await getPlaceDetails(place.place_id)
       if (placeDetails) {
@@ -103,6 +100,10 @@ export default function TabBar() {
       }
     })
   }
+
+  const getNewRestaurantString = !!currentPlace
+    ? 'Get a different restaurant'
+    : 'Get a random restaurant'
 
   return (
     <Card className="center card">
@@ -139,9 +140,19 @@ export default function TabBar() {
               variant="outlined"
               startIcon={<RefreshIcon />}
             >
-              Get a random restaurant
+              {getNewRestaurantString}
             </Button>
-            {currentPlace && <PlaceDetails place={currentPlace} />}
+            {currentPlace && currentPlace.name !== NOT_FOUND && (
+              <PlaceDetails place={currentPlace} />
+            )}
+            {currentPlace && currentPlace.name === NOT_FOUND && (
+              <>
+                <div className="spacer"></div>
+                <Typography variant="h5">
+                  Sorry, no (open) places found.
+                </Typography>
+              </>
+            )}
           </div>
         )}
       </CardContent>
