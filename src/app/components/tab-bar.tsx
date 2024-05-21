@@ -121,6 +121,7 @@ export default function TabBar() {
             id="radius"
             label="Search radius (miles)"
             variant="outlined"
+            type="number"
             value={radius}
             onChange={(event) => setRadius(Number(event.target.value))}
           />
