@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { GetRestaurantRequest } from '../types/location'
 
 export const getRestaurants = async (options: GetRestaurantRequest) => {
   if (!options.latitude || !options.longitude || !options.radius) return null

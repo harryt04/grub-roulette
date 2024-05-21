@@ -32,7 +32,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
           <Button
             variant="contained"
             color="primary"
-            href={place.directionsUrl}
+            href={place.directionsUrl as string}
             target="_blank"
             startIcon={<DirectionsIcon />}
             className="directions-button"
