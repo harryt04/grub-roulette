@@ -34,6 +34,15 @@ body {
   .body {
     max-width: 80vw;
   }
+
+  .padding-override {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .caption {
+    max-width: 80vw;
+  }
 }
 
 .form-container {

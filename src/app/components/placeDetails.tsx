@@ -17,7 +17,10 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     <>
       <div className="placeDetails">
         <Typography variant="h5">{place.name}</Typography>
-        <Typography variant="caption">{place.description}</Typography>
+        <Typography variant="caption" className="caption">
+          {place.description}
+        </Typography>
+        <div className="place-details-spacer"></div>
         <Typography variant="subtitle1">{ratingString}</Typography>
         <div className="place-details-spacer"></div>
         <Link href={`tel:${place.phone}`}>{place.phone}</Link>

@@ -106,7 +106,7 @@ export default function TabBar() {
     : 'Get a random restaurant'
 
   return (
-    <Card className="center card">
+    <Card className="center card padding-override">
       <CardContent>
         <div className="form-container">
           <TextField
