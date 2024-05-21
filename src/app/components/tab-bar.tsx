@@ -89,7 +89,6 @@ export default function TabBar() {
       setAllPlaces(places)
       const place = places[randomIndex]
       const placeDetails = await getPlaceDetails(place.place_id)
-      console.log('placeDetails: ', placeDetails)
       if (placeDetails) {
         const thePlaceToBe = {
           ...place,

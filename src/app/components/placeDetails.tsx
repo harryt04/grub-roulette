@@ -12,7 +12,6 @@ export type PlaceDetailsProps = {
 
 export const PlaceDetails = (props: PlaceDetailsProps) => {
   const { place } = props
-  console.log('PlaceDetails props.place: ', place)
   const ratingString = `${place.rating} stars (${place.totalRatings} reviews)`
   return (
     <>
