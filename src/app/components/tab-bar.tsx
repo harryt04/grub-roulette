@@ -8,9 +8,12 @@ import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
-import Switch from '@mui/material/Switch'
+import RefreshIcon from '@mui/icons-material/Refresh'
 
-import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
+import useGeolocation, {
+  GeoLocationError,
+  LatLong,
+} from '../hooks/useGeoLocation'
 import { getPlaceDetails, getRestaurants } from '../client-utils/getRestaurants'
 import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
 import { PlaceDetails } from './placeDetails'
@@ -54,13 +57,61 @@ export default function TabBar() {
   const handleTabChanged = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue)
   }
+
+  const getNewRestaurants = async (location: LatLong) => {
+    getRestaurants({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      radius,
+      radiusUnits: 'miles',
+      keywords,
+    }).then(async (restaurants) => {
+      const openPlaces = restaurants.filter(
+        (r: any) => r.opening_hours?.open_now,
+      )
+
+      if (openPlaces.length === 0) {
+        setCurrentPlace({
+          name: 'No places found',
+          place_id: '',
+        })
+      }
+
+      // select random openPlace and set to currentPlace
+      const randomIndex = Math.floor(Math.random() * openPlaces.length)
+      const places = openPlaces.map((place: any) => ({
+        name: place.name,
+        directionsUrl: buildGoogleMapsUrl(place.vicinity),
+        rating: place.rating,
+        totalRatings: place.user_ratings_total,
+        place_id: place.place_id,
+      }))
+      setAllPlaces(places)
+      const place = places[randomIndex]
+      const placeDetails = await getPlaceDetails(place.place_id)
+      console.log('placeDetails: ', placeDetails)
+      if (placeDetails) {
+        const thePlaceToBe = {
+          ...place,
+          description: placeDetails.editorial_summary.overview,
+          address: placeDetails.formatted_address,
+          phone: placeDetails.formatted_phone_number,
+          website: placeDetails.website,
+        } as GetRestaurantResponse
+        setCurrentPlace(thePlaceToBe)
+      } else {
+        setCurrentPlace(place)
+      }
+    })
+  }
+
   return (
     <Card className="center card">
       <CardContent>
         <div className="form-container">
           <TextField
             id="keywords"
-            label="Keywords i.e. 'sushi'"
+            label="Search (optional) i.e. 'sushi'"
             variant="outlined"
             value={keywords}
             onChange={(event) => setKeywords(event.target.value)}
@@ -75,82 +126,25 @@ export default function TabBar() {
           />
         </div>
 
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs
-            value={currentTab}
-            onChange={handleTabChanged}
-            aria-label="GrubRoulette Spinner Options"
-          >
-            <Tab label="Current location" />
-            <Tab label="Zipcode" />
-            {/* <Tab label="Address" /> */}
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={currentTab} index={0}>
-          {geoLocationError &&
-            geoLocationError === GeoLocationError.PERMISSION_DENIED && (
-              <>Please allow geolocation permissions</>
-            )}
-
-          {location && (
-            <>
-              <Button
-                onClick={() => {
-                  getRestaurants({
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    radius,
-                    radiusUnits: 'miles',
-                    keywords,
-                  }).then(async (restaurants) => {
-                    const openPlaces = restaurants.filter(
-                      (r: any) => r.opening_hours?.open_now,
-                    )
-
-                    if (openPlaces.length === 0) {
-                      setCurrentPlace({
-                        name: 'No places found',
-                        place_id: '',
-                      })
-                    }
-
-                    // select random openPlace and set to currentPlace
-                    const randomIndex = Math.floor(
-                      Math.random() * openPlaces.length,
-                    )
-                    const places = openPlaces.map((place: any) => ({
-                      name: place.name,
-                      directionsUrl: buildGoogleMapsUrl(place.vicinity),
-                      rating: place.rating,
-                      totalRatings: place.user_ratings_total,
-                      icon: place.icon,
-                      place_id: place.place_id,
-                    }))
-                    setAllPlaces(places)
-                    const place = places[randomIndex]
-                    const placeDetails = await getPlaceDetails(place.place_id)
-                    const thePlaceToBe = {
-                      ...place,
-                      description: placeDetails.editorial_summary.overview,
-                      address: placeDetails.formatted_address,
-                      phone: placeDetails.formatted_phone_number,
-                    }
-                    setCurrentPlace(thePlaceToBe)
-                  })
-                }}
-              >
-                Get new restaurant
-              </Button>
-              {currentPlace && <PlaceDetails place={currentPlace} />}
-            </>
+        {geoLocationError &&
+          geoLocationError === GeoLocationError.PERMISSION_DENIED && (
+            <>Please allow geolocation permissions and refresh this page</>
           )}
-        </CustomTabPanel>
-        <CustomTabPanel value={currentTab} index={1}>
-          zipcode support coming soon
-        </CustomTabPanel>
-        {/* <CustomTabPanel value={value} index={2}>
-          Address
-        </CustomTabPanel> */}
+
+        {location && (
+          <div className="get-restaurant-container">
+            <Button
+              onClick={() => {
+                getNewRestaurants(location)
+              }}
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+            >
+              Get a random restaurant
+            </Button>
+            {currentPlace && <PlaceDetails place={currentPlace} />}
+          </div>
+        )}
       </CardContent>
     </Card>
   )

@@ -11,16 +11,17 @@ import Image from 'next/image'
 export default function Home() {
   return (
     <div className="center">
-      <Typography variant="h2">Welcome to GrubRoulette</Typography>
+      <Typography variant="h5">Welcome to GrubRoulette</Typography>
       <div className="spacer"></div>
 
-      <TabBar />
-      <div className="spacer"></div>
       <Typography variant="body1" className="body">
         Ever play russian roulette? Well, this is the same thing, but with food.
         Sometimes you&apos;ll get something good, sometimes it&apos;ll be a
         miss. But hey, that&apos;s the fun of trying new things!
       </Typography>
+      <div className="spacer"></div>
+      <TabBar />
+
       <div className="spacer"></div>
       <Image
         src="/roulette.gif"

@@ -5,8 +5,10 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-.card {
-  min-width: 30vw;
+.get-restaurant-container {
+  min-width: 40vw;
+  display: grid;
+  place-items: center;
 }
 
 .center {
@@ -19,8 +21,19 @@ body {
   height: 3rem;
 }
 
+.place-details-spacer {
+  height: 1rem;
+}
+
 .body {
   max-width: 30vw;
+}
+
+/* if screen is tablet or smaller */
+@media (max-width: 768px) {
+  .body {
+    max-width: 80vw;
+  }
 }
 
 .form-container {
@@ -28,4 +41,17 @@ body {
   place-items: center;
   row-gap: 1rem;
   padding-bottom: 1rem;
+}
+
+.placeDetails {
+  display: grid;
+  place-items: center;
+  /* row-gap: 0.25rem; */
+  padding-top: 3rem;
+  padding-bottom: 1rem;
+  text-align: center;
+}
+
+.directions-button {
+  padding-top: 0.5rem;
 }

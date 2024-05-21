@@ -10,7 +10,6 @@ export type GetRestaurantResponse = {
   address?: string
   description?: string
   directionsUrl?: string
-  icon?: string
   name: string
   place_id: string
   phone?: string
@@ -27,7 +26,6 @@ export const mapRestaurantResponse = (
     name: r.name,
     rating: r.rating,
     totalRatings: r.user_ratings_total,
-    icon: r.icon,
   }))
 }
 
