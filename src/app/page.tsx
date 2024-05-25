@@ -1,12 +1,14 @@
 'use client'
 import RestaurantFinder from './components/restaurantFinder'
 import Typography from '@mui/material/Typography'
+import GitHubIcon from '@mui/icons-material/GitHub'
 
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import Image from 'next/image'
+import Footer from './components/footer'
 
 export default function Home() {
   return (
@@ -29,6 +31,7 @@ export default function Home() {
         height={250}
         alt="GIF description"
       />
+      <Footer />
     </div>
   )
 }
