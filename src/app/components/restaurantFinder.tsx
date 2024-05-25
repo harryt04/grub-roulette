@@ -26,11 +26,11 @@ export default function RestaurantFinder() {
     React.useState<GetRestaurantResponse>()
 
   useEffect(() => {
-    // if the user changes the search criteria, clear the placesMap.
+    // if the user changes the search criteria or enters a new location, clear the placesMap.
     // Otherwise, cache them so we dont have to call getRestaurants again
     placesMap.clear()
     usedPlaces.length = 0
-  }, [radius, keywords])
+  }, [radius, keywords, location])
 
   const clearCurrentPlace = (name?: string) => {
     setCurrentPlace({
