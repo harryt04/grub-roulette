@@ -47,11 +47,10 @@ function CustomTabPanel(props: TabPanelProps) {
 }
 
 export default function RestaurantFinder() {
-  const [currentTab, setCurrentTab] = React.useState(0)
   const { location, geoLocationError } = useGeolocation()
 
   const [keywords, setKeywords] = React.useState('')
-  const [radius, setRadius] = React.useState(5)
+  const [radius, setRadius] = React.useState(15)
   const [currentPlace, setCurrentPlace] =
     React.useState<GetRestaurantResponse>()
 
