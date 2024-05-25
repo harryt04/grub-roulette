@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import Typography from '@mui/material/Typography'
@@ -18,33 +18,10 @@ import { getPlaceDetails, getRestaurants } from '../client-utils/getRestaurants'
 import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
 import { PlaceDetails } from './placeDetails'
 
-interface TabPanelProps {
-  children?: React.ReactNode
-  index: number
-  value: number
-}
-
-const NOT_FOUND = '404'
-
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  )
-}
+const NOT_FOUND = 'No places were found. Try changing your search criteria.'
+const SEEN_ALL_PLACES = 'You have seen all the places!'
+const placesMap = new Map<string, GetRestaurantResponse>()
+const usedPlaces: string[] = [] // an array of place_ids that have been ignored by thse user
 
 export default function RestaurantFinder() {
   const { location, geoLocationError } = useGeolocation()
@@ -54,50 +31,93 @@ export default function RestaurantFinder() {
   const [currentPlace, setCurrentPlace] =
     React.useState<GetRestaurantResponse>()
 
-  const getNewRestaurants = async (location: LatLong) => {
-    getRestaurants({
+  useEffect(() => {
+    // if the user changes the search criteria, clear the placesMap.
+    // Otherwise, cache them so we dont have to call getRestaurants again
+    placesMap.clear()
+    usedPlaces.length = 0
+  }, [radius, keywords])
+
+  const clearCurrentPlace = (name?: string) => {
+    setCurrentPlace({
+      name: name || NOT_FOUND,
+      place_id: '',
+    })
+    placesMap.clear()
+    usedPlaces.length = 0
+  }
+
+  const fillPlacesMap = async () => {
+    if (!location) throw new Error('No location found')
+    const restaurants = await getRestaurants({
       latitude: location.latitude,
       longitude: location.longitude,
       radius,
       radiusUnits: 'miles',
       keywords,
-    }).then(async (restaurants) => {
-      const openPlaces = restaurants.filter(
-        (r: any) =>
-          r.opening_hours?.open_now && r.place_id !== currentPlace?.place_id,
-      )
+    })
 
-      if (openPlaces.length === 0) {
-        setCurrentPlace({
-          name: NOT_FOUND,
-          place_id: '',
-        })
-      }
+    const openPlaces = restaurants?.filter(
+      (r: any) => r.opening_hours?.open_now,
+    )
+    if (!openPlaces || openPlaces.length === 0) {
+      return
+    }
 
-      // select random openPlace and set to currentPlace
-      const randomIndex = Math.floor(Math.random() * openPlaces.length)
-      const places = openPlaces.map((place: any) => ({
+    openPlaces.forEach((place: any) => {
+      if (placesMap.has(place.name)) return
+      placesMap.set(place.name, {
         name: place.name,
         directionsUrl: buildGoogleMapsUrl(place.vicinity),
         rating: place.rating,
         totalRatings: place.user_ratings_total,
         place_id: place.place_id,
-      }))
-      const place = places[randomIndex]
-      const placeDetails = await getPlaceDetails(place.place_id)
-      if (placeDetails) {
-        const thePlaceToBe = {
-          ...place,
-          description: placeDetails.editorial_summary.overview,
-          address: placeDetails.formatted_address,
-          phone: placeDetails.formatted_phone_number,
-          website: placeDetails.website,
-        } as GetRestaurantResponse
-        setCurrentPlace(thePlaceToBe)
-      } else {
-        setCurrentPlace(place)
-      }
+      })
     })
+  }
+
+  const getRestaurant = async () => {
+    if (placesMap.size === 0) await fillPlacesMap()
+
+    // if no places were found, show the not found message
+    if (placesMap.size === 0) {
+      clearCurrentPlace(NOT_FOUND)
+      return
+    }
+    if (placesMap.size === usedPlaces.length) {
+      clearCurrentPlace(SEEN_ALL_PLACES)
+      return
+    }
+
+    const unusedPlaces = Array.from(placesMap.values()).filter((place) => {
+      return !usedPlaces.includes(place.name)
+    })
+
+    // get an unusedPlace randomly
+    const randomIndex = Math.floor(Math.random() * unusedPlaces.length)
+    const place = unusedPlaces[randomIndex]
+
+    if (!place) {
+      clearCurrentPlace(SEEN_ALL_PLACES)
+      return
+    }
+
+    const placeDetails = await getPlaceDetails(place.place_id)
+    if (!placeDetails) {
+      setCurrentPlace(place)
+      usedPlaces.push(place.name)
+      return
+    }
+
+    const thePlaceToBe = {
+      ...place,
+      description: placeDetails.editorial_summary?.overview || '',
+      address: placeDetails.formatted_address || '',
+      phone: placeDetails.formatted_phone_number || '',
+      website: placeDetails.website || '',
+    } as GetRestaurantResponse
+    setCurrentPlace(thePlaceToBe)
+    usedPlaces.push(thePlaceToBe.name)
   }
 
   const getNewRestaurantString = !!currentPlace
@@ -121,7 +141,7 @@ export default function RestaurantFinder() {
             label="Search radius (miles)"
             variant="outlined"
             type="number"
-            value={radius}
+            value={Number(radius).toString()}
             onChange={(event) => setRadius(Number(event.target.value))}
           />
         </div>
@@ -135,24 +155,26 @@ export default function RestaurantFinder() {
           <div className="get-restaurant-container">
             <Button
               onClick={() => {
-                getNewRestaurants(location)
+                getRestaurant()
               }}
               variant="outlined"
               startIcon={<RefreshIcon />}
             >
               {getNewRestaurantString}
             </Button>
-            {currentPlace && currentPlace.name !== NOT_FOUND && (
-              <PlaceDetails place={currentPlace} />
-            )}
-            {currentPlace && currentPlace.name === NOT_FOUND && (
-              <>
-                <div className="spacer"></div>
-                <Typography variant="h5">
-                  Sorry, no (open) places found.
-                </Typography>
-              </>
-            )}
+            {currentPlace &&
+              (currentPlace.name === NOT_FOUND ||
+                currentPlace.name === SEEN_ALL_PLACES) && (
+                <>
+                  <div className="spacer"></div>
+                  <Typography variant="h5">{currentPlace.name}</Typography>
+                </>
+              )}
+            {currentPlace &&
+              currentPlace.name !== NOT_FOUND &&
+              currentPlace.name !== SEEN_ALL_PLACES && (
+                <PlaceDetails place={currentPlace} />
+              )}
           </div>
         )}
       </CardContent>
