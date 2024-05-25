@@ -30,6 +30,7 @@ export default function Home() {
         width={400}
         height={250}
         alt="GIF description"
+        unoptimized
       />
       <Footer />
     </div>

@@ -1,19 +1,13 @@
 'use client'
 import React, { useEffect } from 'react'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
 import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import RefreshIcon from '@mui/icons-material/Refresh'
 
-import useGeolocation, {
-  GeoLocationError,
-  LatLong,
-} from '../hooks/useGeoLocation'
+import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
 import { getPlaceDetails, getRestaurants } from '../client-utils/getRestaurants'
 import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
 import { PlaceDetails } from './placeDetails'
@@ -56,6 +50,7 @@ export default function RestaurantFinder() {
       radiusUnits: 'miles',
       keywords,
     })
+    console.log('restaurants: ', restaurants)
 
     const openPlaces = restaurants?.filter(
       (r: any) => r.opening_hours?.open_now,
