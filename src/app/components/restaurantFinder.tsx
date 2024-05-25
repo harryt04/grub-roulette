@@ -46,7 +46,7 @@ function CustomTabPanel(props: TabPanelProps) {
   )
 }
 
-export default function TabBar() {
+export default function RestaurantFinder() {
   const [currentTab, setCurrentTab] = React.useState(0)
   const { location, geoLocationError } = useGeolocation()
 

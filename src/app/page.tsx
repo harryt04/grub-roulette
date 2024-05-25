@@ -1,5 +1,5 @@
 'use client'
-import TabBar from './components/tab-bar'
+import RestaurantFinder from './components/restaurantFinder'
 import Typography from '@mui/material/Typography'
 
 import '@fontsource/roboto/300.css'
@@ -20,7 +20,7 @@ export default function Home() {
         miss. But hey, that&apos;s the fun of trying new things!
       </Typography>
       <div className="spacer"></div>
-      <TabBar />
+      <RestaurantFinder />
 
       <div className="spacer"></div>
       <Image
