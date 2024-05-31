@@ -13,11 +13,7 @@ import {
   getPlaceDetails,
   getRestaurants,
 } from '../client-utils/getRestaurants'
-import {
-  buildGoogleMapsPhotoUrl,
-  buildGoogleMapsUrl,
-  GetRestaurantResponse,
-} from '../types/location'
+import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
 import { PlaceDetails } from './placeDetails'
 
 const NOT_FOUND = 'No places were found. Try changing your search criteria.'
