@@ -25,13 +25,15 @@ export default function Home() {
       <RestaurantFinder />
 
       <div className="spacer"></div>
-      <Image
+
+      {/* Silly gif. keeping it in here in case I want to use it later. */}
+      {/* <Image
         src="/roulette.gif"
         width={400}
         height={250}
         alt="GIF description"
         unoptimized
-      />
+      /> */}
       <Footer />
     </div>
   )

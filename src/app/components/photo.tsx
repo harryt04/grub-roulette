@@ -8,7 +8,7 @@ export const PhotoComponent = ({ photoUrl }: { photoUrl: string }) => {
         alt="Place photo"
         width={400} // Specify the width you want
         height={300} // Specify the height you want
-        layout="responsive" // Use responsive layout
+        layout="responsive"
       />
     </div>
   )

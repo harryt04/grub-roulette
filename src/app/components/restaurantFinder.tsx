@@ -54,10 +54,10 @@ export default function RestaurantFinder() {
       radiusUnits: 'miles',
       keywords,
     })
-    console.log('restaurants: ', restaurants)
 
     const openPlaces = restaurants?.filter(
-      (r: any) => r.opening_hours?.open_now,
+      (r: any) =>
+        r.opening_hours?.open_now && r.business_status === 'OPERATIONAL',
     )
     if (!openPlaces || openPlaces.length === 0) {
       return
