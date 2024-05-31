@@ -13,6 +13,7 @@ export type GetRestaurantResponse = {
   name: string
   place_id: string
   phone?: string
+  photos?: string[]
   rating?: number
   totalRatings?: number
   website?: string

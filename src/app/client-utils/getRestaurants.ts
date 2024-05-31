@@ -36,3 +36,17 @@ export const getPlaceDetails = async (placeId: string) => {
     return null
   }
 }
+
+export const getPhotos = async (photoReferences: string[]) => {
+  try {
+    const response = await axios.post('/api/getPhotos', {
+      photos: photoReferences,
+    })
+
+    const photos = response.data
+    return photos
+  } catch (error) {
+    console.error('Error fetching place details:', JSON.stringify(error))
+    return null
+  }
+}

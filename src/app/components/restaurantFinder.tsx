@@ -8,8 +8,16 @@ import TextField from '@mui/material/TextField'
 import RefreshIcon from '@mui/icons-material/Refresh'
 
 import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
-import { getPlaceDetails, getRestaurants } from '../client-utils/getRestaurants'
-import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
+import {
+  getPhotos,
+  getPlaceDetails,
+  getRestaurants,
+} from '../client-utils/getRestaurants'
+import {
+  buildGoogleMapsPhotoUrl,
+  buildGoogleMapsUrl,
+  GetRestaurantResponse,
+} from '../types/location'
 import { PlaceDetails } from './placeDetails'
 
 const NOT_FOUND = 'No places were found. Try changing your search criteria.'
@@ -104,11 +112,20 @@ export default function RestaurantFinder() {
       return
     }
 
+    const photoReferences = placeDetails.photos?.map(
+      (photo: any) => photo?.photo_reference,
+    )
+
+    const photos =
+      !!photoReferences && photoReferences.length > 0
+        ? await getPhotos(photoReferences)
+        : []
     const thePlaceToBe = {
       ...place,
       description: placeDetails.editorial_summary?.overview || '',
       address: placeDetails.formatted_address || '',
       phone: placeDetails.formatted_phone_number || '',
+      photos,
       website: placeDetails.website || '',
     } as GetRestaurantResponse
     setCurrentPlace(thePlaceToBe)

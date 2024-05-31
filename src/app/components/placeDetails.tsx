@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Image from 'next/image'
 import Link from 'next/link'
 import DirectionsIcon from '@mui/icons-material/Directions'
+import { PhotoComponent } from './photo'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
@@ -43,6 +44,17 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
             Directions
           </Button>
         </div>
+        {place.photos && (
+          <div className="imageGallery">
+            {place.photos.map((photo) => {
+              return (
+                <div key={photo}>
+                  <PhotoComponent photoUrl={photo} />
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </>
   )
