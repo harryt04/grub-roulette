@@ -142,8 +142,8 @@ export default function RestaurantFinder() {
             variant="outlined"
             value={keywords}
             onChange={(event) => setKeywords(event.target.value)}
+            className="textfield"
           />
-
           <TextField
             id="radius"
             label="Search radius (miles)"
@@ -151,6 +151,7 @@ export default function RestaurantFinder() {
             type="number"
             value={Number(radius).toString()}
             onChange={(event) => setRadius(Number(event.target.value))}
+            className="textfield"
           />
         </div>
 

@@ -30,6 +30,14 @@ body {
   max-width: 30vw;
 }
 
+.card {
+  padding-top: 1rem;
+}
+
+.textfield {
+  width: 80% !important;
+}
+
 /* if screen is tablet or smaller */
 @media (max-width: 768px) {
   .body {
@@ -37,7 +45,7 @@ body {
   }
 
   .padding-override {
-    padding: 0 !important;
+    padding: 0.25rem !important;
     margin: 0 !important;
   }
 
