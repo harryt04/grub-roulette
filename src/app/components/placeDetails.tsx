@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { GetRestaurantResponse } from '../types/location'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import DirectionsIcon from '@mui/icons-material/Directions'
 import { PhotoComponent } from './photo'
+import ImageModal from './modal'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
@@ -14,6 +15,20 @@ export type PlaceDetailsProps = {
 export const PlaceDetails = (props: PlaceDetailsProps) => {
   const { place } = props
   const ratingString = `${place.rating} stars (${place.totalRatings} reviews)`
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const openModal = (image: string) => {
+    setSelectedImage(image)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setSelectedImage(null)
+    setIsModalOpen(false)
+  }
+
   return (
     <>
       <div className="placeDetails">
@@ -46,16 +61,19 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         </div>
         {place.photos && (
           <div className="imageGallery">
-            {place.photos.map((photo) => {
-              return (
-                <div key={photo}>
-                  <PhotoComponent photoUrl={photo} />
-                </div>
-              )
-            })}
+            {place.photos.map((photo) => (
+              <div key={photo} onClick={() => openModal(photo)}>
+                <PhotoComponent photoUrl={photo} />
+              </div>
+            ))}
           </div>
         )}
       </div>
+      <ImageModal
+        src={selectedImage}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </>
   )
 }
