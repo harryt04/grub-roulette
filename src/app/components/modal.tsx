@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import React from 'react'
 
-const ImageModal = ({ src, isOpen, onClose }) => {
+const ImageModal = ({ src, isOpen, onClose }: any) => {
   if (!isOpen) return null
 
   return (
