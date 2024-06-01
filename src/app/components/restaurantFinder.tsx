@@ -182,7 +182,12 @@ export default function RestaurantFinder() {
             {currentPlace &&
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
-                <PlaceDetails place={currentPlace} />
+                <>
+                  <Typography variant="caption">
+                    Remaining places: {placesMap.size - usedPlaces.length}
+                  </Typography>
+                  <PlaceDetails place={currentPlace} />
+                </>
               )}
           </div>
         )}
