@@ -38,25 +38,6 @@ body {
   width: 80% !important;
 }
 
-/* if screen is tablet or smaller */
-@media (max-width: 768px) {
-  .body {
-    max-width: 80vw;
-  }
-
-  .padding-override {
-    padding: 0.25rem !important;
-    margin: 0 !important;
-  }
-
-  .caption {
-    max-width: 80vw;
-  }
-  .imageGallery {
-    grid-template-columns: auto auto;
-  }
-}
-
 .form-container {
   display: grid;
   place-items: center;
@@ -98,4 +79,36 @@ body {
   padding: 10px 20px;
   cursor: pointer;
   color: black !important; /* Optional: set text color for contrast */
+}
+
+.footer-text {
+  text-align: center;
+  padding-bottom: 1rem;
+}
+
+.footer-button {
+  max-width: 80%;
+  justify-self: center;
+}
+
+/* if screen is tablet or smaller */
+@media (max-width: 768px) {
+  .body {
+    max-width: 80vw;
+  }
+
+  .padding-override {
+    padding: 0.25rem !important;
+    margin: 0 !important;
+  }
+
+  .caption {
+    max-width: 80vw;
+  }
+  .imageGallery {
+    grid-template-columns: auto auto;
+  }
+  .textfield {
+    width: 100% !important;
+  }
 }

@@ -1,13 +1,11 @@
 'use client'
 import RestaurantFinder from './components/restaurantFinder'
 import Typography from '@mui/material/Typography'
-import GitHubIcon from '@mui/icons-material/GitHub'
 
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
-import Image from 'next/image'
 import Footer from './components/footer'
 
 export default function Home() {
@@ -17,9 +15,9 @@ export default function Home() {
       <div className="spacer"></div>
 
       <Typography variant="body1" className="body">
-        Ever play russian roulette? Well, this is the same thing, but with food.
-        Sometimes you&apos;ll get something good, sometimes it&apos;ll be a
-        miss. But hey, that&apos;s the fun of trying new things!
+        Ever play russian roulette? Well, this is the same thing, but with
+        restaurants. Sometimes you&apos;ll get something amazing, sometimes
+        it&apos;ll be a miss. But hey, that&apos;s the fun of trying new things!
       </Typography>
       <div className="spacer"></div>
       <RestaurantFinder />
