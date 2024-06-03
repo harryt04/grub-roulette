@@ -190,9 +190,11 @@ export default function RestaurantFinder() {
               {getNewRestaurantString}
             </Button>
 
-            <Typography variant="caption">
-              Remaining places: {placesMap.size - usedPlaces.length}
-            </Typography>
+            {currentPlace && (
+              <Typography variant="caption">
+                Remaining places: {placesMap.size - usedPlaces.length}
+              </Typography>
+            )}
 
             {loading && (
               <div className="loading-spinner">
