@@ -15,14 +15,12 @@ export default function Home() {
       <div className="header-container">
         <Image
           src="/favicon-badass.png"
-          width={40}
-          height={40}
+          width={75}
+          height={75}
           unoptimized
           alt="logo"
         />
-        <Typography variant="h5" className="page-header">
-          Welcome to GrubRoulette
-        </Typography>
+        <Typography variant="h2">GrubRoulette</Typography>
       </div>
       <div className="spacer"></div>
 

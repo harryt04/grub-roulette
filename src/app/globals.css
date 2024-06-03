@@ -32,10 +32,11 @@ body {
 
 .card {
   padding-top: 1rem;
+  width: 80vw !important;
 }
 
 .textfield {
-  width: 80% !important;
+  width: 70vw !important;
 }
 
 .form-container {
@@ -98,10 +99,7 @@ body {
   grid-template-columns: auto 1fr;
   align-items: center;
   column-gap: 1rem;
-}
-
-.page-header {
-  text-decoration: underline;
+  padding-top: 2rem;
 }
 
 /* if screen is tablet or smaller */
