@@ -141,7 +141,7 @@ export default function RestaurantFinder() {
         <div className="form-container">
           <TextField
             id="keywords"
-            label="Search (optional) i.e. 'sushi'"
+            label="Search (optional) i.e. 'sushi' or 'italian'"
             variant="outlined"
             value={keywords}
             onChange={(event) => setKeywords(event.target.value)}
@@ -191,9 +191,11 @@ export default function RestaurantFinder() {
             </Button>
 
             {currentPlace && (
-              <Typography variant="caption">
-                Remaining places: {placesMap.size - usedPlaces.length}
-              </Typography>
+              <>
+                <Typography variant="caption" className="remaining-places-text">
+                  Remaining places: {placesMap.size - usedPlaces.length}
+                </Typography>
+              </>
             )}
 
             {loading && (

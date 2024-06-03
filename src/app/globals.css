@@ -36,7 +36,7 @@ body {
 }
 
 .textfield {
-  width: 70vw !important;
+  width: 40vw !important;
 }
 
 .form-container {
@@ -102,6 +102,10 @@ body {
   padding-top: 2rem;
 }
 
+.remaining-places-text {
+  padding-top: 0.5rem;
+}
+
 /* if screen is tablet or smaller */
 @media (max-width: 768px) {
   .body {
@@ -120,10 +124,15 @@ body {
     grid-template-columns: auto auto;
   }
   .textfield {
-    width: 100% !important;
+    width: 70vw !important;
   }
 
   .card {
-    width: 100% !important;
+    width: 95% !important;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
   }
 }
