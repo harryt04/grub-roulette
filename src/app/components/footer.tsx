@@ -15,7 +15,9 @@ const Footer = () => {
         rel="noopener noreferrer"
         aria-label="BuyMeACofee"
         startIcon={<LocalCafeIcon />}
-        className="footer-button yellowButton"
+        variant="contained"
+        color="primary"
+        className="footer-button primary-button"
       >
         Buy Me A Coffee
       </Button>
@@ -26,8 +28,9 @@ const Footer = () => {
         rel="noopener noreferrer"
         aria-label="GitHub"
         startIcon={<GitHubIcon />}
-        color="inherit"
         className="footer-button"
+        variant="outlined"
+        color="info"
       >
         View source code
       </Button>
@@ -38,8 +41,9 @@ const Footer = () => {
         rel="noopener noreferrer"
         aria-label="BugReport"
         startIcon={<BugReportIcon />}
-        color="inherit"
         className="footer-button"
+        variant="outlined"
+        color="info"
       >
         Report Issue / Feature Request
       </Button>

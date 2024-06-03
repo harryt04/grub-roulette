@@ -70,15 +70,13 @@ body {
   display: grid;
   grid-template-columns: auto;
   align-items: center;
-  row-gap: 2rem;
+  row-gap: 1rem;
 }
 
-.yellowButton {
-  background-color: yellow !important;
+.primary-button {
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  color: black !important; /* Optional: set text color for contrast */
 }
 
 .footer-text {
@@ -87,8 +85,23 @@ body {
 }
 
 .footer-button {
-  max-width: 80%;
+  max-width: 100%;
   justify-self: center;
+}
+
+.loading-spinner {
+  padding-top: 1rem;
+}
+
+.header-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 1rem;
+}
+
+.page-header {
+  text-decoration: underline;
 }
 
 /* if screen is tablet or smaller */
@@ -109,6 +122,10 @@ body {
     grid-template-columns: auto auto;
   }
   .textfield {
+    width: 100% !important;
+  }
+
+  .card {
     width: 100% !important;
   }
 }

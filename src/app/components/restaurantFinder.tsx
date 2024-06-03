@@ -6,6 +6,7 @@ import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import CircularProgress from '@mui/material/CircularProgress'
 
 import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
 import {
@@ -25,6 +26,7 @@ export default function RestaurantFinder() {
   const { location, geoLocationError } = useGeolocation()
 
   const [keywords, setKeywords] = React.useState('')
+  const [loading, setLoading] = React.useState(false)
   const [radius, setRadius] = React.useState(15)
   const [currentPlace, setCurrentPlace] =
     React.useState<GetRestaurantResponse>()
@@ -75,7 +77,8 @@ export default function RestaurantFinder() {
     })
   }
 
-  const getRestaurant = async () => {
+  const getRestaurant = async (): Promise<void> => {
+    setLoading(true)
     if (placesMap.size === 0) await fillPlacesMap()
 
     // if no places were found, show the not found message
@@ -143,6 +146,7 @@ export default function RestaurantFinder() {
             value={keywords}
             onChange={(event) => setKeywords(event.target.value)}
             className="textfield"
+            color="secondary"
           />
           <TextField
             id="radius"
@@ -152,26 +156,52 @@ export default function RestaurantFinder() {
             value={Number(radius).toString()}
             onChange={(event) => setRadius(Number(event.target.value))}
             className="textfield"
+            color="secondary"
           />
         </div>
 
         {geoLocationError &&
           geoLocationError === GeoLocationError.PERMISSION_DENIED && (
-            <>Please allow geolocation permissions and refresh this page</>
+            <>
+              <Typography variant="h6">
+                Please allow geolocation permissions and refresh this page
+              </Typography>
+
+              <Typography variant="caption">
+                Your location data is never stored by GrubRoulette anywhere.
+                GrubRoulette respects your privacy.
+              </Typography>
+            </>
           )}
 
         {location && (
           <div className="get-restaurant-container">
             <Button
+              disabled={loading}
               onClick={() => {
-                getRestaurant()
+                getRestaurant().finally(() => {
+                  setLoading(false)
+                })
               }}
-              variant="outlined"
+              variant="contained"
+              color="primary"
               startIcon={<RefreshIcon />}
             >
               {getNewRestaurantString}
             </Button>
-            {currentPlace &&
+
+            <Typography variant="caption">
+              Remaining places: {placesMap.size - usedPlaces.length}
+            </Typography>
+
+            {loading && (
+              <div className="loading-spinner">
+                <CircularProgress />
+              </div>
+            )}
+
+            {!loading &&
+              currentPlace &&
               (currentPlace.name === NOT_FOUND ||
                 currentPlace.name === SEEN_ALL_PLACES) && (
                 <>
@@ -179,13 +209,11 @@ export default function RestaurantFinder() {
                   <Typography variant="h5">{currentPlace.name}</Typography>
                 </>
               )}
-            {currentPlace &&
+            {!loading &&
+              currentPlace &&
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
                 <>
-                  <Typography variant="caption">
-                    Remaining places: {placesMap.size - usedPlaces.length}
-                  </Typography>
                   <PlaceDetails place={currentPlace} />
                 </>
               )}

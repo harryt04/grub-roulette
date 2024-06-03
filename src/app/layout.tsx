@@ -20,7 +20,7 @@ export default function RootLayout({
         type="image/png"
         sizes="96x96"
         rel="icon"
-        href="/favicon.png"
+        href="/favicon-badass.png"
       ></link>
       <html lang="en">
         <AppRouterCacheProvider>
