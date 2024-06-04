@@ -112,6 +112,7 @@ export default function RestaurantFinder() {
       }
 
       if (!placeDetails) {
+        // Failed to get extra details for place, set the currentPlace and return
         setCurrentPlace(place)
         usedPlaces.push(place.name)
         return
