@@ -4,6 +4,7 @@ import './globals.css'
 import { ThemeProvider } from '@mui/material/styles'
 import theme from '../theme'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 export const metadata: Metadata = {
   title: 'Grub Roulette',
   description: 'Randomly choose a restaurant near you',
@@ -27,6 +28,7 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <body>{children}</body>
             <Analytics />
+            <SpeedInsights />
           </ThemeProvider>
         </AppRouterCacheProvider>
       </html>
