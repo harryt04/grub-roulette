@@ -3,7 +3,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 import './globals.css'
 import { ThemeProvider } from '@mui/material/styles'
 import theme from '../theme'
-
+import { Analytics } from '@vercel/analytics/react'
 export const metadata: Metadata = {
   title: 'Grub Roulette',
   description: 'Randomly choose a restaurant near you',
@@ -26,6 +26,7 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <body>{children}</body>
+            <Analytics />
           </ThemeProvider>
         </AppRouterCacheProvider>
       </html>
