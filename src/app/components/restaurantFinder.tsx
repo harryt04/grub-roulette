@@ -159,6 +159,7 @@ export default function RestaurantFinder() {
         ...place,
         description: placeDetails.editorial_summary?.overview || '',
         address: placeDetails.formatted_address || '',
+        googleMapsUrl: placeDetails.url,
         phone: placeDetails.formatted_phone_number || '',
         photos,
         website: placeDetails.website || '',

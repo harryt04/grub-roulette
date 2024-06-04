@@ -5,6 +5,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import theme from '../theme'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+
 export const metadata: Metadata = {
   title: 'Grub Roulette',
   description: 'Randomly choose a restaurant near you',
@@ -15,6 +16,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const isProduction = process.env.NODE_ENV === 'production'
+
   return (
     <>
       <link
@@ -27,8 +30,13 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <body>{children}</body>
-            <Analytics />
-            <SpeedInsights />
+
+            {isProduction && (
+              <>
+                <Analytics />
+                <SpeedInsights />
+              </>
+            )}
           </ThemeProvider>
         </AppRouterCacheProvider>
       </html>

@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Image from 'next/image'
 import Link from 'next/link'
 import DirectionsIcon from '@mui/icons-material/Directions'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { PhotoComponent } from './photo'
 import ImageModal from './modal'
 import Masonry from 'react-masonry-css'
@@ -30,6 +31,14 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     setIsModalOpen(false)
   }
 
+  const googleMapsUrl = (place.googleMapsUrl || place.directionsUrl) as string
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(googleMapsUrl).catch((err) => {
+      console.error('Could not copy text: ', err)
+    })
+  }
+
   const breakpointColumnsObj = {
     // screen width thresholds for image grid columns
     default: 3, // web
@@ -49,22 +58,30 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         <div className="place-details-spacer"></div>
         <Link href={`tel:${place.phone}`}>{place.phone}</Link>
         <div className="place-details-spacer"></div>
-
         <Link href={place.website as string} target="_blank">
           {getMainDomain(place.website as string)}
         </Link>
         <div className="place-details-spacer"></div>
         <Typography variant="subtitle2">{place.address}</Typography>
-        <div className="directions-button">
+        <div className="button-group">
           <Button
             variant="contained"
             color="secondary"
-            href={place.directionsUrl as string}
+            href={googleMapsUrl}
             target="_blank"
             startIcon={<DirectionsIcon />}
             className="directions-button"
           >
             Directions
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={copyToClipboard}
+            startIcon={<ContentCopyIcon />}
+            className="copy-button"
+          >
+            Copy Address
           </Button>
         </div>
         {place.photos && (

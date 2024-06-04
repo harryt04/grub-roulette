@@ -10,6 +10,7 @@ export type GetRestaurantResponse = {
   address?: string
   description?: string
   directionsUrl?: string
+  googleMapsUrl?: string
   name: string
   place_id: string
   phone?: string
