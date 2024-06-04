@@ -17,7 +17,7 @@ const Footer = () => {
         startIcon={<AttachMoneyIcon />}
         variant="contained"
         color="primary"
-        className="footer-button primary-button"
+        className="footer-button"
       >
         Tip Jar
       </Button>

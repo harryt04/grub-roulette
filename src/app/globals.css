@@ -74,12 +74,6 @@ body {
   row-gap: 1rem;
 }
 
-.primary-button {
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
 .footer-text {
   text-align: center;
   padding-bottom: 1rem;
