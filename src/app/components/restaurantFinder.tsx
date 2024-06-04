@@ -1,5 +1,4 @@
-'use client'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
@@ -20,16 +19,15 @@ import { PlaceDetails } from './placeDetails'
 const NOT_FOUND = 'No places were found. Try changing your search criteria.'
 const SEEN_ALL_PLACES = 'You have seen all the places!'
 const placesMap = new Map<string, GetRestaurantResponse>()
-const usedPlaces: string[] = [] // an array of place_ids that have been ignored by thse user
+const usedPlaces: string[] = [] // an array of place_ids that have been ignored by the user
+const placeDetailsCache = new Map<string, any>() // Cache for place details
 
 export default function RestaurantFinder() {
   const { location, geoLocationError } = useGeolocation()
-
-  const [keywords, setKeywords] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
-  const [radius, setRadius] = React.useState(15)
-  const [currentPlace, setCurrentPlace] =
-    React.useState<GetRestaurantResponse>()
+  const [keywords, setKeywords] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [radius, setRadius] = useState(15)
+  const [currentPlace, setCurrentPlace] = useState<GetRestaurantResponse>()
 
   useEffect(() => {
     // if the user changes the search criteria or enters a new location, clear the placesMap.
@@ -47,91 +45,103 @@ export default function RestaurantFinder() {
     usedPlaces.length = 0
   }
 
-  const fillPlacesMap = async () => {
-    if (!location) throw new Error('No location found')
-    const restaurants = await getRestaurants({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      radius,
-      radiusUnits: 'miles',
-      keywords,
-    })
+  const getRestaurant = useMemo(
+    () => async () => {
+      setLoading(true)
+      if (!location) throw new Error('No location found')
 
-    const openPlaces = restaurants?.filter(
-      (r: any) =>
-        r.opening_hours?.open_now && r.business_status === 'OPERATIONAL',
-    )
-    if (!openPlaces || openPlaces.length === 0) {
-      return
-    }
+      if (placesMap.size === 0) {
+        // Fetch restaurants if the placesMap is empty
+        const restaurants = await getRestaurants({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          radius,
+          radiusUnits: 'miles',
+          keywords,
+        })
 
-    openPlaces.forEach((place: any) => {
-      if (placesMap.has(place.name)) return
-      placesMap.set(place.name, {
-        name: place.name,
-        directionsUrl: buildGoogleMapsUrl(place.vicinity),
-        rating: place.rating,
-        totalRatings: place.user_ratings_total,
-        place_id: place.place_id,
-      })
-    })
-  }
+        // Filter open places
+        const openPlaces = restaurants?.filter(
+          (r: any) =>
+            r.opening_hours?.open_now && r.business_status === 'OPERATIONAL',
+        )
 
-  const getRestaurant = async (): Promise<void> => {
-    setLoading(true)
-    if (placesMap.size === 0) await fillPlacesMap()
+        // Cache the open places in the placesMap
+        openPlaces?.forEach((place: any) => {
+          if (!placesMap.has(place.name)) {
+            placesMap.set(place.name, {
+              name: place.name,
+              directionsUrl: buildGoogleMapsUrl(place.vicinity),
+              rating: place.rating,
+              totalRatings: place.user_ratings_total,
+              place_id: place.place_id,
+            })
+          }
+        })
+      }
 
-    // if no places were found, show the not found message
-    if (placesMap.size === 0) {
-      clearCurrentPlace(NOT_FOUND)
-      return
-    }
-    if (placesMap.size === usedPlaces.length) {
-      clearCurrentPlace(SEEN_ALL_PLACES)
-      return
-    }
+      if (placesMap.size === 0) {
+        clearCurrentPlace(NOT_FOUND)
+        return
+      }
 
-    const unusedPlaces = Array.from(placesMap.values()).filter((place) => {
-      return !usedPlaces.includes(place.name)
-    })
+      if (placesMap.size === usedPlaces.length) {
+        clearCurrentPlace(SEEN_ALL_PLACES)
+        return
+      }
 
-    // get an unusedPlace randomly
-    const randomIndex = Math.floor(Math.random() * unusedPlaces.length)
-    const place = unusedPlaces[randomIndex]
+      const unusedPlaces = Array.from(placesMap.values()).filter(
+        (place) => !usedPlaces.includes(place.name),
+      )
 
-    if (!place) {
-      clearCurrentPlace(SEEN_ALL_PLACES)
-      return
-    }
+      const randomIndex = Math.floor(Math.random() * unusedPlaces.length)
+      const place = unusedPlaces[randomIndex]
 
-    const placeDetails = await getPlaceDetails(place.place_id)
-    if (!placeDetails) {
-      setCurrentPlace(place)
-      usedPlaces.push(place.name)
-      return
-    }
+      if (!place) {
+        clearCurrentPlace(SEEN_ALL_PLACES)
+        return
+      }
 
-    const photoReferences = placeDetails.photos?.map(
-      (photo: any) => photo?.photo_reference,
-    )
+      // Check if place details are already cached
+      let placeDetails = placeDetailsCache.get(place.place_id)
 
-    const photos =
-      !!photoReferences && photoReferences.length > 0
-        ? await getPhotos(photoReferences)
-        : []
-    const thePlaceToBe = {
-      ...place,
-      description: placeDetails.editorial_summary?.overview || '',
-      address: placeDetails.formatted_address || '',
-      phone: placeDetails.formatted_phone_number || '',
-      photos,
-      website: placeDetails.website || '',
-    } as GetRestaurantResponse
-    setCurrentPlace(thePlaceToBe)
-    usedPlaces.push(thePlaceToBe.name)
-  }
+      if (!placeDetails) {
+        // Fetch place details if not cached
+        placeDetails = await getPlaceDetails(place.place_id)
+        placeDetailsCache.set(place.place_id, placeDetails) // Cache the result
+      }
 
-  const getNewRestaurantString = !!currentPlace
+      if (!placeDetails) {
+        setCurrentPlace(place)
+        usedPlaces.push(place.name)
+        return
+      }
+
+      const photoReferences = placeDetails.photos?.map(
+        (photo: any) => photo?.photo_reference,
+      )
+
+      const photos =
+        photoReferences && photoReferences.length > 0
+          ? await getPhotos(photoReferences)
+          : []
+
+      const thePlaceToBe = {
+        ...place,
+        description: placeDetails.editorial_summary?.overview || '',
+        address: placeDetails.formatted_address || '',
+        phone: placeDetails.formatted_phone_number || '',
+        photos,
+        website: placeDetails.website || '',
+      } as GetRestaurantResponse
+
+      setCurrentPlace(thePlaceToBe)
+      usedPlaces.push(thePlaceToBe.name)
+    },
+    [location, radius, keywords],
+  )
+
+  const getNewRestaurantString = currentPlace
     ? 'Get a different restaurant'
     : 'Get a random restaurant'
 
