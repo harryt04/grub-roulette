@@ -140,7 +140,7 @@ export default function RestaurantFinder() {
       usedPlaces.push(thePlaceToBe.name)
     },
     [location, radius, keywords],
-  )
+  ) // end getRestaurant()
 
   const getNewRestaurantString = currentPlace
     ? 'Get a different restaurant'
