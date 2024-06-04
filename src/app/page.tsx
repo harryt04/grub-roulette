@@ -28,7 +28,7 @@ export default function Home() {
       setIsMobile(mediaQueryIsMobile)
       localStorage.setItem('isMobile', JSON.stringify(mediaQueryIsMobile))
     }
-  }, [])
+  }, [mediaQueryIsMobile])
 
   // Effect to update isMobile state and localStorage when media query changes
   useEffect(() => {
