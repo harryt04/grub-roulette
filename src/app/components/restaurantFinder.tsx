@@ -20,7 +20,30 @@ const NOT_FOUND = 'No places were found. Try changing your search criteria.'
 const SEEN_ALL_PLACES = 'You have seen all the places!'
 const placesMap = new Map<string, GetRestaurantResponse>()
 const usedPlaces: string[] = [] // an array of place_ids that have been ignored by the user
-const placeDetailsCache = new Map<string, any>() // Cache for place details
+let placeDetailsCache = new Map<string, any>()
+
+const loadPlaceDetailsCacheFromLocalStorage = () => {
+  const cacheData = localStorage.getItem('placeDetailsCache')
+  const ONE_HOUR = 3600000
+  if (cacheData) {
+    const { data, timestamp } = JSON.parse(cacheData)
+    if (Date.now() - timestamp < ONE_HOUR) {
+      placeDetailsCache = new Map<string, any>(data)
+    } else {
+      localStorage.removeItem('placeDetailsCache')
+    }
+  }
+}
+
+const savePlaceDetailsCacheToLocalStorage = () => {
+  localStorage.setItem(
+    'placeDetailsCache',
+    JSON.stringify({
+      data: Array.from(placeDetailsCache.entries()),
+      timestamp: Date.now(),
+    }),
+  )
+}
 
 export default function RestaurantFinder() {
   const { location, geoLocationError } = useGeolocation()
@@ -28,6 +51,10 @@ export default function RestaurantFinder() {
   const [loading, setLoading] = useState(false)
   const [radius, setRadius] = useState(15)
   const [currentPlace, setCurrentPlace] = useState<GetRestaurantResponse>()
+
+  useEffect(() => {
+    loadPlaceDetailsCacheFromLocalStorage()
+  }, [])
 
   useEffect(() => {
     // if the user changes the search criteria or enters a new location, clear the placesMap.
@@ -109,6 +136,7 @@ export default function RestaurantFinder() {
         // Fetch place details if not cached
         placeDetails = await getPlaceDetails(place.place_id)
         placeDetailsCache.set(place.place_id, placeDetails) // Cache the result
+        savePlaceDetailsCacheToLocalStorage()
       }
 
       if (!placeDetails) {
