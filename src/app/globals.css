@@ -123,12 +123,15 @@ body {
   padding-top: 1rem;
 }
 
-.centeredSnackbar {
-  left: 50%;
-  transform: translateX(-50%);
+/* if screen is tablet or BIGGER */
+@media (min-width: 768px) {
+  .centeredSnackbar {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
-/* if screen is tablet or smaller */
+/* if screen is tablet or SMALLER */
 @media (max-width: 768px) {
   .body {
     max-width: 80vw;
