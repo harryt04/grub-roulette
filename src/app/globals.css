@@ -31,7 +31,7 @@ body {
 }
 
 .card {
-  padding-top: 1rem;
+  padding: 1rem;
   width: 80vw !important;
 }
 
@@ -104,6 +104,22 @@ body {
 
 .remaining-places-text {
   padding-top: 0.5rem;
+}
+
+.imageGallery {
+  display: flex;
+  margin-left: -30px; /* gutter size offset */
+  width: auto;
+}
+
+.imageGalleryColumn {
+  padding-left: 30px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Style each image component */
+.imageGalleryColumn > div {
+  margin-bottom: 30px;
 }
 
 /* if screen is tablet or smaller */

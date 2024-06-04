@@ -7,6 +7,7 @@ import Link from 'next/link'
 import DirectionsIcon from '@mui/icons-material/Directions'
 import { PhotoComponent } from './photo'
 import ImageModal from './modal'
+import Masonry from 'react-masonry-css'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
@@ -27,6 +28,13 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
   const closeModal = () => {
     setSelectedImage(null)
     setIsModalOpen(false)
+  }
+
+  const breakpointColumnsObj = {
+    // screen width thresholds for image grid columns
+    default: 3, // web
+    1100: 2, // tablet
+    700: 1, // mobile
   }
 
   return (
@@ -60,13 +68,17 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
           </Button>
         </div>
         {place.photos && (
-          <div className="imageGallery">
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="imageGallery"
+            columnClassName="imageGalleryColumn"
+          >
             {place.photos.map((photo) => (
               <div key={photo} onClick={() => openModal(photo)}>
                 <PhotoComponent photoUrl={photo} />
               </div>
             ))}
-          </div>
+          </Masonry>
         )}
       </div>
       <ImageModal
@@ -83,7 +95,6 @@ function getMainDomain(url: string): string {
     const parsedUrl = new URL(url)
     const hostname = parsedUrl.hostname
 
-    // Regular expression to capture the last two segments of the hostname
     const domainPattern = /[^.]+\.[^.]+$/
     const match = hostname.match(domainPattern)
 
