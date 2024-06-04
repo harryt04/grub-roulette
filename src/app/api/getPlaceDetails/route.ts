@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -12,27 +12,34 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const endpoint = `https://maps.googleapis.com/maps/api/place/details/json`
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY
-
   try {
-    const response = await axios.get(endpoint, {
-      params: {
-        place_id: place_id,
-        key: apiKey,
+    const endpoint = `https://maps.googleapis.com/maps/api/place/details/json`
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY || ''
+
+    const url = new URL(endpoint)
+    url.searchParams.append('place_id', place_id)
+    url.searchParams.append('key', apiKey)
+
+    const response = await fetch(url.toString(), {
+      next: {
+        revalidate: 3600, // Cache for 1 hour
+        tags: ['place-details'], // Tag for cache invalidation
       },
     })
 
-    if (response.data.status !== 'OK') {
-      return NextResponse.json(
-        {
-          error: response.data.error_message || 'Error fetching place details',
-        },
-        { status: 500 },
-      )
+    if (!response.ok) {
+      const errorData = await response.json()
+      const errorMessage =
+        errorData.error_message || 'Error fetching place details'
+      return NextResponse.json({ error: errorMessage }, { status: 500 })
     }
 
-    return NextResponse.json(response.data.result, { status: 200 })
+    const responseData = await response.json()
+
+    // Trigger revalidation for the 'place-details' tag
+    revalidateTag('place-details')
+
+    return NextResponse.json(responseData.result, { status: 200 })
   } catch (error) {
     console.error('Error fetching place details:', error)
     return NextResponse.json(
