@@ -2,8 +2,8 @@ import React from 'react'
 import { Button } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import GitHubIcon from '@mui/icons-material/GitHub'
-import LocalCafeIcon from '@mui/icons-material/LocalCafe'
 import BugReportIcon from '@mui/icons-material/BugReport'
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 
 const Footer = () => {
   return (
@@ -14,12 +14,12 @@ const Footer = () => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="BuyMeACofee"
-        startIcon={<LocalCafeIcon />}
+        startIcon={<AttachMoneyIcon />}
         variant="contained"
         color="primary"
         className="footer-button primary-button"
       >
-        Buy Me A Coffee
+        Tip Jar
       </Button>
       <Button
         component="a"
