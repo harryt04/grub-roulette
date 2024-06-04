@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { GetRestaurantResponse } from '../types/location'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import Snackbar from '@mui/material/Snackbar'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
 import Image from 'next/image'
 import Link from 'next/link'
 import DirectionsIcon from '@mui/icons-material/Directions'
@@ -9,6 +12,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { PhotoComponent } from './photo'
 import ImageModal from './modal'
 import Masonry from 'react-masonry-css'
+import IosShareIcon from '@mui/icons-material/IosShare'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
@@ -20,6 +24,8 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
 
   const openModal = (image: string) => {
     setSelectedImage(image)
@@ -30,13 +36,28 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     setSelectedImage(null)
     setIsModalOpen(false)
   }
-
   const googleMapsUrl = (place.googleMapsUrl || place.directionsUrl) as string
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(googleMapsUrl).catch((err) => {
-      console.error('Could not copy text: ', err)
-    })
+    navigator.clipboard
+      .writeText(googleMapsUrl)
+      .then(() => {
+        setSnackbarMessage('Share link copied to clipboard!')
+        setSnackbarOpen(true)
+      })
+      .catch((err) => {
+        console.error('Could not copy text: ', err)
+      })
+  }
+
+  const handleCloseSnackbar = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setSnackbarOpen(false)
   }
 
   const breakpointColumnsObj = {
@@ -78,10 +99,10 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
             variant="contained"
             color="primary"
             onClick={copyToClipboard}
-            startIcon={<ContentCopyIcon />}
+            startIcon={<IosShareIcon />}
             className="copy-button"
           >
-            Copy Address
+            Share
           </Button>
         </div>
         {place.photos && (
@@ -102,6 +123,23 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         src={selectedImage}
         isOpen={isModalOpen}
         onClose={closeModal}
+      />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+        className="centeredSnackbar"
+        action={
+          <IconButton
+            size="small"
+            color="inherit"
+            onClick={handleCloseSnackbar}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </>
   )
