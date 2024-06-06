@@ -18,7 +18,8 @@ import {
 import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
 import { PlaceDetails } from './placeDetails'
 
-const NOT_FOUND = 'No places were found. Try changing your search criteria.'
+const NOT_FOUND =
+  'No (open) places were found. Try changing your search criteria, or resetting blocked places.'
 const SEEN_ALL_PLACES = 'You have seen all the places!'
 const placesMap = new Map<string, GetRestaurantResponse>()
 const usedPlaces: string[] = [] // an array of place_ids that have been ignored by the user
@@ -281,18 +282,21 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                   onClick={handleResetBlacklist}
                   className="blacklist-button"
                   startIcon={<LockResetIcon />}
+                  disabled={blacklist.length === 0}
                 >
                   Reset blocked places
                 </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={handleAddToBlacklist}
-                  className="blacklist-button"
-                  startIcon={<BlockIcon />}
-                >
-                  Don&apos;t show me this place again
-                </Button>
+                {currentPlace && currentPlace.name !== NOT_FOUND && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={handleAddToBlacklist}
+                    className="blacklist-button"
+                    startIcon={<BlockIcon />}
+                  >
+                    Don&apos;t show me this place again
+                  </Button>
+                )}
               </div>
             )}
 
@@ -313,13 +317,18 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
               {getNewRestaurantString}
             </Button>
 
-            {currentPlace && remainingPlacesCount >= 0 && (
-              <>
-                <Typography variant="caption" className="remaining-places-text">
-                  Remaining places: {remainingPlacesCount}
-                </Typography>
-              </>
-            )}
+            {currentPlace &&
+              remainingPlacesCount >= 0 &&
+              placesMap.size > 0 && (
+                <>
+                  <Typography
+                    variant="caption"
+                    className="remaining-places-text"
+                  >
+                    Remaining places: {remainingPlacesCount}
+                  </Typography>
+                </>
+              )}
 
             {loading && (
               <div className="loading-spinner">
@@ -331,12 +340,18 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
               currentPlace &&
               (currentPlace.name === NOT_FOUND ||
                 currentPlace.name === SEEN_ALL_PLACES) && (
-                <>
+                <div className="placeDetails">
                   <div className="spacer"></div>
-                  <Typography variant={props.isMobile ? 'h5' : 'h4'}>
+                  <Typography
+                    variant={
+                      !props.isMobile && currentPlace.name === SEEN_ALL_PLACES
+                        ? 'h3'
+                        : 'h5'
+                    }
+                  >
                     {currentPlace.name}
                   </Typography>
-                </>
+                </div>
               )}
             {!loading &&
               currentPlace &&
