@@ -162,7 +162,6 @@ export default function RestaurantFinder() {
       if (!placeDetails) {
         // Fetch place details if not cached
         placeDetails = await getPlaceDetails(place.place_id)
-        // console.log('placeDetails: ', placeDetails)
         placeDetailsCache.set(place.place_id, placeDetails) // Cache the result
         savePlaceDetailsCacheToLocalStorage()
       }
@@ -190,6 +189,7 @@ export default function RestaurantFinder() {
         googleMapsUrl: placeDetails.url,
         phone: placeDetails.formatted_phone_number || '',
         photos,
+        priceLevel: placeDetails.price_level,
         website: placeDetails.website || '',
       } as GetRestaurantResponse
 

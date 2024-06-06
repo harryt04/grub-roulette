@@ -15,6 +15,7 @@ export type GetRestaurantResponse = {
   place_id: string
   phone?: string
   photos?: string[]
+  priceLevel?: number
   rating?: number
   totalRatings?: number
   website?: string

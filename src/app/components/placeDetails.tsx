@@ -65,6 +65,11 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     700: 1, // mobile
   }
 
+  const priceLevelString = (count?: number) => {
+    if (!count) return ''
+    return '('.padEnd(count + 1, '$') + ')'
+  }
+
   return (
     <>
       <div className="placeDetails">
@@ -72,7 +77,11 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         <Typography variant="caption" className="caption">
           {place.description}
         </Typography>
+        <Typography variant="caption">
+          {priceLevelString(place.priceLevel)}
+        </Typography>
         <div className="place-details-spacer"></div>
+
         <Typography variant="subtitle1">{ratingString}</Typography>
         <div className="place-details-spacer"></div>
         <Link href={`tel:${place.phone}`}>{place.phone}</Link>
