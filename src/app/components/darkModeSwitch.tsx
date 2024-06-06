@@ -25,7 +25,6 @@ const DarkModeToggle = styled(Switch)(({ theme }) => ({
 
 const DarkModeSwitch = () => {
   const { theme, toggleDarkMode } = useThemeContext()
-  console.log('theme: ', theme)
   return (
     <Box display="flex" justifyContent="center" alignItems="center" padding={2}>
       <Tooltip
