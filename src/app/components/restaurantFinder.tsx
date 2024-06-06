@@ -65,7 +65,8 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
   const { location, geoLocationError } = useGeolocation()
   const [keywords, setKeywords] = useState('')
   const [loading, setLoading] = useState(false)
-  const [startupCompleted, setStartupCompleted] = useState(false)
+  const [isAwaitingRestaurantResponse, setIsAwaitingRestaurantResponse] =
+    useState(false)
   const [radius, setRadius] = useState(15)
   const [remainingPlacesCount, setRemainingPlacesCount] = useState(0)
   const [currentPlace, setCurrentPlace] = useState<GetRestaurantResponse>()
@@ -205,12 +206,13 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
   ) // end getRestaurant()
 
   useEffect(() => {
-    if (startupCompleted) {
+    if (isAwaitingRestaurantResponse) {
       getRestaurant().finally(() => {
         setLoading(false)
+        setIsAwaitingRestaurantResponse(false)
       })
     }
-  }, [blacklist, getRestaurant, startupCompleted])
+  }, [blacklist, getRestaurant, isAwaitingRestaurantResponse])
 
   const handleAddToBlacklist = () => {
     if (currentPlace) {
@@ -303,12 +305,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
             <Button
               disabled={loading}
               onClick={() => {
-                if (startupCompleted) {
-                  getRestaurant().finally(() => {
-                    setLoading(false)
-                  })
-                }
-                setStartupCompleted(true)
+                setIsAwaitingRestaurantResponse(true)
               }}
               variant="contained"
               color="primary"
