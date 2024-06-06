@@ -1,21 +1,22 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { lightTheme, darkTheme } from '../theme'
 
-const CustomThemeProvider = ({ children }: any) => {
+const ThemeContext = createContext({
+  theme: lightTheme,
+  toggleTheme: () => {},
+})
+
+const ThemeProvider = ({ children }: any) => {
   const [theme, setTheme] = useState(lightTheme)
 
   useEffect(() => {
     const userPrefersDark = window.matchMedia(
       '(prefers-color-scheme: dark)',
     ).matches
-    if (userPrefersDark) {
-      setTheme(darkTheme)
-    } else {
-      setTheme(lightTheme)
-    }
+    setTheme(userPrefersDark ? darkTheme : lightTheme)
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = (e) => {
@@ -28,16 +29,20 @@ const CustomThemeProvider = ({ children }: any) => {
     }
   }, [])
 
-  const toggleTheme = () => {
+  const toggleDarkMode = () => {
     setTheme((prevTheme) => (prevTheme === lightTheme ? darkTheme : lightTheme))
   }
 
   return (
-    <MuiThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
-    </MuiThemeProvider>
+    <ThemeContext.Provider value={{ theme, toggleDarkMode }}>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
+    </ThemeContext.Provider>
   )
 }
 
-export default CustomThemeProvider
+export default ThemeProvider
+
+export const useThemeContext = () => useContext(ThemeContext)

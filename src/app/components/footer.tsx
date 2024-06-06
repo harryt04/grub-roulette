@@ -4,10 +4,12 @@ import Typography from '@mui/material/Typography'
 import GitHubIcon from '@mui/icons-material/GitHub'
 import BugReportIcon from '@mui/icons-material/BugReport'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
+import DarkModeSwitch from './darkModeSwitch'
 
 const Footer = () => {
   return (
     <div className="footer">
+      <DarkModeSwitch />
       <Button
         component="a"
         href="https://buymeacoffee.com/harryt04"
