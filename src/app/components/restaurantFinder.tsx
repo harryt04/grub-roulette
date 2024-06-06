@@ -222,6 +222,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       ]
       saveBlacklistToLocalStorage(newBlacklist)
       setBlacklist(newBlacklist)
+      setIsAwaitingRestaurantResponse(true)
     }
   }
 
@@ -229,6 +230,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     resetUI()
     saveBlacklistToLocalStorage([])
     setBlacklist([])
+    setIsAwaitingRestaurantResponse(true)
   }
 
   const getNewRestaurantString = currentPlace

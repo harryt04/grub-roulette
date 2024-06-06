@@ -11,6 +11,7 @@ import { PhotoComponent } from './photo'
 import ImageModal from './modal'
 import Masonry from 'react-masonry-css'
 import IosShareIcon from '@mui/icons-material/IosShare'
+import { useThemeContext } from '../CustomThemeProvider'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
@@ -18,6 +19,8 @@ export type PlaceDetailsProps = {
 }
 
 export const PlaceDetails = (props: PlaceDetailsProps) => {
+  const { theme } = useThemeContext()
+  const isDarkMode = theme.palette.mode === 'dark'
   const { place } = props
   const ratingString = `${place.rating} stars (${place.totalRatings} reviews)`
 
@@ -87,9 +90,18 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
 
         <Typography variant="subtitle1">{ratingString}</Typography>
         <div className="place-details-spacer"></div>
-        <Link href={`tel:${place.phone}`}>{place.phone}</Link>
+        <Link
+          className={isDarkMode ? 'primary-text' : ''}
+          href={`tel:${place.phone}`}
+        >
+          {place.phone}
+        </Link>
         <div className="place-details-spacer"></div>
-        <Link href={place.website as string} target="_blank">
+        <Link
+          className={isDarkMode ? 'primary-text' : ''}
+          href={place.website as string}
+          target="_blank"
+        >
           {getMainDomain(place.website as string)}
         </Link>
         <div className="place-details-spacer"></div>

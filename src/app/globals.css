@@ -137,6 +137,10 @@ body {
   width: 100%;
 }
 
+.primary-text {
+  color: #00e5ff;
+}
+
 /* if screen is tablet or BIGGER */
 @media (min-width: 768px) {
   .centeredSnackbar {
