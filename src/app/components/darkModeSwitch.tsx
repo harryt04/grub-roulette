@@ -4,9 +4,8 @@ import { styled } from '@mui/material/styles'
 import Switch from '@mui/material/Switch'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import Brightness2Icon from '@mui/icons-material/Brightness2'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
-import WbSunnyIcon from '@mui/icons-material/WbSunny'
+import LightModeIcon from '@mui/icons-material/LightMode'
 import Box from '@mui/material/Box'
 import { useThemeContext } from '../CustomThemeProvider'
 
@@ -37,7 +36,7 @@ const DarkModeSwitch = () => {
         }
       >
         <IconButton onClick={toggleDarkMode} color="inherit">
-          {theme.palette.mode === 'dark' ? <DarkModeIcon /> : <WbSunnyIcon />}
+          {theme.palette.mode === 'dark' ? <DarkModeIcon /> : <LightModeIcon />}
         </IconButton>
       </Tooltip>
       <DarkModeToggle
