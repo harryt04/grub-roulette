@@ -1,8 +1,8 @@
+// RootLayout.js
 import type { Metadata } from 'next'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 import './globals.css'
-import { ThemeProvider } from '@mui/material/styles'
-import theme from '../theme'
+import CustomThemeProvider from './CustomThemeProvider'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
@@ -28,7 +28,7 @@ export default function RootLayout({
       ></link>
       <html lang="en">
         <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
+          <CustomThemeProvider>
             <body>{children}</body>
 
             {isProduction && (
@@ -37,7 +37,7 @@ export default function RootLayout({
                 <SpeedInsights />
               </>
             )}
-          </ThemeProvider>
+          </CustomThemeProvider>
         </AppRouterCacheProvider>
       </html>
     </>
