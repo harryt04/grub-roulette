@@ -6,6 +6,8 @@ import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import CircularProgress from '@mui/material/CircularProgress'
+import BlockIcon from '@mui/icons-material/Block'
+import LockResetIcon from '@mui/icons-material/LockReset'
 
 import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
 import {
@@ -135,7 +137,6 @@ export default function RestaurantFinder() {
         return
       }
 
-      console.log('blacklist: ', blacklist)
       const unusedPlaces = Array.from(placesMap.values()).filter(
         (place) =>
           !usedPlaces.includes(place.name) &&
@@ -148,7 +149,6 @@ export default function RestaurantFinder() {
 
       const randomIndex = Math.floor(Math.random() * unusedPlaces.length)
       const place = unusedPlaces[randomIndex]
-      console.log('unusedPlaces: ', unusedPlaces)
       setRemainingPlacesCount(unusedPlaces.length - 1)
 
       if (!place) {
@@ -162,6 +162,7 @@ export default function RestaurantFinder() {
       if (!placeDetails) {
         // Fetch place details if not cached
         placeDetails = await getPlaceDetails(place.place_id)
+        // console.log('placeDetails: ', placeDetails)
         placeDetailsCache.set(place.place_id, placeDetails) // Cache the result
         savePlaceDetailsCacheToLocalStorage()
       }
@@ -268,6 +269,29 @@ export default function RestaurantFinder() {
 
         {location && (
           <div className="get-restaurant-container">
+            {currentPlace && (
+              <div className="blacklist-container">
+                <Button
+                  variant="outlined"
+                  color="info"
+                  onClick={handleResetBlacklist}
+                  className="blacklist-button"
+                  startIcon={<LockResetIcon />}
+                >
+                  Reset blocked places
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={handleAddToBlacklist}
+                  className="blacklist-button"
+                  startIcon={<BlockIcon />}
+                >
+                  Don&apos;t show me this place again
+                </Button>
+              </div>
+            )}
+
             <Button
               disabled={loading}
               onClick={() => {
@@ -313,11 +337,7 @@ export default function RestaurantFinder() {
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
                 <>
-                  <PlaceDetails
-                    place={currentPlace}
-                    handleAddToBlacklist={handleAddToBlacklist}
-                    handleResetBlacklist={handleResetBlacklist}
-                  />
+                  <PlaceDetails place={currentPlace} />
                 </>
               )}
           </div>

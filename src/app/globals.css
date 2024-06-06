@@ -129,6 +129,7 @@ body {
   row-gap: 1rem;
   grid-template-columns: auto;
   padding-top: 1rem;
+  padding-bottom: 2rem;
 }
 
 .blacklist-button {
