@@ -61,7 +61,7 @@ export default function Home() {
         </Typography>
       </div>
       <div className="spacer"></div>
-      <RestaurantFinder />
+      <RestaurantFinder isMobile={isMobile} />
       <div className="spacer"></div>
       <Footer />
     </div>

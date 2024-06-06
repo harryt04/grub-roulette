@@ -56,7 +56,11 @@ const saveBlacklistToLocalStorage = (blacklist: GetRestaurantResponse[]) => {
   localStorage.setItem('grubroulette_blacklist', JSON.stringify(blacklist))
 }
 
-export default function RestaurantFinder() {
+export type RestaurantFinderProps = {
+  isMobile: boolean
+}
+
+export default function RestaurantFinder(props: RestaurantFinderProps) {
   const { location, geoLocationError } = useGeolocation()
   const [keywords, setKeywords] = useState('')
   const [loading, setLoading] = useState(false)
@@ -329,7 +333,9 @@ export default function RestaurantFinder() {
                 currentPlace.name === SEEN_ALL_PLACES) && (
                 <>
                   <div className="spacer"></div>
-                  <Typography variant="h5">{currentPlace.name}</Typography>
+                  <Typography variant={props.isMobile ? 'h5' : 'h4'}>
+                    {currentPlace.name}
+                  </Typography>
                 </>
               )}
             {!loading &&
@@ -337,7 +343,10 @@ export default function RestaurantFinder() {
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
                 <>
-                  <PlaceDetails place={currentPlace} />
+                  <PlaceDetails
+                    place={currentPlace}
+                    isMobile={props.isMobile}
+                  />
                 </>
               )}
           </div>

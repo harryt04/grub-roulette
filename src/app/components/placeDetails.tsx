@@ -14,6 +14,7 @@ import IosShareIcon from '@mui/icons-material/IosShare'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
+  isMobile: boolean
 }
 
 export const PlaceDetails = (props: PlaceDetailsProps) => {
@@ -73,7 +74,9 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
   return (
     <>
       <div className="placeDetails">
-        <Typography variant="h5">{place.name}</Typography>
+        <Typography variant={props.isMobile ? 'h5' : 'h4'}>
+          {place.name}
+        </Typography>
         <Typography variant="caption" className="caption">
           {place.description}
         </Typography>
