@@ -6,7 +6,7 @@ import { lightTheme, darkTheme } from '../theme'
 
 const ThemeContext = createContext({
   theme: lightTheme,
-  toggleTheme: () => {},
+  toggleDarkMode: () => {},
 })
 
 const ThemeProvider = ({ children }: any) => {
@@ -19,7 +19,7 @@ const ThemeProvider = ({ children }: any) => {
     setTheme(userPrefersDark ? darkTheme : lightTheme)
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (e) => {
+    const handleChange = (e: any) => {
       setTheme(e.matches ? darkTheme : lightTheme)
     }
     mediaQuery.addEventListener('change', handleChange)
