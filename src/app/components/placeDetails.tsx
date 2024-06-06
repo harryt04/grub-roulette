@@ -5,17 +5,19 @@ import Button from '@mui/material/Button'
 import Snackbar from '@mui/material/Snackbar'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
-import Image from 'next/image'
 import Link from 'next/link'
 import DirectionsIcon from '@mui/icons-material/Directions'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { PhotoComponent } from './photo'
 import ImageModal from './modal'
 import Masonry from 'react-masonry-css'
 import IosShareIcon from '@mui/icons-material/IosShare'
+import BlockIcon from '@mui/icons-material/Block'
+import LockResetIcon from '@mui/icons-material/LockReset'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
+  handleAddToBlacklist: () => void
+  handleResetBlacklist: () => void
 }
 
 export const PlaceDetails = (props: PlaceDetailsProps) => {
@@ -74,6 +76,28 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         <Typography variant="caption" className="caption">
           {place.description}
         </Typography>
+
+        <div className="blacklist-container">
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={props.handleAddToBlacklist}
+            className="blacklist-button"
+            startIcon={<BlockIcon />}
+          >
+            Don&apos;t show me this place again
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="info"
+            onClick={props.handleResetBlacklist}
+            className="blacklist-button"
+            startIcon={<LockResetIcon />}
+          >
+            Reset blocked places
+          </Button>
+        </div>
         <div className="place-details-spacer"></div>
         <Typography variant="subtitle1">{ratingString}</Typography>
         <div className="place-details-spacer"></div>

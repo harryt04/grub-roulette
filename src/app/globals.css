@@ -53,6 +53,7 @@ body {
   padding-top: 3rem;
   padding-bottom: 1rem;
   text-align: center;
+  row-gap: 0.25rem;
 }
 
 .directions-button {
@@ -121,6 +122,17 @@ body {
   grid-template-columns: auto;
   row-gap: 1rem;
   padding-top: 1rem;
+}
+
+.blacklist-container {
+  display: grid;
+  row-gap: 1rem;
+  grid-template-columns: auto;
+  padding-top: 1rem;
+}
+
+.blacklist-button {
+  width: 100%;
 }
 
 /* if screen is tablet or BIGGER */

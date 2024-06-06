@@ -45,12 +45,26 @@ const savePlaceDetailsCacheToLocalStorage = () => {
   )
 }
 
+const loadBlacklistFromLocalStorage = () => {
+  const blacklistData = localStorage.getItem('grubroulette_blacklist')
+  return blacklistData ? JSON.parse(blacklistData) : []
+}
+
+const saveBlacklistToLocalStorage = (blacklist: GetRestaurantResponse[]) => {
+  localStorage.setItem('grubroulette_blacklist', JSON.stringify(blacklist))
+}
+
 export default function RestaurantFinder() {
   const { location, geoLocationError } = useGeolocation()
   const [keywords, setKeywords] = useState('')
   const [loading, setLoading] = useState(false)
+  const [startupCompleted, setStartupCompleted] = useState(false)
   const [radius, setRadius] = useState(15)
+  const [remainingPlacesCount, setRemainingPlacesCount] = useState(0)
   const [currentPlace, setCurrentPlace] = useState<GetRestaurantResponse>()
+  const [blacklist, setBlacklist] = useState<GetRestaurantResponse[]>(
+    loadBlacklistFromLocalStorage(),
+  )
 
   useEffect(() => {
     loadPlaceDetailsCacheFromLocalStorage()
@@ -59,9 +73,13 @@ export default function RestaurantFinder() {
   useEffect(() => {
     // if the user changes the search criteria or enters a new location, clear the placesMap.
     // Otherwise, cache them so we dont have to call getRestaurants again
+    resetUI()
+  }, [radius, keywords, location])
+
+  const resetUI = () => {
     placesMap.clear()
     usedPlaces.length = 0
-  }, [radius, keywords, location])
+  }
 
   const clearCurrentPlace = (name?: string) => {
     setCurrentPlace({
@@ -75,7 +93,7 @@ export default function RestaurantFinder() {
   const getRestaurant = useMemo(
     () => async () => {
       setLoading(true)
-      if (!location) throw new Error('No location found')
+      if (!location) return
 
       if (placesMap.size === 0) {
         // Fetch restaurants if the placesMap is empty
@@ -117,12 +135,21 @@ export default function RestaurantFinder() {
         return
       }
 
+      console.log('blacklist: ', blacklist)
       const unusedPlaces = Array.from(placesMap.values()).filter(
-        (place) => !usedPlaces.includes(place.name),
+        (place) =>
+          !usedPlaces.includes(place.name) &&
+          !blacklist.some(
+            (blacklisted: GetRestaurantResponse) =>
+              blacklisted.place_id === place.place_id ||
+              blacklisted.name === place.name,
+          ),
       )
 
       const randomIndex = Math.floor(Math.random() * unusedPlaces.length)
       const place = unusedPlaces[randomIndex]
+      console.log('unusedPlaces: ', unusedPlaces)
+      setRemainingPlacesCount(unusedPlaces.length - 1)
 
       if (!place) {
         clearCurrentPlace(SEEN_ALL_PLACES)
@@ -168,8 +195,33 @@ export default function RestaurantFinder() {
       setCurrentPlace(thePlaceToBe)
       usedPlaces.push(thePlaceToBe.name)
     },
-    [location, radius, keywords],
+    [location, radius, keywords, blacklist],
   ) // end getRestaurant()
+
+  useEffect(() => {
+    if (startupCompleted) {
+      getRestaurant().finally(() => {
+        setLoading(false)
+      })
+    }
+  }, [blacklist, getRestaurant, startupCompleted])
+
+  const handleAddToBlacklist = () => {
+    if (currentPlace) {
+      const newBlacklist = [
+        ...blacklist,
+        { place_id: currentPlace.place_id, name: currentPlace.name },
+      ]
+      saveBlacklistToLocalStorage(newBlacklist)
+      setBlacklist(newBlacklist)
+    }
+  }
+
+  const handleResetBlacklist = () => {
+    resetUI()
+    saveBlacklistToLocalStorage([])
+    setBlacklist([])
+  }
 
   const getNewRestaurantString = currentPlace
     ? 'Get a different restaurant'
@@ -219,9 +271,12 @@ export default function RestaurantFinder() {
             <Button
               disabled={loading}
               onClick={() => {
-                getRestaurant().finally(() => {
-                  setLoading(false)
-                })
+                if (startupCompleted) {
+                  getRestaurant().finally(() => {
+                    setLoading(false)
+                  })
+                }
+                setStartupCompleted(true)
               }}
               variant="contained"
               color="primary"
@@ -230,10 +285,10 @@ export default function RestaurantFinder() {
               {getNewRestaurantString}
             </Button>
 
-            {currentPlace && (
+            {currentPlace && remainingPlacesCount >= 0 && (
               <>
                 <Typography variant="caption" className="remaining-places-text">
-                  Remaining places: {placesMap.size - usedPlaces.length}
+                  Remaining places: {remainingPlacesCount}
                 </Typography>
               </>
             )}
@@ -258,7 +313,11 @@ export default function RestaurantFinder() {
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
                 <>
-                  <PlaceDetails place={currentPlace} />
+                  <PlaceDetails
+                    place={currentPlace}
+                    handleAddToBlacklist={handleAddToBlacklist}
+                    handleResetBlacklist={handleResetBlacklist}
+                  />
                 </>
               )}
           </div>
