@@ -107,6 +107,11 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         <div className="place-details-spacer"></div>
         <Typography variant="subtitle2">{place.address}</Typography>
         <div className="button-group">
+          {place.closingTime && (
+            <Typography variant="caption">
+              Closes at: {place.closingTime}
+            </Typography>
+          )}
           <Button
             variant="contained"
             color="secondary"

@@ -8,6 +8,7 @@ export type GetRestaurantRequest = {
 
 export type GetRestaurantResponse = {
   address?: string
+  closingTime?: string
   description?: string
   directionsUrl?: string
   googleMapsUrl?: string
@@ -36,4 +37,34 @@ export const buildGoogleMapsUrl = (address: string): string => {
   const baseUrl = 'https://www.google.com/maps/dir/?api=1'
   const destination = encodeURIComponent(address)
   return `${baseUrl}&destination=${destination}`
+}
+
+export function getClosingTime(schedule: string[]): string {
+  if (!schedule) return ''
+  // Get today's day of the week
+  const today = new Date().getDay() // Sunday is 0, Monday is 1, ..., Saturday is 6
+
+  // Map the day of the week to the corresponding string in the array
+  const dayMap = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ]
+
+  // Find the closing time for today's day
+  for (const entry of schedule) {
+    if (entry.startsWith(dayMap[today])) {
+      const parts = entry.split('–')
+      if (parts.length > 1) {
+        const closingTime = parts[1].trim().replace(':00', '')
+        return closingTime
+      }
+    }
+  }
+
+  return ''
 }

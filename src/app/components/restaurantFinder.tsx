@@ -15,7 +15,11 @@ import {
   getPlaceDetails,
   getRestaurants,
 } from '../client-utils/getRestaurants'
-import { buildGoogleMapsUrl, GetRestaurantResponse } from '../types/location'
+import {
+  buildGoogleMapsUrl,
+  getClosingTime,
+  GetRestaurantResponse,
+} from '../types/location'
 import { PlaceDetails } from './placeDetails'
 
 const NOT_FOUND =
@@ -190,8 +194,11 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
 
       const thePlaceToBe = {
         ...place,
-        description: placeDetails.editorial_summary?.overview || '',
         address: placeDetails.formatted_address || '',
+        description: placeDetails.editorial_summary?.overview || '',
+        closingTime: getClosingTime(
+          placeDetails?.current_opening_hours?.weekday_text,
+        ),
         googleMapsUrl: placeDetails.url,
         phone: placeDetails.formatted_phone_number || '',
         photos,
