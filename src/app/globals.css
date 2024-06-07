@@ -95,7 +95,7 @@ body {
   grid-template-columns: auto 1fr;
   align-items: center;
   column-gap: 1rem;
-  padding-top: 2rem;
+  padding-top: 4rem;
 }
 
 .remaining-places-text {

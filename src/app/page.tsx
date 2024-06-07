@@ -56,7 +56,7 @@ export default function Home() {
           alt="logo"
           className="logo"
         />
-        <Typography variant={isMobile ? 'h4' : 'h2'} className="page-header">
+        <Typography variant={isMobile ? 'h3' : 'h2'} className="page-header">
           GrubRoulette
         </Typography>
       </div>
