@@ -8,6 +8,8 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import CircularProgress from '@mui/material/CircularProgress'
 import BlockIcon from '@mui/icons-material/Block'
 import LockResetIcon from '@mui/icons-material/LockReset'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 
 import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
 import {
@@ -21,6 +23,7 @@ import {
   GetRestaurantResponse,
 } from '../types/location'
 import { PlaceDetails } from './placeDetails'
+import DarkModeSwitch from './darkModeSwitch'
 
 const NOT_FOUND =
   'No (open) places were found. Try changing your search criteria, or resetting blocked places.'
@@ -248,6 +251,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     <Card className="center card padding-override">
       <CardContent>
         <div className="form-container">
+          <DarkModeSwitch />
           <TextField
             id="keywords"
             label="Search (optional) i.e. 'sushi' or 'italian'"
@@ -287,27 +291,16 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
           <div className="get-restaurant-container">
             {currentPlace && (
               <div className="blacklist-container">
-                <Button
-                  variant="outlined"
-                  color="info"
-                  onClick={handleResetBlacklist}
-                  className="blacklist-button"
-                  startIcon={<LockResetIcon />}
-                  disabled={blacklist.length === 0}
-                >
-                  Reset blocked places
-                </Button>
-                {currentPlace && currentPlace.name !== NOT_FOUND && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={handleAddToBlacklist}
-                    className="blacklist-button"
-                    startIcon={<BlockIcon />}
-                  >
-                    Don&apos;t show me this place again
-                  </Button>
-                )}
+                <Tooltip title="Reset blocked places">
+                  <IconButton onClick={handleResetBlacklist} color="info">
+                    <LockResetIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Don't show me this place again">
+                  <IconButton onClick={handleAddToBlacklist} color="error">
+                    <BlockIcon style={{ maxHeight: '1.35rem' }} />
+                  </IconButton>
+                </Tooltip>
               </div>
             )}
 

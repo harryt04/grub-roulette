@@ -9,7 +9,6 @@ import DarkModeSwitch from './darkModeSwitch'
 const Footer = () => {
   return (
     <div className="footer">
-      <DarkModeSwitch />
       <Button
         component="a"
         href="https://buymeacoffee.com/harryt04"

@@ -128,9 +128,10 @@ body {
 .blacklist-container {
   display: grid;
   row-gap: 1rem;
-  grid-template-columns: auto;
+  grid-template-columns: auto auto;
   padding-top: 1rem;
-  padding-bottom: 3rem;
+  padding-bottom: 2rem;
+  column-gap: 1.5rem;
 }
 
 .blacklist-button {
