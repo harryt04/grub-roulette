@@ -298,7 +298,14 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Don't show me this place again">
-                  <IconButton onClick={handleAddToBlacklist} color="error">
+                  <IconButton
+                    onClick={handleAddToBlacklist}
+                    color="error"
+                    disabled={
+                      currentPlace.name === NOT_FOUND ||
+                      currentPlace.name === SEEN_ALL_PLACES
+                    }
+                  >
                     <BlockIcon style={{ maxHeight: '1.35rem' }} />
                   </IconButton>
                 </Tooltip>
