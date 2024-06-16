@@ -24,6 +24,7 @@ import {
 } from '../types/location'
 import { PlaceDetails } from './placeDetails'
 import DarkModeSwitch from './darkModeSwitch'
+import { OnlyOpenPlaces } from './onlyOpenPlaces'
 
 const NOT_FOUND =
   'No (open) places were found. Try changing your search criteria, or resetting blocked places.'
@@ -350,6 +351,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                   >
                     {currentPlace.name}
                   </Typography>
+                  <OnlyOpenPlaces />
                 </div>
               )}
             {!loading &&

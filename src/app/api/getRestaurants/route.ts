@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const response = await axios.get(endpoint, {
       params: {
         location: `${latitude},${longitude}`,
-        radius: radiusUnits === 'kilometers' ? radius * 1609.34 : radius * 1000, // Convert radius to meters
+        radius: radiusUnits === 'kilometers' ? radius * 1000 : radius * 1609.34, // Convert radius to meters
         type: 'restaurant',
         keyword: keywords,
         key: apiKey,
