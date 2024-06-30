@@ -38,7 +38,12 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     setSelectedImage(null)
     setIsModalOpen(false)
   }
-  const googleMapsUrl = (place.googleMapsUrl || place.directionsUrl) as string
+
+  // if the user is in safari, use the directionsUrl instead of googleMapsUrl
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+  const googleMapsUrl = isSafari
+    ? place.directionsUrl || place.googleMapsUrl
+    : place.googleMapsUrl || place.directionsUrl
 
   const copyToClipboard = () => {
     navigator.clipboard
