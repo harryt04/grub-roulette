@@ -49,7 +49,7 @@ export default function Home() {
     <div className="center">
       <div className="header-container">
         <Image
-          src="/favicon-badass.png"
+          src="/android-chrome-512x512.png"
           width={logoSize}
           height={logoSize}
           unoptimized
