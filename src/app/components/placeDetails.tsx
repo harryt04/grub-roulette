@@ -46,15 +46,17 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     : place.googleMapsUrl || place.directionsUrl
 
   const copyToClipboard = () => {
-    navigator.clipboard
-      .writeText(googleMapsUrl)
-      .then(() => {
-        setSnackbarMessage('Share link copied to clipboard!')
-        setSnackbarOpen(true)
-      })
-      .catch((err) => {
-        console.error('Could not copy text: ', err)
-      })
+    if (googleMapsUrl) {
+      navigator.clipboard
+        .writeText(googleMapsUrl)
+        .then(() => {
+          setSnackbarMessage('Share link copied to clipboard!')
+          setSnackbarOpen(true)
+        })
+        .catch((err) => {
+          console.error('Could not copy text: ', err)
+        })
+    }
   }
 
   const handleCloseSnackbar = (
@@ -120,7 +122,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
           <Button
             variant="contained"
             color="secondary"
-            href={googleMapsUrl}
+            href={googleMapsUrl || ''}
             target="_blank"
             startIcon={<DirectionsIcon />}
             className="directions-button"
