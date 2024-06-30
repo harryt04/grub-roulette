@@ -45,10 +45,12 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     ? place.directionsUrl || place.googleMapsUrl
     : place.googleMapsUrl || place.directionsUrl
 
+  const shareUrl = place.googleMapsUrl || place.directionsUrl
+
   const copyToClipboard = () => {
-    if (googleMapsUrl) {
+    if (shareUrl) {
       navigator.clipboard
-        .writeText(googleMapsUrl)
+        .writeText(shareUrl)
         .then(() => {
           setSnackbarMessage('Share link copied to clipboard!')
           setSnackbarOpen(true)
