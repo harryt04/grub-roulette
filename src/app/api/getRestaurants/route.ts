@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch(
       `${endpoint}?location=${latitude},${longitude}&radius=${radiusInMeters}&type=restaurant&keyword=${keywords}&key=${apiKey}`,
       {
-        next: { revalidate: 86400 }, // Revalidate cache every day
+        next: { revalidate: 3600 }, // Revalidate cache every hour
       },
     )
     console.log('response: ', response)
