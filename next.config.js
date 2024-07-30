@@ -1,6 +1,6 @@
 module.exports = {
   images: {
-    unoptimized: true,
+    // unoptimized: true,
     domains: ['maps.googleapis.com'],
   },
 }

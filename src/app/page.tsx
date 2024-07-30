@@ -52,7 +52,7 @@ export default function Home() {
           src="/android-chrome-512x512.png"
           width={logoSize}
           height={logoSize}
-          unoptimized
+          // unoptimized
           alt="logo"
           className="logo"
         />

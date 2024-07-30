@@ -13,7 +13,7 @@ const ImageModal = ({ src, isOpen, onClose }: any) => {
           layout="fill"
           objectFit="contain"
           className="modal-image"
-          unoptimized
+          // unoptimized
         />
       </div>
       <style jsx>{`
