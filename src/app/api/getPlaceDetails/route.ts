@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch(
       `${endpoint}?place_id=${place_id}&key=${apiKey}`,
       {
-        next: { revalidate: 86400 }, // Revalidate cache every day
+        next: { revalidate: 3600 }, // Revalidate cache every hour
       },
     )
 
