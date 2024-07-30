@@ -61,6 +61,12 @@ export default function Home() {
         </Typography>
       </div>
       <div className="spacer"></div>
+      <div className="center">
+        <Typography variant={isMobile ? 'h5' : 'h4'}>
+          Find the best restaurants in your area
+        </Typography>
+      </div>
+      <div className="spacer"></div>
       <RestaurantFinder isMobile={isMobile} />
       <div className="spacer"></div>
       <Footer />
