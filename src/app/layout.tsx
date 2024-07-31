@@ -5,6 +5,7 @@ import './globals.css'
 import CustomThemeProvider from './CustomThemeProvider'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { PostHogProvider } from './components/posthogProvider'
 
 export const metadata: Metadata = {
   title: 'Grub Roulette',
@@ -39,18 +40,20 @@ export default function RootLayout({
       ></link>
       <link rel="manifest" href="/site.webmanifest"></link>
       <html lang="en">
-        <AppRouterCacheProvider>
-          <CustomThemeProvider>
-            <body>{children}</body>
+        <PostHogProvider>
+          <AppRouterCacheProvider>
+            <CustomThemeProvider>
+              <body>{children}</body>
 
-            {isProduction && (
-              <>
-                <Analytics />
-                <SpeedInsights />
-              </>
-            )}
-          </CustomThemeProvider>
-        </AppRouterCacheProvider>
+              {isProduction && (
+                <>
+                  <Analytics />
+                  <SpeedInsights />
+                </>
+              )}
+            </CustomThemeProvider>
+          </AppRouterCacheProvider>
+        </PostHogProvider>
       </html>
     </>
   )

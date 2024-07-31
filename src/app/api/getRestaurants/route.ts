@@ -1,5 +1,6 @@
 import { GetRestaurantRequest } from '../../types/location'
 import { NextRequest, NextResponse } from 'next/server'
+import PostHogClient from '../_utils/posthog-client'
 
 export async function POST(req: NextRequest) {
   const body: GetRestaurantRequest = await req.json()
@@ -36,6 +37,10 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json()
+    PostHogClient().capture({
+      distinctId: 'restaurants',
+      event: 'getRestaurants fetched',
+    })
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
     console.error('Error fetching restaurants:', error)

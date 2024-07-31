@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import PostHogClient from '../_utils/posthog-client'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -31,6 +32,11 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       )
     }
+
+    PostHogClient().capture({
+      distinctId: place_id,
+      event: 'place details fetched',
+    })
 
     const data = await response.json()
     return NextResponse.json(data.result, { status: 200 })
