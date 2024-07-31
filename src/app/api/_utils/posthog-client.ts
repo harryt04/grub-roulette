@@ -1,6 +1,13 @@
 import { PostHog } from 'posthog-node'
 
 export default function PostHogClient() {
+  const runningInProduction = process.env.NODE_ENV === 'production'
+  if (!runningInProduction) {
+    return {
+      capture: () => {},
+    } as any as PostHog
+  }
+
   if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
     throw new Error('NEXT_PUBLIC_POSTHOG_KEY is not set')
   }

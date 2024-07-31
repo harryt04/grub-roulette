@@ -3,8 +3,6 @@ import type { Metadata } from 'next'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 import './globals.css'
 import CustomThemeProvider from './CustomThemeProvider'
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import { PostHogProvider } from './components/posthogProvider'
 
 export const metadata: Metadata = {
@@ -17,8 +15,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const isProduction = process.env.NODE_ENV === 'production'
-
   return (
     <>
       <link
@@ -44,13 +40,6 @@ export default function RootLayout({
           <AppRouterCacheProvider>
             <CustomThemeProvider>
               <body>{children}</body>
-
-              {isProduction && (
-                <>
-                  <Analytics />
-                  <SpeedInsights />
-                </>
-              )}
             </CustomThemeProvider>
           </AppRouterCacheProvider>
         </PostHogProvider>

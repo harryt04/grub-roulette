@@ -6,7 +6,6 @@ A simple, free, and open-source web app that helps you find a random restaurant 
 
 - [React](https://reactjs.org/)
 - [Next.js](https://nextjs.org/docs)
-- [Vercel](https://vercel.com/docs/frameworks/nextjs)
 - [Material UI](https://mui.com/)
 - [Google Maps API](https://developers.google.com/maps)
 
