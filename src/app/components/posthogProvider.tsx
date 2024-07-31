@@ -1,36 +1,30 @@
 'use client'
 import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
 
 if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
   throw new Error('NEXT_PUBLIC_POSTHOG_KEY is not set')
 }
-posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-  api_host: '/ingest',
-  ui_host: 'https://us.posthog.com',
-})
+const runningInProduction =
+  process.env.NODE_ENV === 'production' && typeof window !== 'undefined'
+if (runningInProduction) {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+    api_host: '/ingest',
+    ui_host: 'https://us.posthog.com',
+  })
+}
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  const runningInProduction = process.env.NODE_ENV === 'production'
-
-  const router = useRouter()
+  const pathName = usePathname()
 
   useEffect(() => {
     if (!runningInProduction) {
       return
     }
-    const handleRouteChange = (url: string) => {
-      posthog.capture('$pageview', { url }) // Track page view
-    }
-
-    router.events.on('routeChangeComplete', handleRouteChange)
-
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange)
-    }
-  }, [router.events, runningInProduction])
+    posthog.capture('$pageview', { pathName })
+  }, [pathName])
 
   if (!runningInProduction) {
     return <>{children}</> // Don't send events in dev mode
