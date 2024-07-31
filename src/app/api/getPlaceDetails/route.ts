@@ -32,12 +32,6 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       )
     }
-
-    PostHogClient().capture({
-      distinctId: place_id,
-      event: 'place details fetched',
-    })
-
     const data = await response.json()
     return NextResponse.json(data.result, { status: 200 })
   } catch (error) {
