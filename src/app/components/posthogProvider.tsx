@@ -1,4 +1,6 @@
 'use client'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
 
@@ -12,8 +14,27 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const runningInProduction = process.env.NODE_ENV === 'production'
+
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!runningInProduction) {
+      return
+    }
+    const handleRouteChange = (url: string) => {
+      posthog.capture('$pageview', { url }) // Track page view
+    }
+
+    router.events.on('routeChangeComplete', handleRouteChange)
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [router.events, runningInProduction])
+
   if (!runningInProduction) {
     return <>{children}</> // Don't send events in dev mode
   }
+
   return <PHProvider client={posthog}>{children}</PHProvider>
 }
