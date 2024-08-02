@@ -10,7 +10,7 @@ export const PhotoComponent = ({ photoUrl }: { photoUrl: string }) => {
         height={300} // Specify the height you want
         layout="responsive"
         loading="lazy"
-        // unoptimized
+        unoptimized
       />
     </div>
   )

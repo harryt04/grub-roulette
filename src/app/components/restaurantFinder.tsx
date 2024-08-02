@@ -361,16 +361,15 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                   <OnlyOpenPlaces />
                 </div>
               )}
-            {!loading &&
-              currentPlace &&
+            {currentPlace &&
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
-                <>
+                <div key={currentPlace.place_id} className="fade-in-container">
                   <PlaceDetails
                     place={currentPlace}
                     isMobile={props.isMobile}
                   />
-                </>
+                </div>
               )}
           </div>
         )}
