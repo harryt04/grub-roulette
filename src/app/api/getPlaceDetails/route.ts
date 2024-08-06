@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import PostHogClient from '../_utils/posthog-client'
 
 export async function POST(req: NextRequest) {
-  const body = await req.json()
-  const { place_id } = body
+  const { place_id }: { place_id: string } = await req.json()
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY
+  const endpoint = `https://maps.googleapis.com/maps/api/place/details/json`
 
   if (!place_id) {
     return NextResponse.json(
@@ -11,9 +11,12 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     )
   }
-
-  const endpoint = `https://maps.googleapis.com/maps/api/place/details/json`
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: 'Missing required environment variable: GOOGLE_MAPS_API_KEY' },
+      { status: 400 },
+    )
+  }
 
   try {
     const response = await fetch(
