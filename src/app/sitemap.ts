@@ -6,13 +6,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: 'https://grubroulette.app',
       lastModified: new Date(),
     },
-    {
-      url: 'https://grubroulette.app/login',
-      lastModified: new Date(),
-    },
-    {
-      url: 'https://grubroulette.app/admin',
-      lastModified: new Date(),
-    },
   ]
 }
