@@ -26,17 +26,16 @@ export async function POST(req: NextRequest) {
       },
     )
 
-    if (!response.ok) {
-      const errorData = await response.json()
+    const data = await response.json()
+    if (!response.ok || data.error_message) {
       return NextResponse.json(
         {
-          error: errorData.error_message || 'Error fetching restaurants',
+          error: data.error_message || 'Error fetching restaurants',
         },
         { status: 500 },
       )
     }
 
-    const data = await response.json()
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
     console.error('Error fetching restaurants:', error)
