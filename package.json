@@ -18,8 +18,8 @@
     "@mui/material-nextjs": "^5.15.11",
     "axios": "^1.6.8",
     "next": "14.2.2",
-    "posthog-js": "^1.161.3",
-    "posthog-node": "^4.2.0",
+    "posthog-js": "^1.167.1",
+    "posthog-node": "^4.2.1",
     "react": "^18",
     "react-dom": "^18",
     "react-masonry-css": "^1.0.16"
