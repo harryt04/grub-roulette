@@ -12,7 +12,44 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const defaultKeywords = 'restaurant|dining|eatery|food|cafe|bistro'
+  const defaultKeywordsList = [
+    'bakery',
+    'bar',
+    'bistro',
+    'brasserie',
+    'brunch',
+    'buffet',
+    'burger',
+    'cafe',
+    'café',
+    'coffee',
+    'diner',
+    'dining',
+    'eatery',
+    'farm-to-table',
+    'grill',
+    'grillhouse',
+    'kebab',
+    'pizza',
+    'pub',
+    'restaurant lounge',
+    'restaurant',
+    'sandwich',
+    'seafood',
+    'smoothie',
+    'soul food',
+    'steakhouse',
+    'sushi',
+    'sweets',
+    'taco',
+    'tapas',
+    'tea',
+    'vegan',
+    'vegetarian',
+  ]
+
+  const defaultKeywords = defaultKeywordsList.join('|')
+
   const searchKeywords = keywords || defaultKeywords
 
   const endpoint = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
