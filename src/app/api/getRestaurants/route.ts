@@ -22,26 +22,26 @@ export async function POST(req: NextRequest) {
     'burger',
     'cafe',
     'café',
-    'coffee',
+    // 'coffee',
     'diner',
     'dining',
-    'eatery',
+    // 'eatery',
     // 'farm-to-table',
     'grill',
-    'grillhouse',
-    'kebab',
-    'pizza',
-    'pub',
-    'restaurant lounge',
+    // 'grillhouse',
+    // 'kebab',
+    // 'pizza',
+    // 'pub',
+    // 'restaurant lounge',
     'restaurant',
     'sandwich',
     'seafood',
-    'smoothie',
+    // 'smoothie',
     // 'soul food',
     'steakhouse',
-    'sushi',
+    // 'sushi',
     // 'sweets',
-    'taco',
+    // 'taco',
     // 'tapas',
     // 'tea',
     // 'vegan',
@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
     )
 
     const data = await response.json()
+    console.log('data: ', data)
     if (!response.ok || data.error_message) {
       return NextResponse.json(
         {

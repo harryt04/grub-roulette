@@ -293,21 +293,25 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
             {currentPlace && (
               <div className="blacklist-container">
                 <Tooltip title="Reset blocked places">
-                  <IconButton onClick={handleResetBlacklist} color="info">
-                    <LockResetIcon />
-                  </IconButton>
+                  <span>
+                    <IconButton onClick={handleResetBlacklist} color="info">
+                      <LockResetIcon />
+                    </IconButton>
+                  </span>
                 </Tooltip>
                 <Tooltip title="Don't show me this place again">
-                  <IconButton
-                    onClick={handleAddToBlacklist}
-                    color="error"
-                    disabled={
-                      currentPlace.name === NOT_FOUND ||
-                      currentPlace.name === SEEN_ALL_PLACES
-                    }
-                  >
-                    <BlockIcon style={{ maxHeight: '1.35rem' }} />
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      onClick={handleAddToBlacklist}
+                      color="error"
+                      disabled={
+                        currentPlace.name === NOT_FOUND ||
+                        currentPlace.name === SEEN_ALL_PLACES
+                      }
+                    >
+                      <BlockIcon style={{ maxHeight: '1.35rem' }} />
+                    </IconButton>
+                  </span>
                 </Tooltip>
               </div>
             )}
