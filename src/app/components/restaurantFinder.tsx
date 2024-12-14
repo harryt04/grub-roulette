@@ -246,7 +246,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
 
   const getNewRestaurantString = currentPlace
     ? 'Get a different restaurant'
-    : 'Get a random restaurant'
+    : 'Find a place to eat'
 
   return (
     <Card className="center card padding-override">
