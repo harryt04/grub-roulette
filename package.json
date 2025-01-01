@@ -18,7 +18,7 @@
     "@mui/material-nextjs": "^5.15.11",
     "axios": "^1.7.7",
     "next": "^14.2.2",
-    "posthog-js": "^1.200.1",
+    "posthog-js": "^1.203.2",
     "posthog-node": "^4.3.2",
     "react": "^18",
     "react-dom": "^18",
