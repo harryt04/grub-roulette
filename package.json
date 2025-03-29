@@ -19,7 +19,7 @@
     "axios": "^1.7.7",
     "next": "^14.2.26",
     "posthog-js": "^1.234.1",
-    "posthog-node": "^4.10.2",
+    "posthog-node": "^4.11.1",
     "react": "^18",
     "react-dom": "^18",
     "react-masonry-css": "^1.0.16"
