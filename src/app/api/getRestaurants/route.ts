@@ -3,11 +3,78 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   const body: GetRestaurantRequest = await req.json()
-  const { latitude, longitude, radius, radiusUnits = 'miles', keywords } = body
+  const {
+    latitude,
+    longitude,
+    zip,
+    radius,
+    radiusUnits = 'miles',
+    keywords,
+  } = body
+  console.log('body: ', body)
 
-  if (!latitude || !longitude || !radius) {
+  let finalLatitude = latitude
+  let finalLongitude = longitude
+
+  // If ZIP is provided but lat/lng are not, geocode the ZIP
+  if (zip && (!latitude || !longitude)) {
+    try {
+      const geocodeEndpoint = `https://geocode.googleapis.com/v4beta/geocode/address`
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY
+
+      if (!apiKey) {
+        return NextResponse.json(
+          {
+            error: 'Missing required environment variable: GOOGLE_MAPS_API_KEY',
+          },
+          { status: 500 },
+        )
+      }
+
+      const geocodeResponse = await fetch(
+        `${geocodeEndpoint}?address.postalCode=${encodeURIComponent(zip)}&key=${apiKey}`,
+        {
+          next: { revalidate: 3600 },
+        },
+      )
+
+      const geocodeData = await geocodeResponse.json()
+
+      if (!geocodeResponse.ok || geocodeData.status === 'ZERO_RESULTS') {
+        return NextResponse.json(
+          { error: geocodeData.error_message || 'Unable to geocode ZIP code' },
+          { status: 400 },
+        )
+      }
+
+      const location = geocodeData.results?.[0]?.location
+      console.log('geocodeData: ', geocodeData)
+      console.log('location: ', location)
+
+      if (!location) {
+        return NextResponse.json(
+          { error: 'Unable to determine coordinates for ZIP code' },
+          { status: 400 },
+        )
+      }
+
+      finalLatitude = location.latitude
+      finalLongitude = location.longitude
+    } catch (error) {
+      console.error('Error geocoding ZIP code:', error)
+      return NextResponse.json(
+        { error: 'Error geocoding ZIP code' },
+        { status: 500 },
+      )
+    }
+  }
+
+  if (!finalLatitude || !finalLongitude || !radius) {
     return NextResponse.json(
-      { error: 'Missing required parameters' },
+      {
+        error:
+          'Missing required parameters (latitude/longitude or ZIP code, and radius)',
+      },
       { status: 400 },
     )
   }
@@ -40,7 +107,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await fetch(
-      `${endpoint}?location=${latitude},${longitude}&radius=${radiusInMeters}&type=restaurant&keyword=${encodeURIComponent(searchKeywords)}&key=${apiKey}`,
+      `${endpoint}?location=${finalLatitude},${finalLongitude}&radius=${radiusInMeters}&type=restaurant&keyword=${encodeURIComponent(searchKeywords)}&key=${apiKey}`,
       {
         next: { revalidate: 3600 }, // Revalidate cache every hour
       },

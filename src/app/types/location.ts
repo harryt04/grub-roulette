@@ -1,6 +1,7 @@
 export type GetRestaurantRequest = {
-  latitude: number
-  longitude: number
+  latitude?: number
+  longitude?: number
+  zip?: string
   radius: number
   radiusUnits?: 'miles' | 'kilometers'
   keywords?: string

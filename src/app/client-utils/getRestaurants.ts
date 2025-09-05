@@ -2,12 +2,15 @@ import axios from 'axios'
 import { GetRestaurantRequest } from '../types/location'
 
 export const getRestaurants = async (options: GetRestaurantRequest) => {
-  if (!options.latitude || !options.longitude || !options.radius) return null
+  // Require either lat/lng OR zip, plus radius
+  if ((!options.latitude || !options.longitude) && !options.zip) return null
+  if (!options.radius) return null
 
   try {
     const response = await axios.post('/api/getRestaurants', {
       latitude: options.latitude,
       longitude: options.longitude,
+      zip: options.zip,
       radius: options.radius,
       radiusUnits: options.radiusUnits,
       keywords: options.keywords,

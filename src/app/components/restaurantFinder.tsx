@@ -71,6 +71,7 @@ export type RestaurantFinderProps = {
 
 export default function RestaurantFinder(props: RestaurantFinderProps) {
   const { location, geoLocationError } = useGeolocation()
+  const [zip, setZip] = useState('')
   const [keywords, setKeywords] = useState('')
   const [loading, setLoading] = useState(false)
   const [isAwaitingRestaurantResponse, setIsAwaitingRestaurantResponse] =
@@ -90,7 +91,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     // if the user changes the search criteria or enters a new location, clear the placesMap.
     // Otherwise, cache them so we dont have to call getRestaurants again
     resetUI()
-  }, [radius, keywords, location])
+  }, [radius, keywords, location, zip])
 
   const resetUI = () => {
     placesMap.clear()
@@ -109,13 +110,25 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
   const getRestaurant = useMemo(
     () => async () => {
       setLoading(true)
-      if (!location) return
+
+      // Use location from browser geolocation if available, otherwise use ZIP
+      if (!location && !zip) return
 
       if (placesMap.size === 0) {
         // Fetch restaurants if the placesMap is empty
+        const input = {
+          latitude: location?.latitude,
+          longitude: location?.longitude,
+          zip: zip || undefined,
+          radius,
+          radiusUnits: 'miles',
+          keywords,
+        }
+        console.log('input: ', input)
         const restaurants = await getRestaurants({
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
+          zip: zip || undefined,
           radius,
           radiusUnits: 'miles',
           keywords,
@@ -213,7 +226,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       setCurrentPlace(thePlaceToBe)
       usedPlaces.push(thePlaceToBe.name)
     },
-    [location, radius, keywords, blacklist],
+    [location, radius, keywords, blacklist, zip],
   ) // end getRestaurant()
 
   useEffect(() => {
@@ -262,6 +275,17 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
             className="textfield"
             color="secondary"
           />
+          {geoLocationError && (
+            <TextField
+              id="zip"
+              label="ZIP code"
+              variant="outlined"
+              value={zip}
+              onChange={(event) => setZip(event.target.value.trim())}
+              className="textfield"
+              color="secondary"
+            />
+          )}
           <TextField
             id="radius"
             label="Search radius (miles)"
@@ -274,21 +298,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
           />
         </div>
 
-        {geoLocationError &&
-          geoLocationError === GeoLocationError.PERMISSION_DENIED && (
-            <>
-              <Typography variant="h6">
-                Please allow geolocation permissions and refresh this page
-              </Typography>
-
-              <Typography variant="caption">
-                Your location data is never stored by GrubRoulette anywhere.
-                GrubRoulette respects your privacy.
-              </Typography>
-            </>
-          )}
-
-        {location && (
+        {(location || zip) && (
           <div className="get-restaurant-container">
             {currentPlace && (
               <div className="blacklist-container">
