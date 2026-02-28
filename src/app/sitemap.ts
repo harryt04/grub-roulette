@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://grubroulette.app',
+      url: 'https://grub.harryt.dev',
       lastModified: new Date(),
     },
   ]

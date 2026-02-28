@@ -9,7 +9,7 @@ A simple, free, and open-source web app that helps you find a random restaurant 
 - [Material UI](https://mui.com/)
 - [Google Maps API](https://developers.google.com/maps)
 
-[Visit Grub Roulette](https://grubroulette.app)
+[Visit Grub Roulette](https://grub.harryt.dev)
 
 ---
 
