@@ -1,23 +1,21 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
-// Mock next/image — modal uses fill so we accept extra props
+// Mock next/image
 vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
     <img src={src} alt={alt} />
   ),
 }))
 
-// Mock @/components/ui/dialog with simple wrappers
-vi.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ open, onOpenChange, children }: any) =>
-    open ? (
-      <div data-testid="dialog" onClick={() => onOpenChange(false)}>
-        {children}
-      </div>
-    ) : null,
-  DialogContent: ({ children }: any) => <div>{children}</div>,
-}))
+// Mock createPortal to render inline in tests
+vi.mock('react-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-dom')>()
+  return {
+    ...actual,
+    createPortal: (node: React.ReactNode) => node,
+  }
+})
 
 import ImageModal from '@/app/components/modal'
 
@@ -30,7 +28,7 @@ describe('ImageModal', () => {
         onClose={vi.fn()}
       />,
     )
-    expect(screen.queryByTestId('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('renders when isOpen is true', () => {
@@ -41,7 +39,7 @@ describe('ImageModal', () => {
         onClose={vi.fn()}
       />,
     )
-    expect(screen.getByTestId('dialog')).toBeInTheDocument()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
   it('renders an image with the correct src', () => {
@@ -58,7 +56,7 @@ describe('ImageModal', () => {
     )
   })
 
-  it('image has alt text "modal photo"', () => {
+  it('image has alt text "photo"', () => {
     render(
       <ImageModal
         src="https://example.com/img.jpg"
@@ -66,10 +64,10 @@ describe('ImageModal', () => {
         onClose={vi.fn()}
       />,
     )
-    expect(screen.getByAltText('modal photo')).toBeInTheDocument()
+    expect(screen.getByAltText('photo')).toBeInTheDocument()
   })
 
-  it('calls onClose when dialog onOpenChange fires with false', () => {
+  it('calls onClose when the close button is clicked', () => {
     const onClose = vi.fn()
     render(
       <ImageModal
@@ -78,7 +76,47 @@ describe('ImageModal', () => {
         onClose={onClose}
       />,
     )
-    fireEvent.click(screen.getByTestId('dialog'))
+    fireEvent.click(screen.getByLabelText('Close'))
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('calls onClose when the Escape key is pressed', () => {
+    const onClose = vi.fn()
+    render(
+      <ImageModal
+        src="https://example.com/img.jpg"
+        isOpen={true}
+        onClose={onClose}
+      />,
+    )
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('does not call onClose for other keys', () => {
+    const onClose = vi.fn()
+    render(
+      <ImageModal
+        src="https://example.com/img.jpg"
+        isOpen={true}
+        onClose={onClose}
+      />,
+    )
+    fireEvent.keyDown(window, { key: 'Enter' })
+    fireEvent.keyDown(window, { key: 'ArrowLeft' })
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('does not call onClose on Escape when modal is closed', () => {
+    const onClose = vi.fn()
+    render(
+      <ImageModal
+        src="https://example.com/img.jpg"
+        isOpen={false}
+        onClose={onClose}
+      />,
+    )
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(onClose).not.toHaveBeenCalled()
   })
 })
