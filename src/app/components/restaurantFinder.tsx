@@ -198,7 +198,14 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
         setIsAwaitingRestaurantResponse(false)
       })
     }
-  }, [blacklist, getRestaurant, isAwaitingRestaurantResponse, geoLoading, location, zip])
+  }, [
+    blacklist,
+    getRestaurant,
+    isAwaitingRestaurantResponse,
+    geoLoading,
+    location,
+    zip,
+  ])
 
   const handleAddToBlacklist = () => {
     if (currentPlace) {
