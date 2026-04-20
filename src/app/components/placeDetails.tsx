@@ -10,6 +10,7 @@ import { MapPin, Share } from 'lucide-react'
 import { PhotoComponent } from './photo'
 import ImageModal from './modal'
 import Masonry from 'react-masonry-css'
+import { getMainDomain, priceLevelString } from '@/lib/domain-utils'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
@@ -36,7 +37,9 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
   }
 
   // if the user is in safari, use the directionsUrl instead of googleMapsUrl
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+  const isSafari =
+    typeof window !== 'undefined' &&
+    /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
   const googleMapsUrl = isSafari
     ? place.directionsUrl || place.googleMapsUrl
     : place.googleMapsUrl || place.directionsUrl
@@ -62,18 +65,13 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     700: 1,
   }
 
-  const priceLevelString = (count?: number) => {
-    if (!count) return ''
-    return '('.padEnd(count + 1, '$') + ')'
-  }
-
   return (
     <>
       <div className="placeDetails">
-        <h2 className="text-xl font-bold sm:text-2xl">
-          {place.name}
-        </h2>
-        <p className="text-sm text-muted-foreground caption">{place.description}</p>
+        <h2 className="text-xl font-bold sm:text-2xl">{place.name}</h2>
+        <p className="text-sm text-muted-foreground caption">
+          {place.description}
+        </p>
         <p className="text-sm">{priceLevelString(place.priceLevel)}</p>
         <div className="place-details-spacer"></div>
 
@@ -140,17 +138,4 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
       />
     </>
   )
-}
-
-function getMainDomain(url: string): string {
-  try {
-    const parsedUrl = new URL(url)
-    const hostname = parsedUrl.hostname
-    const domainPattern = /[^.]+\.[^.]+$/
-    const match = hostname.match(domainPattern)
-    return match ? match[0] : ''
-  } catch (error) {
-    console.error('Invalid URL:', error)
-    return ''
-  }
 }

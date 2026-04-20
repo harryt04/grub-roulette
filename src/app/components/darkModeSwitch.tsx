@@ -39,9 +39,15 @@ const DarkModeSwitch = () => {
               variant="ghost"
               size="icon"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label={
+                isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'
+              }
             >
-              {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              {isDark ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
             </Button>
           }
         />

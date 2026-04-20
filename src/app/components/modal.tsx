@@ -6,10 +6,7 @@ const ImageModal = ({ src, isOpen, onClose }: any) => {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 overflow-hidden bg-black/80 border-0">
-        <div
-          className="relative w-[80vw] h-[80vh]"
-          onClick={onClose}
-        >
+        <div className="relative w-[80vw] h-[80vh]" onClick={onClose}>
           <Image
             src={src}
             alt="modal photo"

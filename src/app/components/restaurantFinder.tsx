@@ -24,51 +24,19 @@ import {
 } from '../types/location'
 import { PlaceDetails } from './placeDetails'
 import { OnlyOpenPlaces } from './onlyOpenPlaces'
+import {
+  loadBlacklistFromLocalStorage,
+  saveBlacklistToLocalStorage,
+  loadPlaceDetailsCacheFromLocalStorage,
+  savePlaceDetailsCacheToLocalStorage,
+} from '@/lib/localStorage'
 
 const NOT_FOUND =
   'No (open) places were found. Try changing your search criteria, or resetting blocked places.'
 const SEEN_ALL_PLACES = 'You have seen all the places!'
 const placesMap = new Map<string, GetRestaurantResponse>()
 const usedPlaces: string[] = []
-let placeDetailsCache = new Map<string, any>()
-
-const loadPlaceDetailsCacheFromLocalStorage = () => {
-  const cacheData = localStorage.getItem('placeDetailsCache')
-  const ONE_HOUR = 3600000
-  if (cacheData) {
-    const { data, timestamp } = JSON.parse(cacheData)
-    if (Date.now() - timestamp < ONE_HOUR) {
-      placeDetailsCache = new Map<string, any>(data)
-    } else {
-      localStorage.removeItem('placeDetailsCache')
-    }
-  }
-}
-
-const savePlaceDetailsCacheToLocalStorage = () => {
-  localStorage.setItem(
-    'placeDetailsCache',
-    JSON.stringify({
-      data: Array.from(placeDetailsCache.entries()),
-      timestamp: Date.now(),
-    }),
-  )
-}
-
-const loadBlacklistFromLocalStorage = () => {
-  const blacklistData = localStorage.getItem('grubroulette_blacklist')
-  if (!blacklistData) return []
-  try {
-    const parsed = JSON.parse(blacklistData)
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
-}
-
-const saveBlacklistToLocalStorage = (blacklist: GetRestaurantResponse[]) => {
-  localStorage.setItem('grubroulette_blacklist', JSON.stringify(blacklist))
-}
+let placeDetailsCache = new Map<string, unknown>()
 
 export type RestaurantFinderProps = {
   isMobile: boolean
@@ -90,7 +58,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
   })
 
   useEffect(() => {
-    loadPlaceDetailsCacheFromLocalStorage()
+    placeDetailsCache = loadPlaceDetailsCacheFromLocalStorage()
   }, [])
 
   useEffect(() => {
@@ -183,12 +151,13 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
         return
       }
 
-      let placeDetails = placeDetailsCache.get(place.place_id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let placeDetails: any = placeDetailsCache.get(place.place_id)
 
       if (!placeDetails) {
         placeDetails = await getPlaceDetails(place.place_id)
         placeDetailsCache.set(place.place_id, placeDetails)
-        savePlaceDetailsCacheToLocalStorage()
+        savePlaceDetailsCacheToLocalStorage(placeDetailsCache)
       }
 
       if (!placeDetails) {
@@ -272,7 +241,9 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
           {(geoLoading || geoLocationError) && (
             <Input
               id="zip"
-              placeholder={geoLoading ? 'Detecting your location...' : 'ZIP code'}
+              placeholder={
+                geoLoading ? 'Detecting your location...' : 'ZIP code'
+              }
               value={zip}
               onChange={(event) => setZip(event.target.value.trim())}
               className="w-full"
@@ -329,7 +300,9 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                         </Button>
                       }
                     />
-                    <TooltipContent>Don&apos;t show me this place again</TooltipContent>
+                    <TooltipContent>
+                      Don&apos;t show me this place again
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>

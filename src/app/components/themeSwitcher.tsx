@@ -37,7 +37,9 @@ export default function ThemeSwitcher() {
             className="min-w-[9rem] justify-start"
           >
             <Palette className="h-4 w-4 shrink-0" />
-            <span className="ml-2 truncate">{active.icon} {active.label}</span>
+            <span className="ml-2 truncate">
+              {active.icon} {active.label}
+            </span>
           </Button>
         }
       />
@@ -56,7 +58,9 @@ export default function ThemeSwitcher() {
               <span className="text-lg leading-none shrink-0">{p.icon}</span>
               <span className="flex flex-col min-w-0">
                 <span className="font-medium text-sm">{p.label}</span>
-                <span className="text-xs text-muted-foreground">{p.description}</span>
+                <span className="text-xs text-muted-foreground">
+                  {p.description}
+                </span>
               </span>
               {palette === p.id && (
                 <span className="ml-auto text-xs font-bold shrink-0">✓</span>
@@ -71,12 +75,17 @@ export default function ThemeSwitcher() {
             className="gap-3 cursor-pointer py-2.5"
             disabled={!mounted}
           >
-            {mounted && isDark
-              ? <Sun className="h-4 w-4 shrink-0" />
-              : <Moon className="h-4 w-4 shrink-0" />
-            }
+            {mounted && isDark ? (
+              <Sun className="h-4 w-4 shrink-0" />
+            ) : (
+              <Moon className="h-4 w-4 shrink-0" />
+            )}
             <span className="font-medium text-sm">
-              {mounted ? (isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode') : 'Toggle Dark Mode'}
+              {mounted
+                ? isDark
+                  ? 'Switch to Light Mode'
+                  : 'Switch to Dark Mode'
+                : 'Toggle Dark Mode'}
             </span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
