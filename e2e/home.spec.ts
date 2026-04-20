@@ -46,18 +46,24 @@ test.describe('Home page', () => {
     ).toBeVisible()
   })
 
-  test('clicking Find a place to eat shows a restaurant card', async ({ page }) => {
+  test('clicking Find a place to eat shows a restaurant card', async ({
+    page,
+  }) => {
     await mockAllApis(page)
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+      timeout: 10_000,
+    })
   })
 
   test('restaurant card shows address and rating', async ({ page }) => {
     await mockAllApis(page)
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('42 Test Street, Springfield, IL 62701')).toBeVisible({
+    await expect(
+      page.getByText('42 Test Street, Springfield, IL 62701'),
+    ).toBeVisible({
       timeout: 10_000,
     })
     await expect(page.getByText(/4\.3 stars/i)).toBeVisible()
@@ -67,28 +73,42 @@ test.describe('Home page', () => {
     await mockAllApis(page)
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+      timeout: 10_000,
+    })
 
-    await page.getByRole('button', { name: /don't show me this place again/i }).click()
+    await page
+      .getByRole('button', { name: /don't show me this place again/i })
+      .click()
 
-    await expect(page.getByRole('button', { name: /get a different restaurant/i })).toBeVisible({
+    await expect(
+      page.getByRole('button', { name: /get a different restaurant/i }),
+    ).toBeVisible({
       timeout: 10_000,
     })
   })
 
-  test('resetting blacklist shows the Reset button and triggers refetch', async ({ page }) => {
+  test('resetting blacklist shows the Reset button and triggers refetch', async ({
+    page,
+  }) => {
     await mockAllApis(page)
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+      timeout: 10_000,
+    })
 
     await page.getByRole('button', { name: /reset blocked places/i }).click()
-    await expect(page.getByRole('button', { name: /get a different restaurant/i })).toBeVisible({
+    await expect(
+      page.getByRole('button', { name: /get a different restaurant/i }),
+    ).toBeVisible({
       timeout: 10_000,
     })
   })
 
-  test('shows No (open) places message when API returns empty results', async ({ page }) => {
+  test('shows No (open) places message when API returns empty results', async ({
+    page,
+  }) => {
     await page.route('**/api/getRestaurants', (route) =>
       route.fulfill({
         status: 200,
@@ -98,9 +118,9 @@ test.describe('Home page', () => {
     )
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(
-      page.getByText(/no \(open\) places were found/i),
-    ).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/no \(open\) places were found/i)).toBeVisible({
+      timeout: 10_000,
+    })
   })
 
   test('dark mode toggle switches theme', async ({ page }) => {
@@ -108,7 +128,11 @@ test.describe('Home page', () => {
     await page.goto('/')
     const html = page.locator('html')
     const initialClass = await html.getAttribute('class')
-    await page.getByRole('button', { name: /toggle theme|switch to dark mode|switch to light mode/i }).click()
+    await page
+      .getByRole('button', {
+        name: /toggle theme|switch to dark mode|switch to light mode/i,
+      })
+      .click()
     const newClass = await html.getAttribute('class')
     expect(newClass).not.toBe(initialClass)
   })
@@ -121,10 +145,14 @@ test.describe('ZIP code flow', () => {
 
   test('shows ZIP input when geolocation is denied', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByPlaceholder(/zip code/i)).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByPlaceholder(/zip code/i)).toBeVisible({
+      timeout: 5_000,
+    })
   })
 
-  test('entering a ZIP code and clicking find shows restaurant', async ({ page }) => {
+  test('entering a ZIP code and clicking find shows restaurant', async ({
+    page,
+  }) => {
     await page.route('**/api/getRestaurants', (route) =>
       route.fulfill({
         status: 200,
@@ -148,9 +176,13 @@ test.describe('ZIP code flow', () => {
     )
 
     await page.goto('/')
-    await expect(page.getByPlaceholder(/zip code/i)).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByPlaceholder(/zip code/i)).toBeVisible({
+      timeout: 5_000,
+    })
     await page.getByPlaceholder(/zip code/i).fill('10001')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+      timeout: 10_000,
+    })
   })
 })

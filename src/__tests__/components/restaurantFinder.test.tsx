@@ -149,7 +149,9 @@ describe('RestaurantFinder', () => {
   it('fetches and displays a restaurant when the button is clicked', async () => {
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /find a place to eat/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: /find a place to eat/i }),
+      )
     })
     await waitFor(() =>
       expect(screen.getByTestId('place-details')).toBeInTheDocument(),
@@ -160,7 +162,9 @@ describe('RestaurantFinder', () => {
   it('shows "Get a different restaurant" button after a result is displayed', async () => {
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /find a place to eat/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: /find a place to eat/i }),
+      )
     })
     await waitFor(() =>
       expect(
@@ -173,7 +177,9 @@ describe('RestaurantFinder', () => {
     mockGetRestaurants.mockResolvedValue([])
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /find a place to eat/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: /find a place to eat/i }),
+      )
     })
     await waitFor(() =>
       expect(
@@ -191,7 +197,9 @@ describe('RestaurantFinder', () => {
     ])
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /find a place to eat/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: /find a place to eat/i }),
+      )
     })
     await waitFor(() =>
       expect(
@@ -204,7 +212,9 @@ describe('RestaurantFinder', () => {
     mockGetRestaurants.mockResolvedValue([])
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /find a place to eat/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: /find a place to eat/i }),
+      )
     })
     await waitFor(() =>
       expect(
@@ -216,7 +226,9 @@ describe('RestaurantFinder', () => {
   it('adding to blacklist saves to localStorage', async () => {
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /find a place to eat/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: /find a place to eat/i }),
+      )
     })
     await waitFor(() => screen.getByTestId('place-details'))
     await act(async () => {
@@ -237,7 +249,9 @@ describe('RestaurantFinder', () => {
     )
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /find a place to eat/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: /find a place to eat/i }),
+      )
     })
     await waitFor(() => screen.getByTestId('place-details'))
     await act(async () => {

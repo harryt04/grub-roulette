@@ -42,7 +42,10 @@ describe('useGeolocation', () => {
     const { result } = renderHook(() => useGeolocation())
 
     await waitFor(() => expect(result.current.geoLoading).toBe(false))
-    expect(result.current.location).toEqual({ latitude: 40.7128, longitude: -74.006 })
+    expect(result.current.location).toEqual({
+      latitude: 40.7128,
+      longitude: -74.006,
+    })
     expect(result.current.geoLocationError).toBeNull()
   })
 
@@ -56,7 +59,9 @@ describe('useGeolocation', () => {
 
     const { result } = renderHook(() => useGeolocation())
     await waitFor(() => expect(result.current.geoLoading).toBe(false))
-    expect(result.current.geoLocationError).toBe('Geolocation permission denied')
+    expect(result.current.geoLocationError).toBe(
+      'Geolocation permission denied',
+    )
     expect(result.current.location).toBeNull()
   })
 
@@ -83,7 +88,9 @@ describe('useGeolocation', () => {
 
     const { result } = renderHook(() => useGeolocation())
     await waitFor(() => expect(result.current.geoLoading).toBe(false))
-    expect(result.current.geoLocationError).toBe('Geolocation request timed out')
+    expect(result.current.geoLocationError).toBe(
+      'Geolocation request timed out',
+    )
   })
 
   it('sets geoLocationError="An unknown error occurred" for unknown error code', async () => {

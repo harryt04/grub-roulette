@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { filterOpenPlaces, selectRandomUnusedPlace } from '@/lib/restaurant-logic'
+import {
+  filterOpenPlaces,
+  selectRandomUnusedPlace,
+} from '@/lib/restaurant-logic'
 import type { RawPlace } from '@/lib/restaurant-logic'
 import type { GetRestaurantResponse } from '@/app/types/location'
 
@@ -59,7 +62,11 @@ describe('filterOpenPlaces', () => {
   })
 
   it('excludes places with no opening_hours field', () => {
-    const noHours: RawPlace = { name: 'X', place_id: 'X', business_status: 'OPERATIONAL' }
+    const noHours: RawPlace = {
+      name: 'X',
+      place_id: 'X',
+      business_status: 'OPERATIONAL',
+    }
     expect(filterOpenPlaces([noHours])).toEqual([])
   })
 })

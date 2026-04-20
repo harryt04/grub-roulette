@@ -16,7 +16,10 @@ describe('PhotoComponent', () => {
 
   it('renders with the correct src', () => {
     render(<PhotoComponent photoUrl="https://example.com/photo.jpg" />)
-    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://example.com/photo.jpg')
+    expect(screen.getByRole('img')).toHaveAttribute(
+      'src',
+      'https://example.com/photo.jpg',
+    )
   })
 
   it('has alt text "Place photo"', () => {

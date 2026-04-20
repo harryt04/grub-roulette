@@ -38,12 +38,15 @@ describe('POST /api/getPlaceDetails', () => {
   })
 
   it('returns 200 with result for a valid place_id', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        result: { name: 'Test Restaurant', formatted_address: '123 Main St' },
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          result: { name: 'Test Restaurant', formatted_address: '123 Main St' },
+        }),
       }),
-    }))
+    )
     const req = makeRequest({ place_id: 'ChIJN1t_tDeuEmsRUsoyG83frY4' })
     const res = await POST(req)
     expect(res.status).toBe(200)
@@ -52,10 +55,13 @@ describe('POST /api/getPlaceDetails', () => {
   })
 
   it('returns 500 when Google API responds with non-ok status', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      json: vi.fn().mockResolvedValue({ error_message: 'REQUEST_DENIED' }),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error_message: 'REQUEST_DENIED' }),
+      }),
+    )
     const req = makeRequest({ place_id: 'bad_id' })
     const res = await POST(req)
     expect(res.status).toBe(500)

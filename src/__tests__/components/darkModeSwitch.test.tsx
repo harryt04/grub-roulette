@@ -41,13 +41,19 @@ describe('DarkModeSwitch', () => {
   })
 
   it('renders a button without crashing', () => {
-    mockUseTheme.mockReturnValue({ resolvedTheme: undefined, setTheme: mockSetTheme })
+    mockUseTheme.mockReturnValue({
+      resolvedTheme: undefined,
+      setTheme: mockSetTheme,
+    })
     render(<DarkModeSwitch />)
     expect(screen.getByRole('button')).toBeInTheDocument()
   })
 
   it('shows "Switch to Dark Mode" label in light mode', async () => {
-    mockUseTheme.mockReturnValue({ resolvedTheme: 'light', setTheme: mockSetTheme })
+    mockUseTheme.mockReturnValue({
+      resolvedTheme: 'light',
+      setTheme: mockSetTheme,
+    })
     render(<DarkModeSwitch />)
     await waitFor(() =>
       expect(
@@ -57,7 +63,10 @@ describe('DarkModeSwitch', () => {
   })
 
   it('shows "Switch to Light Mode" label in dark mode', async () => {
-    mockUseTheme.mockReturnValue({ resolvedTheme: 'dark', setTheme: mockSetTheme })
+    mockUseTheme.mockReturnValue({
+      resolvedTheme: 'dark',
+      setTheme: mockSetTheme,
+    })
     render(<DarkModeSwitch />)
     await waitFor(() =>
       expect(
@@ -67,18 +76,32 @@ describe('DarkModeSwitch', () => {
   })
 
   it('calls setTheme("dark") when clicked in light mode', async () => {
-    mockUseTheme.mockReturnValue({ resolvedTheme: 'light', setTheme: mockSetTheme })
+    mockUseTheme.mockReturnValue({
+      resolvedTheme: 'light',
+      setTheme: mockSetTheme,
+    })
     render(<DarkModeSwitch />)
-    await waitFor(() => screen.getByRole('button', { name: /switch to dark mode/i }))
-    fireEvent.click(screen.getByRole('button', { name: /switch to dark mode/i }))
+    await waitFor(() =>
+      screen.getByRole('button', { name: /switch to dark mode/i }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: /switch to dark mode/i }),
+    )
     expect(mockSetTheme).toHaveBeenCalledWith('dark')
   })
 
   it('calls setTheme("light") when clicked in dark mode', async () => {
-    mockUseTheme.mockReturnValue({ resolvedTheme: 'dark', setTheme: mockSetTheme })
+    mockUseTheme.mockReturnValue({
+      resolvedTheme: 'dark',
+      setTheme: mockSetTheme,
+    })
     render(<DarkModeSwitch />)
-    await waitFor(() => screen.getByRole('button', { name: /switch to light mode/i }))
-    fireEvent.click(screen.getByRole('button', { name: /switch to light mode/i }))
+    await waitFor(() =>
+      screen.getByRole('button', { name: /switch to light mode/i }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: /switch to light mode/i }),
+    )
     expect(mockSetTheme).toHaveBeenCalledWith('light')
   })
 })

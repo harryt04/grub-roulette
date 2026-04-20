@@ -31,7 +31,10 @@ describe('loadBlacklistFromLocalStorage', () => {
   })
 
   it('returns [] when stored value is not an array', () => {
-    localStorage.setItem('grubroulette_blacklist', JSON.stringify({ foo: 'bar' }))
+    localStorage.setItem(
+      'grubroulette_blacklist',
+      JSON.stringify({ foo: 'bar' }),
+    )
     expect(loadBlacklistFromLocalStorage()).toEqual([])
   })
 

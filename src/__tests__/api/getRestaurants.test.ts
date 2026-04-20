@@ -42,7 +42,12 @@ describe('POST /api/getRestaurants', () => {
   })
 
   it('returns 400 for an unknown radiusUnits value', async () => {
-    const req = makeRequest({ latitude: 40, longitude: -74, radius: 5, radiusUnits: 'furlongs' })
+    const req = makeRequest({
+      latitude: 40,
+      longitude: -74,
+      radius: 5,
+      radiusUnits: 'furlongs',
+    })
     const res = await POST(req)
     expect(res.status).toBe(400)
     const body = await res.json()
@@ -51,7 +56,12 @@ describe('POST /api/getRestaurants', () => {
 
   it('returns 200 with data for valid lat/lng request', async () => {
     mockFetchSuccess({ results: [{ name: 'Pizza Place' }], status: 'OK' })
-    const req = makeRequest({ latitude: 40.7, longitude: -74.0, radius: 15, radiusUnits: 'miles' })
+    const req = makeRequest({
+      latitude: 40.7,
+      longitude: -74.0,
+      radius: 15,
+      radiusUnits: 'miles',
+    })
     const res = await POST(req)
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -60,7 +70,12 @@ describe('POST /api/getRestaurants', () => {
 
   it('returns 500 when Google Places API returns an error_message', async () => {
     mockFetchSuccess({ error_message: 'Invalid key', results: [] })
-    const req = makeRequest({ latitude: 40, longitude: -74, radius: 10, radiusUnits: 'miles' })
+    const req = makeRequest({
+      latitude: 40,
+      longitude: -74,
+      radius: 10,
+      radiusUnits: 'miles',
+    })
     const res = await POST(req)
     expect(res.status).toBe(500)
     const body = await res.json()
@@ -68,15 +83,24 @@ describe('POST /api/getRestaurants', () => {
   })
 
   it('returns 500 when fetch throws', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')))
-    const req = makeRequest({ latitude: 40, longitude: -74, radius: 10, radiusUnits: 'miles' })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new Error('Network error')),
+    )
+    const req = makeRequest({
+      latitude: 40,
+      longitude: -74,
+      radius: 10,
+      radiusUnits: 'miles',
+    })
     const res = await POST(req)
     expect(res.status).toBe(500)
   })
 
   it('geocodes ZIP when lat/lng are absent and returns 200', async () => {
     // First fetch call = geocode, second = Places API
-    const fetchMock = vi.fn()
+    const fetchMock = vi
+      .fn()
       .mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
@@ -85,7 +109,9 @@ describe('POST /api/getRestaurants', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValue({ results: [{ name: 'Burger Joint' }] }),
+        json: vi
+          .fn()
+          .mockResolvedValue({ results: [{ name: 'Burger Joint' }] }),
       })
     vi.stubGlobal('fetch', fetchMock)
 
@@ -96,10 +122,15 @@ describe('POST /api/getRestaurants', () => {
   })
 
   it('returns 400 when ZIP geocoding returns ZERO_RESULTS', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ status: 'ZERO_RESULTS', results: [] }),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi
+          .fn()
+          .mockResolvedValue({ status: 'ZERO_RESULTS', results: [] }),
+      }),
+    )
     const req = makeRequest({ zip: '00000', radius: 10, radiusUnits: 'miles' })
     const res = await POST(req)
     expect(res.status).toBe(400)
@@ -119,7 +150,13 @@ describe('POST /api/getRestaurants', () => {
       json: vi.fn().mockResolvedValue({ results: [] }),
     })
     vi.stubGlobal('fetch', fetchMock)
-    const req = makeRequest({ latitude: 40, longitude: -74, radius: 10, radiusUnits: 'miles', keywords: 'sushi' })
+    const req = makeRequest({
+      latitude: 40,
+      longitude: -74,
+      radius: 10,
+      radiusUnits: 'miles',
+      keywords: 'sushi',
+    })
     await POST(req)
     const calledUrl: string = fetchMock.mock.calls[0][0]
     expect(calledUrl).toContain('sushi')

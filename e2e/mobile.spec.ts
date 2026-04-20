@@ -65,6 +65,8 @@ test.describe('Mobile layout', () => {
     )
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+      timeout: 10_000,
+    })
   })
 })

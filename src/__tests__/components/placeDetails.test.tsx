@@ -34,7 +34,14 @@ vi.mock('react-masonry-css', () => ({
 
 // Mock modal to isolate component — mirrors the real prop signature (src, isOpen, onClose)
 vi.mock('@/app/components/modal', () => ({
-  default: ({ isOpen, onClose }: { src: string | null; isOpen: boolean; onClose: () => void }) =>
+  default: ({
+    isOpen,
+    onClose,
+  }: {
+    src: string | null
+    isOpen: boolean
+    onClose: () => void
+  }) =>
     isOpen ? (
       <div data-testid="modal">
         <button onClick={onClose}>Close</button>
@@ -55,9 +62,13 @@ const baseMockPlace: GetRestaurantResponse = {
   description: 'A great test place',
   closingTime: '10:00 PM',
   googleMapsUrl: 'https://maps.google.com/?cid=123',
-  directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=123%20Test%20St',
+  directionsUrl:
+    'https://www.google.com/maps/dir/?api=1&destination=123%20Test%20St',
   priceLevel: 2,
-  photos: ['https://maps.googleapis.com/photo?ref=A', 'https://maps.googleapis.com/photo?ref=B'],
+  photos: [
+    'https://maps.googleapis.com/photo?ref=A',
+    'https://maps.googleapis.com/photo?ref=B',
+  ],
 }
 
 describe('PlaceDetails', () => {
@@ -78,7 +89,9 @@ describe('PlaceDetails', () => {
 
   it('renders the restaurant name', () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
-    expect(screen.getByRole('heading', { name: 'Test Restaurant' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Test Restaurant' }),
+    ).toBeInTheDocument()
   })
 
   it('renders the description', () => {
@@ -117,7 +130,9 @@ describe('PlaceDetails', () => {
 
   it('renders a Directions link', () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
-    expect(screen.getByRole('link', { name: /directions/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /directions/i }),
+    ).toBeInTheDocument()
   })
 
   it('renders photos in the Masonry container', () => {

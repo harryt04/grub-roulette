@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { buildGoogleMapsPhotoUrl, convertRadiusToMeters } from '@/lib/google-maps'
+import {
+  buildGoogleMapsPhotoUrl,
+  convertRadiusToMeters,
+} from '@/lib/google-maps'
 
 describe('buildGoogleMapsPhotoUrl', () => {
   beforeEach(() => {

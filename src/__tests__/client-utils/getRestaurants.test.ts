@@ -27,13 +27,21 @@ describe('getRestaurants', () => {
   })
 
   it('returns null when radius is missing/zero', async () => {
-    const result = await getRestaurants({ latitude: 40, longitude: -74, radius: 0 })
+    const result = await getRestaurants({
+      latitude: 40,
+      longitude: -74,
+      radius: 0,
+    })
     expect(result).toBeNull()
   })
 
   it('returns data.results on success with lat/lng', async () => {
     mockFetch({ results: [{ name: 'Test Restaurant' }] })
-    const result = await getRestaurants({ latitude: 40.7, longitude: -74.0, radius: 15 })
+    const result = await getRestaurants({
+      latitude: 40.7,
+      longitude: -74.0,
+      radius: 15,
+    })
     expect(result).toEqual([{ name: 'Test Restaurant' }])
   })
 
@@ -45,13 +53,21 @@ describe('getRestaurants', () => {
 
   it('returns [] when response is not ok', async () => {
     mockFetch({}, false, 500)
-    const result = await getRestaurants({ latitude: 40, longitude: -74, radius: 10 })
+    const result = await getRestaurants({
+      latitude: 40,
+      longitude: -74,
+      radius: 10,
+    })
     expect(result).toEqual([])
   })
 
   it('returns [] when fetch throws', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network')))
-    const result = await getRestaurants({ latitude: 40, longitude: -74, radius: 10 })
+    const result = await getRestaurants({
+      latitude: 40,
+      longitude: -74,
+      radius: 10,
+    })
     expect(result).toEqual([])
   })
 
@@ -91,7 +107,10 @@ describe('getPlaceDetails', () => {
 
 describe('getPhotos', () => {
   it('returns JSON body (array of URLs) on success', async () => {
-    const urls = ['https://maps.googleapis.com/photo?ref=A', 'https://maps.googleapis.com/photo?ref=B']
+    const urls = [
+      'https://maps.googleapis.com/photo?ref=A',
+      'https://maps.googleapis.com/photo?ref=B',
+    ]
     mockFetch(urls)
     const result = await getPhotos(['REF_A', 'REF_B'])
     expect(result).toEqual(urls)

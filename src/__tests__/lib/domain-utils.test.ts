@@ -3,7 +3,9 @@ import { getMainDomain, priceLevelString } from '@/lib/domain-utils'
 
 describe('getMainDomain', () => {
   it('returns the apex domain for a standard URL with www subdomain', () => {
-    expect(getMainDomain('https://www.example.com/path?q=1')).toBe('example.com')
+    expect(getMainDomain('https://www.example.com/path?q=1')).toBe(
+      'example.com',
+    )
   })
 
   it('returns the apex domain for a URL without subdomain', () => {
