@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint; prettier --check .",
+    "lint": "npx eslint src; prettier --check .",
     "prettify": "prettier --write .",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "ciTests": "npx prettier --check . && npx eslint src && npx tsc --noEmit && npm run build && npm run test:unit",
+    "fixLint": "prettier --write . && eslint --fix src"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",

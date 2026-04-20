@@ -86,19 +86,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       if (!location && !zip) return
 
       if (placesMap.size === 0) {
-        const input = {
-          latitude: location?.latitude,
-          longitude: location?.longitude,
-          zip: zip || undefined,
-          radius,
-          radiusUnits: 'miles',
-          keywords,
-        }
-        console.log('input: ', input)
         const restaurants = await getRestaurants({
-          latitude: location?.latitude,
-          longitude: location?.longitude,
-          zip: zip || undefined,
           radius,
           radiusUnits: 'miles',
           keywords,

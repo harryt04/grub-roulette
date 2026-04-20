@@ -1,7 +1,11 @@
 module.exports = {
   images: {
-    // unoptimized: true,
-    domains: ['maps.googleapis.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'maps.googleapis.com',
+      },
+    ],
   },
   async rewrites() {
     return [

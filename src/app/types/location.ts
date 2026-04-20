@@ -25,7 +25,7 @@ export type GetRestaurantResponse = {
 
 export const mapRestaurantResponse = (
   restaurants: any,
-): GetRestaurantResponse => {
+): GetRestaurantResponse[] => {
   return restaurants.map((r: any) => ({
     directionsUrl: buildGoogleMapsUrl(r.vicinity),
     name: r.name,

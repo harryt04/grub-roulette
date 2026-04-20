@@ -12,8 +12,6 @@ export async function POST(req: NextRequest) {
     radiusUnits = 'miles',
     keywords,
   } = body
-  console.log('body: ', body)
-
   if (radiusUnits && radiusUnits !== 'miles' && radiusUnits !== 'kilometers') {
     return NextResponse.json(
       { error: 'Invalid radiusUnits value. Must be "miles" or "kilometers".' },
@@ -56,8 +54,6 @@ export async function POST(req: NextRequest) {
       }
 
       const location = geocodeData.results?.[0]?.location
-      console.log('geocodeData: ', geocodeData)
-      console.log('location: ', location)
 
       if (!location) {
         return NextResponse.json(
@@ -121,7 +117,6 @@ export async function POST(req: NextRequest) {
     )
 
     const data = await response.json()
-    console.log('data: ', data)
     if (!response.ok || data.error_message) {
       return NextResponse.json(
         {
