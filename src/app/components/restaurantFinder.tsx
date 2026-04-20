@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Tooltip,
   TooltipContent,
@@ -261,46 +260,34 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     : 'Find a place to eat'
 
   return (
-    <Card className="center card padding-override">
-      <CardContent>
+    <Card className="w-full max-w-md padding-override">
+      <CardContent className="px-4 py-4">
         <div className="form-container">
           <DarkModeSwitch />
-          <div className="textfield">
-            <Label htmlFor="keywords" className="sr-only">
-              Search
-            </Label>
-            <Input
-              id="keywords"
-              placeholder="Search (optional) i.e. 'sushi' or 'italian'"
-              value={keywords}
-              onChange={(event) => setKeywords(event.target.value)}
-            />
-          </div>
+          <Input
+            id="keywords"
+            placeholder="Search (optional) e.g. 'sushi' or 'italian'"
+            value={keywords}
+            onChange={(event) => setKeywords(event.target.value)}
+            className="w-full"
+          />
           {geoLocationError && (
-            <div className="textfield">
-              <Label htmlFor="zip" className="sr-only">
-                ZIP code
-              </Label>
-              <Input
-                id="zip"
-                placeholder="ZIP code"
-                value={zip}
-                onChange={(event) => setZip(event.target.value.trim())}
-              />
-            </div>
-          )}
-          <div className="textfield">
-            <Label htmlFor="radius" className="sr-only">
-              Search radius (miles)
-            </Label>
             <Input
-              id="radius"
-              placeholder="Search radius (miles)"
-              type="number"
-              value={Number(radius).toString()}
-              onChange={(event) => setRadius(Number(event.target.value))}
+              id="zip"
+              placeholder="ZIP code"
+              value={zip}
+              onChange={(event) => setZip(event.target.value.trim())}
+              className="w-full"
             />
-          </div>
+          )}
+          <Input
+            id="radius"
+            placeholder="Search radius (miles)"
+            type="number"
+            value={Number(radius).toString()}
+            onChange={(event) => setRadius(Number(event.target.value))}
+            className="w-full"
+          />
         </div>
 
         {(location || zip) && (
@@ -353,6 +340,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
               disabled={loading}
               onClick={() => setIsAwaitingRestaurantResponse(true)}
               variant="default"
+              className="w-full"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               {getNewRestaurantString}
@@ -378,13 +366,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                 currentPlace.name === SEEN_ALL_PLACES) && (
                 <div className="placeDetails">
                   <div className="spacer"></div>
-                  <h3
-                    className={
-                      !props.isMobile && currentPlace.name === SEEN_ALL_PLACES
-                        ? 'text-3xl font-bold'
-                        : 'text-xl font-semibold'
-                    }
-                  >
+                  <h3 className="text-xl font-semibold sm:text-2xl">
                     {currentPlace.name}
                   </h3>
                   <OnlyOpenPlaces />

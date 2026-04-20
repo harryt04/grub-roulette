@@ -70,7 +70,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
   return (
     <>
       <div className="placeDetails">
-        <h2 className={props.isMobile ? 'text-xl font-semibold' : 'text-2xl font-bold'}>
+        <h2 className="text-xl font-bold sm:text-2xl">
           {place.name}
         </h2>
         <p className="text-sm text-muted-foreground caption">{place.description}</p>
@@ -105,7 +105,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
             href={googleMapsUrl || ''}
             target="_blank"
             rel="noopener noreferrer"
-            className={cn(buttonVariants({ variant: 'secondary' }), 'directions-button')}
+            className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}
           >
             <MapPin className="mr-2 h-4 w-4" />
             Directions
@@ -113,7 +113,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
           <Button
             variant="default"
             onClick={copyToClipboard}
-            className="copy-button"
+            className="w-full"
           >
             <Share className="mr-2 h-4 w-4" />
             Share

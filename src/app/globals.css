@@ -11,9 +11,10 @@ body {
 }
 
 .get-restaurant-container {
-  min-width: 40vw;
+  width: 100%;
   display: grid;
   place-items: center;
+  gap: 0.75rem;
 }
 
 .center {
@@ -23,118 +24,121 @@ body {
 }
 
 .spacer {
-  height: 3rem;
+  height: 1.5rem;
 }
 
 .place-details-spacer {
-  height: 1rem;
+  height: 0.5rem;
 }
 
 .body {
-  max-width: 30vw;
+  max-width: 100%;
 }
 
 .card {
-  padding: 1rem;
-  width: 80vw !important;
+  width: 100% !important;
+  max-width: 480px;
 }
 
 .textfield {
-  width: 40vw !important;
+  width: 100%;
 }
 
 .form-container {
   display: grid;
   place-items: center;
-  row-gap: 1rem;
+  row-gap: 0.75rem;
   padding-bottom: 1rem;
+  width: 100%;
 }
 
 .placeDetails {
   display: grid;
   place-items: center;
-  /* row-gap: 0.25rem; */
-  padding-top: 3rem;
+  padding-top: 1.5rem;
   padding-bottom: 1rem;
   text-align: center;
-  row-gap: 0.25rem;
+  row-gap: 0.5rem;
+  width: 100%;
 }
 
 .directions-button {
-  padding-top: 0.5rem;
+  width: 100%;
 }
 
 .imageGallery {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  column-gap: 1rem;
-  row-gap: 1rem;
-  padding-top: 2rem;
+  display: flex;
+  margin-left: -12px;
+  width: auto;
+  padding-top: 1.5rem;
 }
 
 .footer {
-  display: grid;
-  grid-template-columns: auto;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  row-gap: 1rem;
+  gap: 0.75rem;
+  padding: 1rem 0 2rem;
+  width: 100%;
+  max-width: 480px;
 }
 
 .footer-text {
   text-align: center;
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 .footer-button {
-  max-width: 100%;
-  justify-self: center;
+  width: 100%;
+  max-width: 320px;
 }
 
 .loading-spinner {
-  padding-top: 1rem;
+  padding-top: 0.75rem;
 }
 
 .header-container {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  column-gap: 1rem;
-  padding-top: 4rem;
+  column-gap: 0.75rem;
+  padding-top: 2rem;
+  padding-bottom: 0.5rem;
 }
 
 .remaining-places-text {
-  padding-top: 0.5rem;
-}
-
-.imageGallery {
-  display: flex;
-  margin-left: -30px; /* gutter size offset */
-  width: auto;
+  padding-top: 0.25rem;
 }
 
 .imageGalleryColumn {
-  padding-left: 30px; /* gutter size */
+  padding-left: 12px;
   background-clip: padding-box;
 }
 
 /* Style each image component */
 .imageGalleryColumn > div {
-  margin-bottom: 30px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 .button-group {
-  display: grid;
-  grid-template-columns: auto;
-  row-gap: 1rem;
-  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  width: 100%;
+  max-width: 320px;
 }
 
 .blacklist-container {
-  display: grid;
-  row-gap: 1rem;
-  grid-template-columns: auto auto;
-  padding-top: 1rem;
-  padding-bottom: 2rem;
-  column-gap: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
 }
 
 .blacklist-button {
@@ -148,6 +152,7 @@ body {
 .fade-in-container {
   opacity: 0;
   animation: fadeIn 0.5s forwards;
+  width: 100%;
 }
 
 @keyframes fadeIn {
@@ -156,42 +161,35 @@ body {
   }
 }
 
-/* if screen is tablet or BIGGER */
-@media (min-width: 768px) {
-  .centeredSnackbar {
-    left: 50%;
-    transform: translateX(-50%);
-  }
+.caption {
+  max-width: min(80vw, 400px);
 }
 
-/* if screen is tablet or SMALLER */
-@media (max-width: 768px) {
-  .body {
-    max-width: 80vw;
-  }
+.logo {
+  width: 48px;
+  height: 48px;
+}
 
-  .padding-override {
-    padding: 0.25rem !important;
-    margin: 0 !important;
-  }
+.padding-override {
+  padding: 0.75rem !important;
+}
 
-  .caption {
-    max-width: 80vw;
+@media (min-width: 480px) {
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+  .header-container {
+    padding-top: 2.5rem;
   }
   .imageGallery {
-    grid-template-columns: auto auto;
+    margin-left: -20px;
   }
-  .textfield {
-    width: 70vw !important;
+  .imageGalleryColumn {
+    padding-left: 20px;
   }
-
-  .card {
-    width: 95% !important;
-  }
-
-  .logo {
-    width: 50px;
-    height: 50px;
+  .imageGalleryColumn > div {
+    margin-bottom: 20px;
   }
 }
 

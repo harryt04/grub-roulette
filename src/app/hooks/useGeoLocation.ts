@@ -12,10 +12,12 @@ export enum GeoLocationError {
 export const useGeolocation = () => {
   const [location, setLocation] = useState<LatLong | null>(null)
   const [geoLocationError, setError] = useState<string | null>(null)
+  const [geoLoading, setGeoLoading] = useState(true)
 
   useEffect(() => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser')
+      setGeoLoading(false)
       return
     }
 
@@ -24,6 +26,7 @@ export const useGeolocation = () => {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       })
+      setGeoLoading(false)
     }
 
     const error = (err: GeolocationPositionError) => {
@@ -41,13 +44,14 @@ export const useGeolocation = () => {
           setError('An unknown error occurred')
           break
       }
+      setGeoLoading(false)
     }
 
     // Request geolocation access directly
     navigator.geolocation.getCurrentPosition(success, error)
   }, [])
 
-  return { location, geoLocationError }
+  return { location, geoLocationError, geoLoading }
 }
 
 export default useGeolocation
