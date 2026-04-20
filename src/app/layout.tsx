@@ -10,6 +10,14 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 export const metadata: Metadata = {
   title: 'Grub Roulette',
   description: 'Randomly choose a restaurant near you',
+  icons: {
+    apple: '/apple-touch-icon.png',
+    icon: [
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
 }
 
 // Palette CSS is injected as a raw <style> tag so Tailwind v4 cannot purge
@@ -119,24 +127,6 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <link
-        rel="apple-touch-icon"
-        sizes="180x180"
-        href="/apple-touch-icon.png"
-      />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="32x32"
-        href="/favicon-32x32.png"
-      />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="16x16"
-        href="/favicon-16x16.png"
-      />
-      <link rel="manifest" href="/site.webmanifest" />
       <html lang="en" suppressHydrationWarning className={inter.variable}>
         {/* eslint-disable-next-line react/no-danger */}
         <head>

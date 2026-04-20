@@ -77,20 +77,24 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
 
         <p className="text-base">{ratingString}</p>
         <div className="place-details-spacer"></div>
-        <Link
-          className={isDarkMode ? 'primary-text' : ''}
-          href={`tel:${place.phone}`}
-        >
-          {place.phone}
-        </Link>
+        {place.phone && (
+          <Link
+            className={isDarkMode ? 'primary-text' : ''}
+            href={`tel:${place.phone}`}
+          >
+            {place.phone}
+          </Link>
+        )}
         <div className="place-details-spacer"></div>
-        <Link
-          className={isDarkMode ? 'primary-text' : ''}
-          href={place.website as string}
-          target="_blank"
-        >
-          {getMainDomain(place.website as string)}
-        </Link>
+        {place.website && (
+          <Link
+            className={isDarkMode ? 'primary-text' : ''}
+            href={place.website}
+            target="_blank"
+          >
+            {getMainDomain(place.website)}
+          </Link>
+        )}
         <div className="place-details-spacer"></div>
         <p className="text-sm font-medium">{place.address}</p>
         <div className="button-group">

@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const { photos } = body
 
-  if (!photos || photos.length === 0) {
+  if (!photos || !Array.isArray(photos) || photos.length === 0) {
     return NextResponse.json(
       { error: 'Missing required parameter: photos' },
       { status: 400 },
