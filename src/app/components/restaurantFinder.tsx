@@ -83,10 +83,11 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     () => async () => {
       setLoading(true)
 
-      if (!location && !zip) return
-
       if (placesMap.size === 0) {
         const restaurants = await getRestaurants({
+          latitude: location?.latitude,
+          longitude: location?.longitude,
+          zip: zip || undefined,
           radius,
           radiusUnits: 'miles',
           keywords,
@@ -184,13 +185,20 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
   )
 
   useEffect(() => {
-    if (isAwaitingRestaurantResponse) {
+    // Don't attempt a fetch until geolocation has either resolved or failed
+    if (isAwaitingRestaurantResponse && !geoLoading) {
+      if (!location && !zip) {
+        // Geolocation finished but we have neither a location nor a ZIP — nothing to fetch
+        setLoading(false)
+        setIsAwaitingRestaurantResponse(false)
+        return
+      }
       getRestaurant().finally(() => {
         setLoading(false)
         setIsAwaitingRestaurantResponse(false)
       })
     }
-  }, [blacklist, getRestaurant, isAwaitingRestaurantResponse])
+  }, [blacklist, getRestaurant, isAwaitingRestaurantResponse, geoLoading, location, zip])
 
   const handleAddToBlacklist = () => {
     if (currentPlace) {

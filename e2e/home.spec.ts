@@ -128,9 +128,12 @@ test.describe('Home page', () => {
     await page.goto('/')
     const html = page.locator('html')
     const initialClass = await html.getAttribute('class')
+    // Open the theme switcher dropdown
+    await page.getByRole('button', { name: /change color theme/i }).click()
+    // Click the dark/light mode toggle item inside the dropdown
     await page
-      .getByRole('button', {
-        name: /toggle theme|switch to dark mode|switch to light mode/i,
+      .getByRole('menuitem', {
+        name: /switch to dark mode|switch to light mode|toggle dark mode/i,
       })
       .click()
     const newClass = await html.getAttribute('class')
