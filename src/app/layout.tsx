@@ -4,6 +4,10 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 import './globals.css'
 import CustomThemeProvider from './CustomThemeProvider'
 import { PostHogProvider } from './components/posthogProvider'
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: 'Grub Roulette',
@@ -35,7 +39,7 @@ export default function RootLayout({
         href="/favicon-16x16.png"
       ></link>
       <link rel="manifest" href="/site.webmanifest"></link>
-      <html lang="en">
+      <html lang="en" className={cn("font-sans", geist.variable)}>
         <PostHogProvider>
           <AppRouterCacheProvider>
             <CustomThemeProvider>
