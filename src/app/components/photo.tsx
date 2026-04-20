@@ -4,11 +4,11 @@ export const PhotoComponent = ({ photoUrl }: { photoUrl: string }) => {
   return (
     <div>
       <Image
-        src={photoUrl}
+        src={photoUrl.trim()}
         alt="Place photo"
-        width={400} // Specify the width you want
-        height={300} // Specify the height you want
-        layout="responsive"
+        width={400}
+        height={300}
+        style={{ width: '100%', height: 'auto' }}
         loading="lazy"
         unoptimized
       />

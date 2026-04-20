@@ -1,48 +1,55 @@
 'use client'
-import React, { useState } from 'react'
-import { styled } from '@mui/material/styles'
-import Switch from '@mui/material/Switch'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
-import DarkModeIcon from '@mui/icons-material/DarkMode'
-import LightModeIcon from '@mui/icons-material/LightMode'
-import Box from '@mui/material/Box'
-import { useThemeContext } from '../CustomThemeProvider'
-
-const DarkModeToggle = styled(Switch)(({ theme }) => ({
-  '& .MuiSwitch-switchBase': {
-    '&.Mui-checked': {
-      color: theme.palette.warning.main,
-      '& + .MuiSwitch-track': {
-        backgroundColor: theme.palette.warning.main,
-      },
-    },
-  },
-  '& .MuiSwitch-track': {
-    backgroundColor: theme.palette.primary.main,
-  },
-}))
+import { useEffect, useState } from 'react'
+import { useTheme } from 'next-themes'
+import { Moon, Sun } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const DarkModeSwitch = () => {
-  const { theme, toggleDarkMode } = useThemeContext()
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Render a placeholder button during SSR / before hydration
+  // to avoid server/client mismatch on resolvedTheme
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" aria-label="Toggle theme" disabled>
+        <Sun className="h-5 w-5" />
+      </Button>
+    )
+  }
+
+  const isDark = resolvedTheme === 'dark'
+
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" padding={2}>
-      <Tooltip
-        title={
-          theme.palette.mode === 'dark'
-            ? 'Switch to Light Mode'
-            : 'Switch to Dark Mode'
-        }
-      >
-        <IconButton onClick={toggleDarkMode} color="inherit">
-          {theme.palette.mode === 'dark' ? <DarkModeIcon /> : <LightModeIcon />}
-        </IconButton>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </Button>
+          }
+        />
+        <TooltipContent>
+          {isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        </TooltipContent>
       </Tooltip>
-      <DarkModeToggle
-        checked={theme.palette.mode === 'dark'}
-        onChange={toggleDarkMode}
-      />
-    </Box>
+    </TooltipProvider>
   )
 }
 

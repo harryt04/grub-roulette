@@ -1,23 +1,25 @@
-import axios from 'axios'
 import { GetRestaurantRequest } from '../types/location'
 
 export const getRestaurants = async (options: GetRestaurantRequest) => {
-  // Require either lat/lng OR zip, plus radius
   if ((!options.latitude || !options.longitude) && !options.zip) return null
   if (!options.radius) return null
 
   try {
-    const response = await axios.post('/api/getRestaurants', {
-      latitude: options.latitude,
-      longitude: options.longitude,
-      zip: options.zip,
-      radius: options.radius,
-      radiusUnits: options.radiusUnits,
-      keywords: options.keywords,
+    const response = await fetch('/api/getRestaurants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        latitude: options.latitude,
+        longitude: options.longitude,
+        zip: options.zip,
+        radius: options.radius,
+        radiusUnits: options.radiusUnits,
+        keywords: options.keywords,
+      }),
     })
-
-    const restaurants = response.data.results
-    return restaurants
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json()
+    return data.results
   } catch (error) {
     console.error('Error fetching restaurants:', JSON.stringify(error))
     return []
@@ -28,12 +30,13 @@ export const getPlaceDetails = async (placeId: string) => {
   if (!placeId) return null
 
   try {
-    const response = await axios.post('/api/getPlaceDetails', {
-      place_id: placeId,
+    const response = await fetch('/api/getPlaceDetails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ place_id: placeId }),
     })
-
-    const placeDetails = response.data
-    return placeDetails
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    return await response.json()
   } catch (error) {
     console.error('Error fetching place details:', JSON.stringify(error))
     return null
@@ -42,12 +45,13 @@ export const getPlaceDetails = async (placeId: string) => {
 
 export const getPhotos = async (photoReferences: string[]) => {
   try {
-    const response = await axios.post('/api/getPhotos', {
-      photos: photoReferences,
+    const response = await fetch('/api/getPhotos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photos: photoReferences }),
     })
-
-    const photos = response.data
-    return photos
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    return await response.json()
   } catch (error) {
     console.error('Error fetching place details:', JSON.stringify(error))
     return null

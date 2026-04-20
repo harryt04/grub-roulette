@@ -1,13 +1,11 @@
-// RootLayout.js
 import type { Metadata } from 'next'
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
+import { Inter } from 'next/font/google'
 import './globals.css'
-import CustomThemeProvider from './CustomThemeProvider'
+import { Providers } from './providers'
 import { PostHogProvider } from './components/posthogProvider'
-import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { Toaster } from '@/components/ui/sonner'
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
   title: 'Grub Roulette',
@@ -25,28 +23,29 @@ export default function RootLayout({
         rel="apple-touch-icon"
         sizes="180x180"
         href="/apple-touch-icon.png"
-      ></link>
+      />
       <link
         rel="icon"
         type="image/png"
         sizes="32x32"
         href="/favicon-32x32.png"
-      ></link>
+      />
       <link
         rel="icon"
         type="image/png"
         sizes="16x16"
         href="/favicon-16x16.png"
-      ></link>
-      <link rel="manifest" href="/site.webmanifest"></link>
-      <html lang="en" className={cn("font-sans", geist.variable)}>
-        <PostHogProvider>
-          <AppRouterCacheProvider>
-            <CustomThemeProvider>
-              <body>{children}</body>
-            </CustomThemeProvider>
-          </AppRouterCacheProvider>
-        </PostHogProvider>
+      />
+      <link rel="manifest" href="/site.webmanifest" />
+      <html lang="en" suppressHydrationWarning className={inter.variable}>
+        <body>
+          <PostHogProvider>
+            <Providers>
+              {children}
+              <Toaster />
+            </Providers>
+          </PostHogProvider>
+        </body>
       </html>
     </>
   )

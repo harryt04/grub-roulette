@@ -1,15 +1,11 @@
-import React from 'react'
-import { Typography } from '@mui/material'
-
 export const OnlyOpenPlaces = () => {
   return (
     <>
       <div className="spacer"></div>
-
-      <Typography variant="body1">
+      <p className="text-base">
         GrubRoulette only considers places within your search radius that are
         currently open for business.
-      </Typography>
+      </p>
     </>
   )
 }
