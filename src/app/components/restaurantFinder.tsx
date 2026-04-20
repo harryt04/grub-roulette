@@ -76,7 +76,7 @@ export type RestaurantFinderProps = {
 }
 
 export default function RestaurantFinder(props: RestaurantFinderProps) {
-  const { location, geoLocationError } = useGeolocation()
+  const { location, geoLocationError, geoLoading } = useGeolocation()
   const [zip, setZip] = useState('')
   const [keywords, setKeywords] = useState('')
   const [loading, setLoading] = useState(false)
@@ -271,13 +271,14 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
             onChange={(event) => setKeywords(event.target.value)}
             className="w-full"
           />
-          {geoLocationError && (
+          {(geoLoading || geoLocationError) && (
             <Input
               id="zip"
-              placeholder="ZIP code"
+              placeholder={geoLoading ? 'Detecting your location...' : 'ZIP code'}
               value={zip}
               onChange={(event) => setZip(event.target.value.trim())}
               className="w-full"
+              disabled={geoLoading}
             />
           )}
           <Input

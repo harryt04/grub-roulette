@@ -2,10 +2,13 @@ import { GitFork, Bug, DollarSign } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import DarkModeSwitch from './darkModeSwitch'
+import ThemeSwitcher from './themeSwitcher'
 
 const Footer = () => {
   return (
     <div className="footer">
+      <ThemeSwitcher />
+      <DarkModeSwitch />
       <a
         href="https://buymeacoffee.com/harryt04"
         target="_blank"
@@ -27,7 +30,7 @@ const Footer = () => {
         View source code
       </a>
       <a
-        href="https://forms.gle/s4hxSSyAcMCyftmn9"
+        href="https://github.com/harryt04/grub-roulette/issues/new"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="BugReport"
@@ -36,7 +39,6 @@ const Footer = () => {
         <Bug className="mr-2 h-4 w-4" />
         Report Issue / Feature Request
       </a>
-      <DarkModeSwitch />
       <p className="footer-text text-sm">
         Your location data is never stored by GrubRoulette anywhere.
         GrubRoulette respects your privacy.
