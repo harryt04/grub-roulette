@@ -1,14 +1,10 @@
 import { GitFork, Bug, DollarSign } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
-import DarkModeSwitch from './darkModeSwitch'
-import ThemeSwitcher from './themeSwitcher'
 
 const Footer = () => {
   return (
     <div className="footer">
-      <ThemeSwitcher />
-      <DarkModeSwitch />
       <a
         href="https://buymeacoffee.com/harryt04"
         target="_blank"
@@ -30,7 +26,7 @@ const Footer = () => {
         View source code
       </a>
       <a
-        href="https://github.com/harryt04/grub-roulette/issues/new"
+        href="https://forms.gle/s4hxSSyAcMCyftmn9"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="BugReport"

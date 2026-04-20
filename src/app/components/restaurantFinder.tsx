@@ -23,7 +23,6 @@ import {
   GetRestaurantResponse,
 } from '../types/location'
 import { PlaceDetails } from './placeDetails'
-import DarkModeSwitch from './darkModeSwitch'
 import { OnlyOpenPlaces } from './onlyOpenPlaces'
 
 const NOT_FOUND =
@@ -263,7 +262,6 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     <Card className="w-full max-w-md padding-override">
       <CardContent className="px-4 py-4">
         <div className="form-container">
-          <DarkModeSwitch />
           <Input
             id="keywords"
             placeholder="Search (optional) e.g. 'sushi' or 'italian'"
