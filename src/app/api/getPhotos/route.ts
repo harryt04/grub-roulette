@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { buildGoogleMapsPhotoUrl } from '@/lib/google-maps'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const { photos } = body
 
-  if (!photos) {
+  if (!photos || !Array.isArray(photos) || photos.length === 0) {
     return NextResponse.json(
       { error: 'Missing required parameter: photos' },
       { status: 400 },
@@ -16,11 +17,4 @@ export async function POST(req: NextRequest) {
   )
 
   return NextResponse.json(photoUrls, { status: 200 })
-}
-
-const buildGoogleMapsPhotoUrl = (photoReference: string): string => {
-  if (!photoReference) return ''
-
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${process.env.GOOGLE_MAPS_API_KEY}
-  `
 }

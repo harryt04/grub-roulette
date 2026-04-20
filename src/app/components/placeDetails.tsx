@@ -1,17 +1,16 @@
-import React, { useState } from 'react'
+'use client'
+import { useState } from 'react'
 import { GetRestaurantResponse } from '../types/location'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-import Snackbar from '@mui/material/Snackbar'
-import IconButton from '@mui/material/IconButton'
-import CloseIcon from '@mui/icons-material/Close'
+import { cn } from '@/lib/utils'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { toast } from 'sonner'
+import { useTheme } from 'next-themes'
 import Link from 'next/link'
-import DirectionsIcon from '@mui/icons-material/Directions'
+import { MapPin, Share } from 'lucide-react'
 import { PhotoComponent } from './photo'
 import ImageModal from './modal'
 import Masonry from 'react-masonry-css'
-import IosShareIcon from '@mui/icons-material/IosShare'
-import { useThemeContext } from '../CustomThemeProvider'
+import { getMainDomain, priceLevelString } from '@/lib/domain-utils'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
@@ -19,15 +18,13 @@ export type PlaceDetailsProps = {
 }
 
 export const PlaceDetails = (props: PlaceDetailsProps) => {
-  const { theme } = useThemeContext()
-  const isDarkMode = theme.palette.mode === 'dark'
+  const { resolvedTheme } = useTheme()
+  const isDarkMode = resolvedTheme === 'dark'
   const { place } = props
   const ratingString = `${place.rating} stars (${place.totalRatings} reviews)`
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState('')
 
   const openModal = (image: string) => {
     setSelectedImage(image)
@@ -40,7 +37,9 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
   }
 
   // if the user is in safari, use the directionsUrl instead of googleMapsUrl
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+  const isSafari =
+    typeof window !== 'undefined' &&
+    /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
   const googleMapsUrl = isSafari
     ? place.directionsUrl || place.googleMapsUrl
     : place.googleMapsUrl || place.directionsUrl
@@ -52,8 +51,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
       navigator.clipboard
         .writeText(shareUrl)
         .then(() => {
-          setSnackbarMessage('Share link copied to clipboard!')
-          setSnackbarOpen(true)
+          toast('Share link copied to clipboard!')
         })
         .catch((err) => {
           console.error('Could not copy text: ', err)
@@ -61,83 +59,65 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
     }
   }
 
-  const handleCloseSnackbar = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setSnackbarOpen(false)
-  }
-
   const breakpointColumnsObj = {
-    // screen width thresholds for image grid columns
-    default: 3, // web
-    1100: 2, // tablet
-    700: 1, // mobile
-  }
-
-  const priceLevelString = (count?: number) => {
-    if (!count) return ''
-    return '('.padEnd(count + 1, '$') + ')'
+    default: 3,
+    1100: 2,
+    700: 1,
   }
 
   return (
     <>
       <div className="placeDetails">
-        <Typography variant={props.isMobile ? 'h5' : 'h4'}>
-          {place.name}
-        </Typography>
-        <Typography variant="caption" className="caption">
+        <h2 className="text-xl font-bold sm:text-2xl">{place.name}</h2>
+        <p className="text-sm text-muted-foreground caption">
           {place.description}
-        </Typography>
-        <Typography variant="caption">
-          {priceLevelString(place.priceLevel)}
-        </Typography>
+        </p>
+        <p className="text-sm">{priceLevelString(place.priceLevel)}</p>
         <div className="place-details-spacer"></div>
 
-        <Typography variant="subtitle1">{ratingString}</Typography>
+        <p className="text-base">{ratingString}</p>
         <div className="place-details-spacer"></div>
-        <Link
-          className={isDarkMode ? 'primary-text' : ''}
-          href={`tel:${place.phone}`}
-        >
-          {place.phone}
-        </Link>
+        {place.phone && (
+          <Link
+            className={isDarkMode ? 'primary-text' : ''}
+            href={`tel:${place.phone}`}
+          >
+            {place.phone}
+          </Link>
+        )}
         <div className="place-details-spacer"></div>
-        <Link
-          className={isDarkMode ? 'primary-text' : ''}
-          href={place.website as string}
-          target="_blank"
-        >
-          {getMainDomain(place.website as string)}
-        </Link>
+        {place.website && (
+          <Link
+            className={isDarkMode ? 'primary-text' : ''}
+            href={place.website}
+            target="_blank"
+          >
+            {getMainDomain(place.website)}
+          </Link>
+        )}
         <div className="place-details-spacer"></div>
-        <Typography variant="subtitle2">{place.address}</Typography>
+        <p className="text-sm font-medium">{place.address}</p>
         <div className="button-group">
           {place.closingTime && (
-            <Typography variant="caption">
+            <p className="text-xs text-muted-foreground">
               Closes at: {place.closingTime}
-            </Typography>
+            </p>
           )}
-          <Button
-            variant="contained"
-            color="secondary"
+          <a
             href={googleMapsUrl || ''}
             target="_blank"
-            startIcon={<DirectionsIcon />}
-            className="directions-button"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}
           >
+            <MapPin className="mr-2 h-4 w-4" />
             Directions
-          </Button>
+          </a>
           <Button
-            variant="contained"
-            color="primary"
+            variant="default"
             onClick={copyToClipboard}
-            startIcon={<IosShareIcon />}
-            className="copy-button"
+            className="w-full"
           >
+            <Share className="mr-2 h-4 w-4" />
             Share
           </Button>
         </div>
@@ -160,38 +140,6 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         isOpen={isModalOpen}
         onClose={closeModal}
       />
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message={snackbarMessage}
-        className="centeredSnackbar"
-        action={
-          <IconButton
-            size="small"
-            color="inherit"
-            onClick={handleCloseSnackbar}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
     </>
   )
-}
-
-function getMainDomain(url: string): string {
-  try {
-    const parsedUrl = new URL(url)
-    const hostname = parsedUrl.hostname
-
-    const domainPattern = /[^.]+\.[^.]+$/
-    const match = hostname.match(domainPattern)
-
-    return match ? match[0] : ''
-  } catch (error) {
-    console.error('Invalid URL:', error)
-    return ''
-  }
 }

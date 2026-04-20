@@ -1,45 +1,22 @@
+'use client'
 import Image from 'next/image'
-import React from 'react'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 const ImageModal = ({ src, isOpen, onClose }: any) => {
-  if (!isOpen) return null
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" onClick={onClose}>
-        <Image
-          src={src}
-          alt="modal photo"
-          layout="fill"
-          objectFit="contain"
-          className="modal-image"
-          // unoptimized
-        />
-      </div>
-      <style jsx>{`
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.8);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-        }
-        .modal-content {
-          max-width: 90%;
-          max-height: 90%;
-          overflow: hidden;
-        }
-        .modal-image {
-          width: auto;
-          height: auto;
-        }
-      `}</style>
-    </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 overflow-hidden bg-black/80 border-0">
+        <div className="relative w-[80vw] h-[80vh]" onClick={onClose}>
+          <Image
+            src={src}
+            alt="modal photo"
+            fill
+            style={{ objectFit: 'contain' }}
+            className="modal-image"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

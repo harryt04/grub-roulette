@@ -1,57 +1,44 @@
-import React from 'react'
-import { Button } from '@mui/material'
-import Typography from '@mui/material/Typography'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import BugReportIcon from '@mui/icons-material/BugReport'
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
-import DarkModeSwitch from './darkModeSwitch'
+import { GitFork, Bug, DollarSign } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { buttonVariants } from '@/components/ui/button'
 
 const Footer = () => {
   return (
     <div className="footer">
-      <Button
-        component="a"
+      <a
         href="https://buymeacoffee.com/harryt04"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="BuyMeACofee"
-        startIcon={<AttachMoneyIcon />}
-        variant="contained"
-        color="primary"
-        className="footer-button"
+        aria-label="BuyMeACoffee"
+        className={cn(buttonVariants({ variant: 'default' }), 'footer-button')}
       >
+        <DollarSign className="mr-2 h-4 w-4" />
         Tip Jar
-      </Button>
-      <Button
-        component="a"
+      </a>
+      <a
         href="https://github.com/harryt04/grub-roulette"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub"
-        startIcon={<GitHubIcon />}
-        className="footer-button"
-        variant="outlined"
-        color="info"
+        className={cn(buttonVariants({ variant: 'outline' }), 'footer-button')}
       >
+        <GitFork className="mr-2 h-4 w-4" />
         View source code
-      </Button>
-      <Button
-        component="a"
+      </a>
+      <a
         href="https://forms.gle/s4hxSSyAcMCyftmn9"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="BugReport"
-        startIcon={<BugReportIcon />}
-        className="footer-button"
-        variant="outlined"
-        color="info"
+        className={cn(buttonVariants({ variant: 'outline' }), 'footer-button')}
       >
+        <Bug className="mr-2 h-4 w-4" />
         Report Issue / Feature Request
-      </Button>
-      <Typography variant="caption" className="footer-text">
+      </a>
+      <p className="footer-text text-sm">
         Your location data is never stored by GrubRoulette anywhere.
         GrubRoulette respects your privacy.
-      </Typography>
+      </p>
     </div>
   )
 }

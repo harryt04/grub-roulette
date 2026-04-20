@@ -1,17 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import Typography from '@mui/material/Typography'
-import Card from '@mui/material/Card'
-import Button from '@mui/material/Button'
-import CardContent from '@mui/material/CardContent'
-import TextField from '@mui/material/TextField'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import CircularProgress from '@mui/material/CircularProgress'
-import BlockIcon from '@mui/icons-material/Block'
-import LockResetIcon from '@mui/icons-material/LockReset'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+'use client'
+import { useEffect, useMemo, useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { RefreshCw, Ban, RotateCcw, Loader2 } from 'lucide-react'
 
-import useGeolocation, { GeoLocationError } from '../hooks/useGeoLocation'
+import useGeolocation from '../hooks/useGeoLocation'
 import {
   getPhotos,
   getPlaceDetails,
@@ -23,54 +23,27 @@ import {
   GetRestaurantResponse,
 } from '../types/location'
 import { PlaceDetails } from './placeDetails'
-import DarkModeSwitch from './darkModeSwitch'
 import { OnlyOpenPlaces } from './onlyOpenPlaces'
+import {
+  loadBlacklistFromLocalStorage,
+  saveBlacklistToLocalStorage,
+  loadPlaceDetailsCacheFromLocalStorage,
+  savePlaceDetailsCacheToLocalStorage,
+} from '@/lib/localStorage'
 
 const NOT_FOUND =
   'No (open) places were found. Try changing your search criteria, or resetting blocked places.'
 const SEEN_ALL_PLACES = 'You have seen all the places!'
 const placesMap = new Map<string, GetRestaurantResponse>()
-const usedPlaces: string[] = [] // an array of place_ids that have been ignored by the user
-let placeDetailsCache = new Map<string, any>()
-
-const loadPlaceDetailsCacheFromLocalStorage = () => {
-  const cacheData = localStorage.getItem('placeDetailsCache')
-  const ONE_HOUR = 3600000
-  if (cacheData) {
-    const { data, timestamp } = JSON.parse(cacheData)
-    if (Date.now() - timestamp < ONE_HOUR) {
-      placeDetailsCache = new Map<string, any>(data)
-    } else {
-      localStorage.removeItem('placeDetailsCache')
-    }
-  }
-}
-
-const savePlaceDetailsCacheToLocalStorage = () => {
-  localStorage.setItem(
-    'placeDetailsCache',
-    JSON.stringify({
-      data: Array.from(placeDetailsCache.entries()),
-      timestamp: Date.now(),
-    }),
-  )
-}
-
-const loadBlacklistFromLocalStorage = () => {
-  const blacklistData = localStorage.getItem('grubroulette_blacklist')
-  return blacklistData ? JSON.parse(blacklistData) : []
-}
-
-const saveBlacklistToLocalStorage = (blacklist: GetRestaurantResponse[]) => {
-  localStorage.setItem('grubroulette_blacklist', JSON.stringify(blacklist))
-}
+const usedPlaces: string[] = []
+let placeDetailsCache = new Map<string, unknown>()
 
 export type RestaurantFinderProps = {
   isMobile: boolean
 }
 
 export default function RestaurantFinder(props: RestaurantFinderProps) {
-  const { location, geoLocationError } = useGeolocation()
+  const { location, geoLocationError, geoLoading } = useGeolocation()
   const [zip, setZip] = useState('')
   const [keywords, setKeywords] = useState('')
   const [loading, setLoading] = useState(false)
@@ -79,17 +52,16 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
   const [radius, setRadius] = useState(15)
   const [remainingPlacesCount, setRemainingPlacesCount] = useState(0)
   const [currentPlace, setCurrentPlace] = useState<GetRestaurantResponse>()
-  const [blacklist, setBlacklist] = useState<GetRestaurantResponse[]>(
-    loadBlacklistFromLocalStorage(),
-  )
+  const [blacklist, setBlacklist] = useState<GetRestaurantResponse[]>(() => {
+    if (typeof window === 'undefined') return []
+    return loadBlacklistFromLocalStorage()
+  })
 
   useEffect(() => {
-    loadPlaceDetailsCacheFromLocalStorage()
+    placeDetailsCache = loadPlaceDetailsCacheFromLocalStorage()
   }, [])
 
   useEffect(() => {
-    // if the user changes the search criteria or enters a new location, clear the placesMap.
-    // Otherwise, cache them so we dont have to call getRestaurants again
     resetUI()
   }, [radius, keywords, location, zip])
 
@@ -111,20 +83,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     () => async () => {
       setLoading(true)
 
-      // Use location from browser geolocation if available, otherwise use ZIP
-      if (!location && !zip) return
-
       if (placesMap.size === 0) {
-        // Fetch restaurants if the placesMap is empty
-        const input = {
-          latitude: location?.latitude,
-          longitude: location?.longitude,
-          zip: zip || undefined,
-          radius,
-          radiusUnits: 'miles',
-          keywords,
-        }
-        console.log('input: ', input)
         const restaurants = await getRestaurants({
           latitude: location?.latitude,
           longitude: location?.longitude,
@@ -134,13 +93,11 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
           keywords,
         })
 
-        // Filter open places
         const openPlaces = restaurants?.filter(
           (r: any) =>
             r.opening_hours?.open_now && r.business_status === 'OPERATIONAL',
         )
 
-        // Cache the open places in the placesMap
         openPlaces?.forEach((place: any) => {
           if (!placesMap.has(place.name)) {
             placesMap.set(place.name, {
@@ -183,18 +140,16 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
         return
       }
 
-      // Check if place details are already cached
-      let placeDetails = placeDetailsCache.get(place.place_id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let placeDetails: any = placeDetailsCache.get(place.place_id)
 
       if (!placeDetails) {
-        // Fetch place details if not cached
         placeDetails = await getPlaceDetails(place.place_id)
-        placeDetailsCache.set(place.place_id, placeDetails) // Cache the result
-        savePlaceDetailsCacheToLocalStorage()
+        placeDetailsCache.set(place.place_id, placeDetails)
+        savePlaceDetailsCacheToLocalStorage(placeDetailsCache)
       }
 
       if (!placeDetails) {
-        // Failed to get extra details for place, set the currentPlace and return
         setCurrentPlace(place)
         usedPlaces.push(place.name)
         return
@@ -227,16 +182,30 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       usedPlaces.push(thePlaceToBe.name)
     },
     [location, radius, keywords, blacklist, zip],
-  ) // end getRestaurant()
+  )
 
   useEffect(() => {
-    if (isAwaitingRestaurantResponse) {
+    // Don't attempt a fetch until geolocation has either resolved or failed
+    if (isAwaitingRestaurantResponse && !geoLoading) {
+      if (!location && !zip) {
+        // Geolocation finished but we have neither a location nor a ZIP — nothing to fetch
+        setLoading(false)
+        setIsAwaitingRestaurantResponse(false)
+        return
+      }
       getRestaurant().finally(() => {
         setLoading(false)
         setIsAwaitingRestaurantResponse(false)
       })
     }
-  }, [blacklist, getRestaurant, isAwaitingRestaurantResponse])
+  }, [
+    blacklist,
+    getRestaurant,
+    isAwaitingRestaurantResponse,
+    geoLoading,
+    location,
+    zip,
+  ])
 
   const handleAddToBlacklist = () => {
     if (currentPlace) {
@@ -262,39 +231,35 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     : 'Find a place to eat'
 
   return (
-    <Card className="center card padding-override">
-      <CardContent>
+    <Card className="w-full max-w-md padding-override">
+      <CardContent className="px-4 py-4">
         <div className="form-container">
-          <DarkModeSwitch />
-          <TextField
+          <Input
             id="keywords"
-            label="Search (optional) i.e. 'sushi' or 'italian'"
-            variant="outlined"
+            placeholder="Search (optional) e.g. 'sushi' or 'italian'"
             value={keywords}
             onChange={(event) => setKeywords(event.target.value)}
-            className="textfield"
-            color="secondary"
+            className="w-full"
           />
-          {geoLocationError && (
-            <TextField
+          {(geoLoading || geoLocationError) && (
+            <Input
               id="zip"
-              label="ZIP code"
-              variant="outlined"
+              placeholder={
+                geoLoading ? 'Detecting your location...' : 'ZIP code'
+              }
               value={zip}
               onChange={(event) => setZip(event.target.value.trim())}
-              className="textfield"
-              color="secondary"
+              className="w-full"
+              disabled={geoLoading}
             />
           )}
-          <TextField
+          <Input
             id="radius"
-            label="Search radius (miles)"
-            variant="outlined"
+            placeholder="Search radius (miles)"
             type="number"
             value={Number(radius).toString()}
             onChange={(event) => setRadius(Number(event.target.value))}
-            className="textfield"
-            color="secondary"
+            className="w-full"
           />
         </div>
 
@@ -302,58 +267,71 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
           <div className="get-restaurant-container">
             {currentPlace && (
               <div className="blacklist-container">
-                <Tooltip title="Reset blocked places">
-                  <span>
-                    <IconButton onClick={handleResetBlacklist} color="info">
-                      <LockResetIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-                <Tooltip title="Don't show me this place again">
-                  <span>
-                    <IconButton
-                      onClick={handleAddToBlacklist}
-                      color="error"
-                      disabled={
-                        currentPlace.name === NOT_FOUND ||
-                        currentPlace.name === SEEN_ALL_PLACES
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleResetBlacklist}
+                          aria-label="Reset blocked places"
+                        >
+                          <RotateCcw className="h-5 w-5" />
+                        </Button>
                       }
-                    >
-                      <BlockIcon style={{ maxHeight: '1.35rem' }} />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                    />
+                    <TooltipContent>Reset blocked places</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleAddToBlacklist}
+                          disabled={
+                            currentPlace.name === NOT_FOUND ||
+                            currentPlace.name === SEEN_ALL_PLACES
+                          }
+                          aria-label="Don't show me this place again"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Ban className="h-5 w-5" />
+                        </Button>
+                      }
+                    />
+                    <TooltipContent>
+                      Don&apos;t show me this place again
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             )}
 
             <Button
               disabled={loading}
-              onClick={() => {
-                setIsAwaitingRestaurantResponse(true)
-              }}
-              variant="contained"
-              color="primary"
-              startIcon={<RefreshIcon />}
+              onClick={() => setIsAwaitingRestaurantResponse(true)}
+              variant="default"
+              className="w-full"
             >
+              <RefreshCw className="mr-2 h-4 w-4" />
               {getNewRestaurantString}
             </Button>
 
             {currentPlace &&
               remainingPlacesCount >= 0 &&
               placesMap.size > 0 && (
-                <>
-                  <Typography
-                    variant="caption"
-                    className="remaining-places-text"
-                  >
-                    Remaining places: {remainingPlacesCount}
-                  </Typography>
-                </>
+                <p className="text-xs text-muted-foreground remaining-places-text">
+                  Remaining places: {remainingPlacesCount}
+                </p>
               )}
 
             {loading && (
               <div className="loading-spinner">
-                <CircularProgress />
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
             )}
 
@@ -363,15 +341,9 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                 currentPlace.name === SEEN_ALL_PLACES) && (
                 <div className="placeDetails">
                   <div className="spacer"></div>
-                  <Typography
-                    variant={
-                      !props.isMobile && currentPlace.name === SEEN_ALL_PLACES
-                        ? 'h3'
-                        : 'h5'
-                    }
-                  >
+                  <h3 className="text-xl font-semibold sm:text-2xl">
                     {currentPlace.name}
-                  </Typography>
+                  </h3>
                   <OnlyOpenPlaces />
                 </div>
               )}

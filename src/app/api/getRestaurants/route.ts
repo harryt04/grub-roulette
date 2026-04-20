@@ -1,5 +1,6 @@
 import { GetRestaurantRequest } from '../../types/location'
 import { NextRequest, NextResponse } from 'next/server'
+import { convertRadiusToMeters } from '@/lib/google-maps'
 
 export async function POST(req: NextRequest) {
   const body: GetRestaurantRequest = await req.json()
@@ -11,7 +12,12 @@ export async function POST(req: NextRequest) {
     radiusUnits = 'miles',
     keywords,
   } = body
-  console.log('body: ', body)
+  if (radiusUnits && radiusUnits !== 'miles' && radiusUnits !== 'kilometers') {
+    return NextResponse.json(
+      { error: 'Invalid radiusUnits value. Must be "miles" or "kilometers".' },
+      { status: 400 },
+    )
+  }
 
   let finalLatitude = latitude
   let finalLongitude = longitude
@@ -48,8 +54,6 @@ export async function POST(req: NextRequest) {
       }
 
       const location = geocodeData.results?.[0]?.location
-      console.log('geocodeData: ', geocodeData)
-      console.log('location: ', location)
 
       if (!location) {
         return NextResponse.json(
@@ -102,8 +106,7 @@ export async function POST(req: NextRequest) {
 
   const endpoint = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
-  const radiusInMeters =
-    radiusUnits === 'kilometers' ? radius * 1000 : radius * 1609.34
+  const radiusInMeters = convertRadiusToMeters(radius, radiusUnits ?? 'miles')
 
   try {
     const response = await fetch(
@@ -114,7 +117,6 @@ export async function POST(req: NextRequest) {
     )
 
     const data = await response.json()
-    console.log('data: ', data)
     if (!response.ok || data.error_message) {
       return NextResponse.json(
         {
