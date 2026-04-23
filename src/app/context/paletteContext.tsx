@@ -6,6 +6,8 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
+  useMemo,
 } from 'react'
 
 export type PaletteId = 'default' | 'mango' | 'blue' | 'hotsauce' | 'lemon'
@@ -85,13 +87,18 @@ export function PaletteProvider({ children }: { children: ReactNode }) {
     }
   }, [palette])
 
-  const setPalette = (id: PaletteId) => {
+  const setPalette = useCallback((id: PaletteId) => {
     setPaletteState(id)
     localStorage.setItem(STORAGE_KEY, id)
-  }
+  }, [])
+
+  const contextValue = useMemo(
+    () => ({ palette, setPalette }),
+    [palette, setPalette],
+  )
 
   return (
-    <PaletteContext.Provider value={{ palette, setPalette }}>
+    <PaletteContext.Provider value={contextValue}>
       {children}
     </PaletteContext.Provider>
   )

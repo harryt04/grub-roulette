@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,6 +38,12 @@ const placesMap = new Map<string, GetRestaurantResponse>()
 const usedPlaces: string[] = []
 let placeDetailsCache = new Map<string, unknown>()
 
+export function resetModuleState() {
+  placesMap.clear()
+  usedPlaces.length = 0
+  placeDetailsCache.clear()
+}
+
 export type RestaurantFinderProps = {
   isMobile: boolean
 }
@@ -52,12 +58,10 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
   const [radius, setRadius] = useState(15)
   const [remainingPlacesCount, setRemainingPlacesCount] = useState(0)
   const [currentPlace, setCurrentPlace] = useState<GetRestaurantResponse>()
-  const [blacklist, setBlacklist] = useState<GetRestaurantResponse[]>(() => {
-    if (typeof window === 'undefined') return []
-    return loadBlacklistFromLocalStorage()
-  })
+  const [blacklist, setBlacklist] = useState<GetRestaurantResponse[]>([])
 
   useEffect(() => {
+    setBlacklist(loadBlacklistFromLocalStorage())
     placeDetailsCache = loadPlaceDetailsCacheFromLocalStorage()
   }, [])
 
@@ -65,10 +69,10 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     resetUI()
   }, [radius, keywords, location, zip])
 
-  const resetUI = () => {
+  const resetUI = useCallback(() => {
     placesMap.clear()
     usedPlaces.length = 0
-  }
+  }, [])
 
   const clearCurrentPlace = (name?: string) => {
     setCurrentPlace({
@@ -79,110 +83,107 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     usedPlaces.length = 0
   }
 
-  const getRestaurant = useMemo(
-    () => async () => {
-      setLoading(true)
+  const getRestaurant = useCallback(async () => {
+    setLoading(true)
 
-      if (placesMap.size === 0) {
-        const restaurants = await getRestaurants({
-          latitude: location?.latitude,
-          longitude: location?.longitude,
-          zip: zip || undefined,
-          radius,
-          radiusUnits: 'miles',
-          keywords,
-        })
+    if (placesMap.size === 0) {
+      const restaurants = await getRestaurants({
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        zip: zip || undefined,
+        radius,
+        radiusUnits: 'miles',
+        keywords,
+      })
 
-        const openPlaces = restaurants?.filter(
-          (r: any) =>
-            r.opening_hours?.open_now && r.business_status === 'OPERATIONAL',
-        )
-
-        openPlaces?.forEach((place: any) => {
-          if (!placesMap.has(place.name)) {
-            placesMap.set(place.name, {
-              name: place.name,
-              directionsUrl: buildGoogleMapsUrl(place.vicinity),
-              rating: place.rating,
-              totalRatings: place.user_ratings_total,
-              place_id: place.place_id,
-            })
-          }
-        })
-      }
-
-      if (placesMap.size === 0) {
-        clearCurrentPlace(NOT_FOUND)
-        return
-      }
-
-      if (placesMap.size === usedPlaces.length) {
-        clearCurrentPlace(SEEN_ALL_PLACES)
-        return
-      }
-
-      const unusedPlaces = Array.from(placesMap.values()).filter(
-        (place) =>
-          !usedPlaces.includes(place.name) &&
-          !blacklist.some(
-            (blacklisted: GetRestaurantResponse) =>
-              blacklisted.place_id === place.place_id ||
-              blacklisted.name === place.name,
-          ),
+      const openPlaces = restaurants?.filter(
+        (r: any) =>
+          r.opening_hours?.open_now && r.business_status === 'OPERATIONAL',
       )
 
-      const randomIndex = Math.floor(Math.random() * unusedPlaces.length)
-      const place = unusedPlaces[randomIndex]
-      setRemainingPlacesCount(unusedPlaces.length - 1)
+      openPlaces?.forEach((place: any) => {
+        if (!placesMap.has(place.name)) {
+          placesMap.set(place.name, {
+            name: place.name,
+            directionsUrl: buildGoogleMapsUrl(place.vicinity),
+            rating: place.rating,
+            totalRatings: place.user_ratings_total,
+            place_id: place.place_id,
+          })
+        }
+      })
+    }
 
-      if (!place) {
-        clearCurrentPlace(SEEN_ALL_PLACES)
-        return
-      }
+    if (placesMap.size === 0) {
+      clearCurrentPlace(NOT_FOUND)
+      return
+    }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let placeDetails: any = placeDetailsCache.get(place.place_id)
+    if (placesMap.size === usedPlaces.length) {
+      clearCurrentPlace(SEEN_ALL_PLACES)
+      return
+    }
 
-      if (!placeDetails) {
-        placeDetails = await getPlaceDetails(place.place_id)
-        placeDetailsCache.set(place.place_id, placeDetails)
-        savePlaceDetailsCacheToLocalStorage(placeDetailsCache)
-      }
-
-      if (!placeDetails) {
-        setCurrentPlace(place)
-        usedPlaces.push(place.name)
-        return
-      }
-
-      const photoReferences = placeDetails.photos?.map(
-        (photo: any) => photo?.photo_reference,
-      )
-
-      const photos =
-        photoReferences && photoReferences.length > 0
-          ? await getPhotos(photoReferences)
-          : []
-
-      const thePlaceToBe = {
-        ...place,
-        address: placeDetails.formatted_address || '',
-        description: placeDetails.editorial_summary?.overview || '',
-        closingTime: getClosingTime(
-          placeDetails?.current_opening_hours?.weekday_text,
+    const unusedPlaces = Array.from(placesMap.values()).filter(
+      (place) =>
+        !usedPlaces.includes(place.place_id) &&
+        !blacklist.some(
+          (blacklisted: GetRestaurantResponse) =>
+            blacklisted.place_id === place.place_id ||
+            blacklisted.name === place.name,
         ),
-        googleMapsUrl: placeDetails.url,
-        phone: placeDetails.formatted_phone_number || '',
-        photos,
-        priceLevel: placeDetails.price_level,
-        website: placeDetails.website || '',
-      } as GetRestaurantResponse
+    )
 
-      setCurrentPlace(thePlaceToBe)
-      usedPlaces.push(thePlaceToBe.name)
-    },
-    [location, radius, keywords, blacklist, zip],
-  )
+    const randomIndex = Math.floor(Math.random() * unusedPlaces.length)
+    const place = unusedPlaces[randomIndex]
+    setRemainingPlacesCount(unusedPlaces.length - 1)
+
+    if (!place) {
+      clearCurrentPlace(SEEN_ALL_PLACES)
+      return
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let placeDetails: any = placeDetailsCache.get(place.place_id)
+
+    if (!placeDetails) {
+      placeDetails = await getPlaceDetails(place.place_id)
+      placeDetailsCache.set(place.place_id, placeDetails)
+      savePlaceDetailsCacheToLocalStorage(placeDetailsCache)
+    }
+
+    if (!placeDetails) {
+      setCurrentPlace(place)
+      usedPlaces.push(place.place_id)
+      return
+    }
+
+    const photoReferences = placeDetails.photos?.map(
+      (photo: any) => photo?.photo_reference,
+    )
+
+    const photos =
+      photoReferences && photoReferences.length > 0
+        ? await getPhotos(photoReferences)
+        : []
+
+    const thePlaceToBe = {
+      ...place,
+      address: placeDetails.formatted_address || '',
+      description: placeDetails.editorial_summary?.overview || '',
+      closingTime: getClosingTime(
+        placeDetails?.current_opening_hours?.weekday_text,
+      ),
+      googleMapsUrl: placeDetails.url,
+      phone: placeDetails.formatted_phone_number || '',
+      photos,
+      priceLevel: placeDetails.price_level,
+      website: placeDetails.website || '',
+    } as GetRestaurantResponse
+
+    setCurrentPlace(thePlaceToBe)
+    usedPlaces.push(thePlaceToBe.place_id)
+  }, [location, radius, keywords, blacklist, zip])
 
   useEffect(() => {
     // Don't attempt a fetch until geolocation has either resolved or failed
@@ -193,10 +194,18 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
         setIsAwaitingRestaurantResponse(false)
         return
       }
+
+      let isCancelled = false
       getRestaurant().finally(() => {
-        setLoading(false)
-        setIsAwaitingRestaurantResponse(false)
+        if (!isCancelled) {
+          setLoading(false)
+          setIsAwaitingRestaurantResponse(false)
+        }
       })
+
+      return () => {
+        isCancelled = true
+      }
     }
   }, [
     blacklist,
@@ -205,6 +214,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     geoLoading,
     location,
     zip,
+    resetUI,
   ])
 
   const handleAddToBlacklist = () => {
