@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GetRestaurantResponse } from '../types/location'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -14,17 +14,27 @@ import { getMainDomain, priceLevelString } from '@/lib/domain-utils'
 
 export type PlaceDetailsProps = {
   place: GetRestaurantResponse
-  isMobile: boolean
 }
 
 export const PlaceDetails = (props: PlaceDetailsProps) => {
   const { resolvedTheme } = useTheme()
   const isDarkMode = resolvedTheme === 'dark'
   const { place } = props
-  const ratingString = `${place.rating} stars (${place.totalRatings} reviews)`
+  const ratingString =
+    place.rating != null
+      ? `${place.rating} stars (${place.totalRatings} reviews)`
+      : null
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSafari, setIsSafari] = useState(false)
+
+  useEffect(() => {
+    setIsSafari(
+      typeof navigator !== 'undefined' &&
+        /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+    )
+  }, [])
 
   const openModal = (image: string) => {
     setSelectedImage(image)
@@ -37,9 +47,6 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
   }
 
   // if the user is in safari, use the directionsUrl instead of googleMapsUrl
-  const isSafari =
-    typeof window !== 'undefined' &&
-    /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
   const googleMapsUrl = isSafari
     ? place.directionsUrl || place.googleMapsUrl
     : place.googleMapsUrl || place.directionsUrl
@@ -75,15 +82,15 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         <p className="text-sm">{priceLevelString(place.priceLevel)}</p>
         <div className="place-details-spacer"></div>
 
-        <p className="text-base">{ratingString}</p>
-        <div className="place-details-spacer"></div>
+        {ratingString && <p className="text-base">{ratingString}</p>}
+        {ratingString && <div className="place-details-spacer"></div>}
         {place.phone && (
-          <Link
+          <a
             className={isDarkMode ? 'primary-text' : ''}
             href={`tel:${place.phone}`}
           >
             {place.phone}
-          </Link>
+          </a>
         )}
         <div className="place-details-spacer"></div>
         {place.website && (
@@ -91,6 +98,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
             className={isDarkMode ? 'primary-text' : ''}
             href={place.website}
             target="_blank"
+            rel="noopener noreferrer"
           >
             {getMainDomain(place.website)}
           </Link>
@@ -127,9 +135,15 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
             className="imageGallery"
             columnClassName="imageGalleryColumn"
           >
-            {place.photos.map((photo) => (
-              <div key={photo} onClick={() => openModal(photo)}>
-                <PhotoComponent photoUrl={photo} />
+            {place.photos.map((photoReference) => (
+              <div
+                key={photoReference}
+                onClick={() => openModal(photoReference)}
+              >
+                <PhotoComponent
+                  photoReference={photoReference}
+                  alt={`Photo of ${place.name}`}
+                />
               </div>
             ))}
           </Masonry>

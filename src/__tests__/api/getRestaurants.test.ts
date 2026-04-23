@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
-import { POST } from '@/app/api/getRestaurants/route'
+import { POST, clearCache } from '@/app/api/getRestaurants/route'
 
 const makeRequest = (body: object) =>
   new Request('http://localhost/api/getRestaurants', {
@@ -21,6 +21,7 @@ const mockFetchSuccess = (data: object, ok = true) => {
 
 beforeEach(() => {
   vi.stubEnv('GOOGLE_MAPS_API_KEY', 'TEST_KEY')
+  clearCache()
 })
 
 afterEach(() => {
@@ -158,7 +159,45 @@ describe('POST /api/getRestaurants', () => {
       keywords: 'sushi',
     })
     await POST(req)
-    const calledUrl: string = fetchMock.mock.calls[0][0]
+    const calledUrl: string = fetchMock.mock.calls[0]![0] as string
     expect(calledUrl).toContain('sushi')
+  })
+
+  it('returns cached results for identical requests', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        results: [{ name: 'Pizza Place' }],
+        status: 'OK',
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    // First request
+    const req1 = makeRequest({
+      latitude: 40.7,
+      longitude: -74.0,
+      radius: 15,
+      radiusUnits: 'miles',
+    })
+    const res1 = await POST(req1)
+    expect(res1.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    // Second identical request should use cache
+    const req2 = makeRequest({
+      latitude: 40.7,
+      longitude: -74.0,
+      radius: 15,
+      radiusUnits: 'miles',
+    })
+    const res2 = await POST(req2)
+    expect(res2.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(1) // Still 1, not 2
+
+    // Both responses should be identical
+    const body1 = await res1.json()
+    const body2 = await res2.json()
+    expect(body1).toEqual(body2)
   })
 })

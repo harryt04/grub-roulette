@@ -87,68 +87,68 @@ describe('PlaceDetails', () => {
   })
 
   it('renders the restaurant name', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     expect(
       screen.getByRole('heading', { name: 'Test Restaurant' }),
     ).toBeInTheDocument()
   })
 
   it('renders the description', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     expect(screen.getByText('A great test place')).toBeInTheDocument()
   })
 
   it('renders the price level string', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     // priceLevelString(2) → "($$)"
     expect(screen.getByText('($$)')).toBeInTheDocument()
   })
 
   it('renders the rating and review count', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     expect(screen.getByText('4.5 stars (200 reviews)')).toBeInTheDocument()
   })
 
   it('renders the phone number as a tel: link', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     // next/link renders as <a> via mock; href includes the tel: scheme
     const link = screen.getByRole('link', { name: '+15551234567' })
     expect(link).toHaveAttribute('href', 'tel:+15551234567')
   })
 
   it('phone number renders as <a> tag not <Link>', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     const link = screen.getByRole('link', { name: '+15551234567' })
     expect(link.tagName).toBe('A')
   })
 
   it('renders the website showing only the main domain', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     // getMainDomain('https://www.example.com') → 'example.com'
     expect(screen.getByText('example.com')).toBeInTheDocument()
   })
 
   it('website link has rel="noopener noreferrer" security attribute', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     const websiteLink = screen.getByRole('link', { name: 'example.com' })
     expect(websiteLink).toHaveAttribute('rel', 'noopener noreferrer')
     expect(websiteLink).toHaveAttribute('target', '_blank')
   })
 
   it('renders the closing time', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     expect(screen.getByText('Closes at: 10:00 PM')).toBeInTheDocument()
   })
 
   it('renders a Directions link', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     expect(
       screen.getByRole('link', { name: /directions/i }),
     ).toBeInTheDocument()
   })
 
   it('renders photos in the Masonry container', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     expect(screen.getByTestId('masonry')).toBeInTheDocument()
     // Each photo renders via PhotoComponent which renders <img alt="Place photo">
     const images = screen.getAllByRole('img')
@@ -156,25 +156,27 @@ describe('PlaceDetails', () => {
   })
 
   it('opens modal when a photo wrapper div is clicked', async () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     // DOM structure: <div onClick> > PhotoComponent > <div> > <img>
     // images[0] is the <img>; its parentElement is the inner <div> inside PhotoComponent,
     // and parentElement.parentElement is the <div onClick> handler we need to click.
     const images = screen.getAllByRole('img')
-    fireEvent.click(images[0].parentElement!.parentElement!)
+    const firstImage = images[0]!
+    fireEvent.click(firstImage.parentElement!.parentElement!)
     expect(screen.getByTestId('modal')).toBeInTheDocument()
   })
 
   it('closes modal when onClose is called', () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     const images = screen.getAllByRole('img')
-    fireEvent.click(images[0].parentElement!.parentElement!)
+    const firstImage = images[0]!
+    fireEvent.click(firstImage.parentElement!.parentElement!)
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument()
   })
 
   it('clicking Share copies the googleMapsUrl to clipboard', async () => {
-    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    render(<PlaceDetails place={baseMockPlace} />)
     fireEvent.click(screen.getByRole('button', { name: /share/i }))
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       baseMockPlace.googleMapsUrl,
@@ -186,9 +188,29 @@ describe('PlaceDetails', () => {
       name: 'Minimal Place',
       place_id: 'min_id',
     }
-    expect(() =>
-      render(<PlaceDetails place={minimalPlace} isMobile={false} />),
-    ).not.toThrow()
+    expect(() => render(<PlaceDetails place={minimalPlace} />)).not.toThrow()
+  })
+
+  it('does not render rating when rating is undefined', () => {
+    const placeWithoutRating: GetRestaurantResponse = {
+      name: 'No Rating Restaurant',
+      place_id: 'no_rating_id',
+      address: '456 Test Ave',
+    }
+    render(<PlaceDetails place={placeWithoutRating} />)
+    expect(screen.queryByText(/stars/)).not.toBeInTheDocument()
+  })
+
+  it('does not render rating when rating is null', () => {
+    const placeWithNullRating: GetRestaurantResponse = {
+      name: 'Null Rating Restaurant',
+      place_id: 'null_rating_id',
+      address: '789 Test Dr',
+      rating: undefined,
+      totalRatings: undefined,
+    }
+    render(<PlaceDetails place={placeWithNullRating} />)
+    expect(screen.queryByText(/stars/)).not.toBeInTheDocument()
   })
 
   it('SSR guard: isSafari is false when window is undefined', () => {
@@ -200,8 +222,6 @@ describe('PlaceDetails', () => {
       value: '',
       configurable: true,
     })
-    expect(() =>
-      render(<PlaceDetails place={baseMockPlace} isMobile={false} />),
-    ).not.toThrow()
+    expect(() => render(<PlaceDetails place={baseMockPlace} />)).not.toThrow()
   })
 })

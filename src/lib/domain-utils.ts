@@ -16,10 +16,11 @@ export function getMainDomain(url: string): string {
 
 /**
  * Returns a price-level string like "($$$)" for a given numeric price level.
- * Returns "" for falsy input (undefined, 0).
- * count=1 → "($)", count=2 → "($$)", count=3 → "($$$)", count=4 → "($$$$)"
+ * Returns "(Free)" for 0. Returns "" for undefined/null.
+ * count=0 → "(Free)", count=1 → "($)", count=2 → "($$)", count=3 → "($$$)", count=4 → "($$$$)"
  */
 export function priceLevelString(count?: number): string {
-  if (!count) return ''
+  if (count === undefined || count === null) return ''
+  if (count === 0) return '(Free)'
   return '('.padEnd(count + 1, '$') + ')'
 }

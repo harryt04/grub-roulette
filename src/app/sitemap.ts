@@ -4,7 +4,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: 'https://grub.harryt.dev',
-      lastModified: new Date(),
+      lastModified: '2026-04-22',
     },
   ]
 }

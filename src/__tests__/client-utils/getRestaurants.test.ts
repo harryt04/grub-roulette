@@ -7,6 +7,7 @@ import {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.clearAllTimers()
 })
 
 const mockFetch = (data: unknown, ok = true, status = 200) => {
@@ -51,24 +52,24 @@ describe('getRestaurants', () => {
     expect(result).toEqual([{ name: 'Zip Restaurant' }])
   })
 
-  it('returns [] when response is not ok', async () => {
+  it('returns null when response is not ok', async () => {
     mockFetch({}, false, 500)
     const result = await getRestaurants({
       latitude: 40,
       longitude: -74,
       radius: 10,
     })
-    expect(result).toEqual([])
+    expect(result).toBeNull()
   })
 
-  it('returns [] when fetch throws', async () => {
+  it('returns null when fetch throws', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network')))
     const result = await getRestaurants({
       latitude: 40,
       longitude: -74,
       radius: 10,
     })
-    expect(result).toEqual([])
+    expect(result).toBeNull()
   })
 
   it('POSTs to /api/getRestaurants', async () => {
@@ -78,8 +79,56 @@ describe('getRestaurants', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
     await getRestaurants({ latitude: 40, longitude: -74, radius: 10 })
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/getRestaurants')
-    expect(fetchMock.mock.calls[0][1].method).toBe('POST')
+    expect(fetchMock.mock.calls[0]![0]).toBe('/api/getRestaurants')
+    expect((fetchMock.mock.calls[0]![1] as RequestInit).method).toBe('POST')
+  })
+
+  it('passes abort signal with 10s timeout to fetch', async () => {
+    vi.useFakeTimers()
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ results: [] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal(
+      'AbortController',
+      class {
+        signal = Symbol('signal')
+        abort = vi.fn()
+      },
+    )
+
+    const result = await getRestaurants({
+      latitude: 40,
+      longitude: -74,
+      radius: 10,
+    })
+    expect(result).toEqual([])
+    expect((fetchMock.mock.calls[0]![1] as RequestInit).signal).toBeDefined()
+    vi.useRealTimers()
+  })
+
+  it('returns null when request aborts (timeout)', async () => {
+    vi.useFakeTimers()
+    let abortController: AbortController
+    const fetchMock = vi.fn(async (url, options) => {
+      abortController = options
+      // Simulate timeout by aborting the signal
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      throw new Error('Aborted')
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const promise = getRestaurants({
+      latitude: 40,
+      longitude: -74,
+      radius: 10,
+    })
+
+    vi.runAllTimers()
+    const result = await promise
+    expect(result).toBeNull()
+    vi.useRealTimers()
   })
 })
 
@@ -133,7 +182,7 @@ describe('getPhotos', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
     await getPhotos(['REF'])
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/getPhotos')
-    expect(fetchMock.mock.calls[0][1].method).toBe('POST')
+    expect(fetchMock.mock.calls[0]![0]).toBe('/api/getPhotos')
+    expect((fetchMock.mock.calls[0]![1] as RequestInit).method).toBe('POST')
   })
 })

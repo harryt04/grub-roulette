@@ -1,23 +1,43 @@
-import { GetRestaurantRequest } from '../../types/location'
 import { NextRequest, NextResponse } from 'next/server'
 import { convertRadiusToMeters } from '@/lib/google-maps'
+import { GetRestaurantsSchema } from '../_utils/validate'
+import { createTTLCache } from '../_utils/cache'
+
+interface CachedRestaurantResponse {
+  results: unknown[]
+  status: string
+}
+
+const restaurantCache = createTTLCache<CachedRestaurantResponse>(3600000)
+
+export function clearCache() {
+  restaurantCache.clear()
+}
 
 export async function POST(req: NextRequest) {
-  const body: GetRestaurantRequest = await req.json()
-  const {
-    latitude,
-    longitude,
-    zip,
-    radius,
-    radiusUnits = 'miles',
-    keywords,
-  } = body
-  if (radiusUnits && radiusUnits !== 'miles' && radiusUnits !== 'kilometers') {
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
     return NextResponse.json(
-      { error: 'Invalid radiusUnits value. Must be "miles" or "kilometers".' },
+      { error: 'Invalid JSON in request body' },
       { status: 400 },
     )
   }
+
+  const validationResult = GetRestaurantsSchema.safeParse(body)
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((e) => `${e.path.join('.')}: ${e.message}`)
+      .join('; ')
+    return NextResponse.json(
+      { error: `Validation failed: ${errors}` },
+      { status: 400 },
+    )
+  }
+
+  const { latitude, longitude, zip, radius, radiusUnits, keywords } =
+    validationResult.data
 
   let finalLatitude = latitude
   let finalLongitude = longitude
@@ -104,11 +124,29 @@ export async function POST(req: NextRequest) {
 
   const searchKeywords = keywords || defaultKeywords
 
-  const endpoint = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
   const radiusInMeters = convertRadiusToMeters(radius, radiusUnits ?? 'miles')
 
+  if (!apiKey) {
+    return NextResponse.json(
+      {
+        error: 'Missing required environment variable: GOOGLE_MAPS_API_KEY',
+      },
+      { status: 500 },
+    )
+  }
+
+  // Build cache key from request parameters
+  const cacheKey = `${finalLatitude},${finalLongitude},${radiusInMeters},${searchKeywords}`
+
+  // Check cache first
+  const cachedData = restaurantCache.get(cacheKey)
+  if (cachedData) {
+    return NextResponse.json(cachedData, { status: 200 })
+  }
+
   try {
+    const endpoint = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
     const response = await fetch(
       `${endpoint}?location=${finalLatitude},${finalLongitude}&radius=${radiusInMeters}&type=restaurant&keyword=${encodeURIComponent(searchKeywords)}&key=${apiKey}`,
       {
@@ -125,6 +163,9 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       )
     }
+
+    // Cache the successful response
+    restaurantCache.set(cacheKey, data)
 
     return NextResponse.json(data, { status: 200 })
   } catch (error) {

@@ -42,6 +42,34 @@ describe('loadBlacklistFromLocalStorage', () => {
     localStorage.setItem('grubroulette_blacklist', '[]')
     expect(loadBlacklistFromLocalStorage()).toEqual([])
   })
+
+  it('filters out elements lacking place_id string', () => {
+    localStorage.setItem(
+      'grubroulette_blacklist',
+      JSON.stringify([
+        { place_id: 'abc', name: 'Pizza Palace' },
+        { name: 'Missing place_id' }, // missing place_id
+        { place_id: 123, name: 'Wrong type' }, // place_id is number
+      ]),
+    )
+    expect(loadBlacklistFromLocalStorage()).toEqual([
+      { place_id: 'abc', name: 'Pizza Palace' },
+    ])
+  })
+
+  it('filters out elements lacking name string', () => {
+    localStorage.setItem(
+      'grubroulette_blacklist',
+      JSON.stringify([
+        { place_id: 'abc', name: 'Pizza Palace' },
+        { place_id: 'xyz' }, // missing name
+        { place_id: 'def', name: 456 }, // name is number
+      ]),
+    )
+    expect(loadBlacklistFromLocalStorage()).toEqual([
+      { place_id: 'abc', name: 'Pizza Palace' },
+    ])
+  })
 })
 
 describe('saveBlacklistToLocalStorage', () => {
@@ -102,6 +130,38 @@ describe('loadPlaceDetailsCacheFromLocalStorage', () => {
 
   it('returns empty Map for corrupted JSON', () => {
     localStorage.setItem('placeDetailsCache', '{not:valid}')
+    expect(loadPlaceDetailsCacheFromLocalStorage().size).toBe(0)
+  })
+
+  it('returns empty Map when stored value missing data field', () => {
+    localStorage.setItem(
+      'placeDetailsCache',
+      JSON.stringify({ timestamp: Date.now() }),
+    )
+    expect(loadPlaceDetailsCacheFromLocalStorage().size).toBe(0)
+  })
+
+  it('returns empty Map when stored value missing timestamp field', () => {
+    localStorage.setItem(
+      'placeDetailsCache',
+      JSON.stringify({ data: [['p1', {}]] }),
+    )
+    expect(loadPlaceDetailsCacheFromLocalStorage().size).toBe(0)
+  })
+
+  it('returns empty Map when data is not an array', () => {
+    localStorage.setItem(
+      'placeDetailsCache',
+      JSON.stringify({ data: { p1: {} }, timestamp: Date.now() }),
+    )
+    expect(loadPlaceDetailsCacheFromLocalStorage().size).toBe(0)
+  })
+
+  it('returns empty Map when timestamp is not a number', () => {
+    localStorage.setItem(
+      'placeDetailsCache',
+      JSON.stringify({ data: [['p1', {}]], timestamp: 'not-a-number' }),
+    )
     expect(loadPlaceDetailsCacheFromLocalStorage().size).toBe(0)
   })
 })

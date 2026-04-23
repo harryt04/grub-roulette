@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
 // Mock next/image
 vi.mock('next/image', () => ({
@@ -20,6 +20,14 @@ vi.mock('react-dom', async (importOriginal) => {
 import ImageModal from '@/app/components/modal'
 
 describe('ImageModal', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('does not render when isOpen is false', () => {
     render(
       <ImageModal
@@ -42,7 +50,7 @@ describe('ImageModal', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
-  it('renders an image with the correct src', () => {
+  it('renders an image with the correct proxied src', () => {
     render(
       <ImageModal
         src="https://example.com/img.jpg"
@@ -52,7 +60,7 @@ describe('ImageModal', () => {
     )
     expect(screen.getByRole('img')).toHaveAttribute(
       'src',
-      'https://example.com/img.jpg',
+      '/api/getPhotos?reference=https%3A%2F%2Fexample.com%2Fimg.jpg',
     )
   })
 
@@ -118,5 +126,46 @@ describe('ImageModal', () => {
     )
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('sets focus to container div on modal open', async () => {
+    const { rerender } = render(
+      <ImageModal
+        src="https://example.com/img.jpg"
+        isOpen={false}
+        onClose={vi.fn()}
+      />,
+    )
+
+    // Open modal
+    rerender(
+      <ImageModal
+        src="https://example.com/img.jpg"
+        isOpen={true}
+        onClose={vi.fn()}
+      />,
+    )
+
+    // Wait for RAF to execute and focus to be set
+    await waitFor(() => {
+      const container = screen
+        .getByRole('dialog')
+        .querySelector('div[tabindex="-1"]')
+      expect(document.activeElement).toBe(container)
+    })
+  })
+
+  it('container div has tabIndex={-1} for focus management', () => {
+    render(
+      <ImageModal
+        src="https://example.com/img.jpg"
+        isOpen={true}
+        onClose={vi.fn()}
+      />,
+    )
+    const container = screen
+      .getByRole('dialog')
+      .querySelector('div[tabindex="-1"]')
+    expect(container).toHaveAttribute('tabindex', '-1')
   })
 })

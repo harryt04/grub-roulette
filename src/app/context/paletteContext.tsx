@@ -89,7 +89,9 @@ export function PaletteProvider({ children }: { children: ReactNode }) {
 
   const setPalette = useCallback((id: PaletteId) => {
     setPaletteState(id)
-    localStorage.setItem(STORAGE_KEY, id)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, id)
+    }
   }, [])
 
   const contextValue = useMemo(

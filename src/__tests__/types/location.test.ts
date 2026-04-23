@@ -58,7 +58,11 @@ describe('getClosingTime', () => {
   })
 
   it('returns "" when schedule is undefined', () => {
-    expect(getClosingTime(undefined as unknown as string[])).toBe('')
+    expect(getClosingTime(undefined)).toBe('')
+  })
+
+  it('returns "" when schedule is null', () => {
+    expect(getClosingTime(null)).toBe('')
   })
 
   it('returns "" when schedule is an empty array', () => {
@@ -89,34 +93,57 @@ describe('mapRestaurantResponse', () => {
     const raw = [
       {
         name: 'Pizza Palace',
+        place_id: 'ChIJQa5_...',
         vicinity: '10 High Street, Springfield',
         rating: 4.5,
         user_ratings_total: 200,
       },
     ]
     const result = mapRestaurantResponse(raw)
-    expect(result[0].name).toBe('Pizza Palace')
-    expect(result[0].directionsUrl).toContain('maps/dir')
-    expect(result[0].rating).toBe(4.5)
-    expect(result[0].totalRatings).toBe(200)
+    const first = result[0]!
+    expect(first.name).toBe('Pizza Palace')
+    expect(first.place_id).toBe('ChIJQa5_...')
+    expect(first.directionsUrl).toContain('maps/dir')
+    expect(first.rating).toBe(4.5)
+    expect(first.totalRatings).toBe(200)
   })
 
   it('maps multiple items', () => {
     const raw = [
-      { name: 'A', vicinity: 'Addr A', rating: 4.0, user_ratings_total: 100 },
-      { name: 'B', vicinity: 'Addr B', rating: 3.5, user_ratings_total: 50 },
+      {
+        name: 'A',
+        place_id: 'id_a',
+        vicinity: 'Addr A',
+        rating: 4.0,
+        user_ratings_total: 100,
+      },
+      {
+        name: 'B',
+        place_id: 'id_b',
+        vicinity: 'Addr B',
+        rating: 3.5,
+        user_ratings_total: 50,
+      },
     ]
     const result = mapRestaurantResponse(raw)
     expect(result).toHaveLength(2)
-    expect(result[1].name).toBe('B')
+    const first = result[0]!
+    const second = result[1]!
+    expect(first.place_id).toBe('id_a')
+    expect(second.name).toBe('B')
+    expect(second.place_id).toBe('id_b')
   })
 
   it('handles missing optional fields gracefully', () => {
-    const raw = [{ name: 'Minimal', vicinity: 'Somewhere' }]
+    const raw = [
+      { name: 'Minimal', place_id: 'minimal_id', vicinity: 'Somewhere' },
+    ]
     const result = mapRestaurantResponse(raw)
-    expect(result[0].name).toBe('Minimal')
-    expect(result[0].rating).toBeUndefined()
-    expect(result[0].totalRatings).toBeUndefined()
+    const first = result[0]!
+    expect(first.name).toBe('Minimal')
+    expect(first.place_id).toBe('minimal_id')
+    expect(first.rating).toBeUndefined()
+    expect(first.totalRatings).toBeUndefined()
   })
 
   it('returns an empty array for empty input', () => {

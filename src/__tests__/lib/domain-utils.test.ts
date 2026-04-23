@@ -38,8 +38,8 @@ describe('priceLevelString', () => {
     expect(priceLevelString(undefined)).toBe('')
   })
 
-  it('returns "" for 0 (falsy guard)', () => {
-    expect(priceLevelString(0)).toBe('')
+  it('returns "(Free)" for 0', () => {
+    expect(priceLevelString(0)).toBe('(Free)')
   })
 
   it('returns "($)" for count 1', () => {

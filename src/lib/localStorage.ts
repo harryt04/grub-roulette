@@ -9,7 +9,13 @@ export function loadBlacklistFromLocalStorage(): GetRestaurantResponse[] {
   if (!data) return []
   try {
     const parsed = JSON.parse(data)
-    return Array.isArray(parsed) ? parsed : []
+    return Array.isArray(parsed)
+      ? parsed.filter(
+          (item) =>
+            typeof item?.place_id === 'string' &&
+            typeof item?.name === 'string',
+        )
+      : []
   } catch {
     return []
   }
@@ -25,7 +31,19 @@ export function loadPlaceDetailsCacheFromLocalStorage(): Map<string, unknown> {
   try {
     const cacheData = localStorage.getItem(CACHE_KEY)
     if (!cacheData) return new Map()
-    const { data, timestamp } = JSON.parse(cacheData)
+    const parsed = JSON.parse(cacheData)
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      !('data' in parsed) ||
+      !('timestamp' in parsed)
+    ) {
+      return new Map()
+    }
+    const { data, timestamp } = parsed
+    if (!Array.isArray(data) || typeof timestamp !== 'number') {
+      return new Map()
+    }
     if (Date.now() - timestamp < ONE_HOUR) {
       return new Map<string, unknown>(data)
     }

@@ -30,13 +30,18 @@ export default [
         console: 'readonly',
         // Web APIs
         Request: 'readonly',
+        RequestInit: 'readonly',
         Response: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
         fetch: 'readonly',
+        AbortController: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
         requestAnimationFrame: 'readonly',
         HTMLDivElement: 'readonly',
         HTMLButtonElement: 'readonly',
+        HTMLInputElement: 'readonly',
         KeyboardEvent: 'readonly',
         // React
         React: 'readonly',

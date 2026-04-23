@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
-import { POST } from '@/app/api/getPlaceDetails/route'
+import { POST, clearCache } from '@/app/api/getPlaceDetails/route'
 
 const makeRequest = (body: object) =>
   new Request('http://localhost/api/getPlaceDetails', {
@@ -11,6 +11,7 @@ const makeRequest = (body: object) =>
 
 beforeEach(() => {
   vi.stubEnv('GOOGLE_MAPS_API_KEY', 'TEST_KEY')
+  clearCache()
 })
 
 afterEach(() => {
@@ -27,12 +28,12 @@ describe('POST /api/getPlaceDetails', () => {
     expect(body.error).toContain('place_id')
   })
 
-  it('returns 400 when GOOGLE_MAPS_API_KEY is missing', async () => {
+  it('returns 500 when GOOGLE_MAPS_API_KEY is missing', async () => {
     vi.unstubAllEnvs()
     vi.stubEnv('GOOGLE_MAPS_API_KEY', '')
     const req = makeRequest({ place_id: 'ChIJN1t_tDeuEmsRUsoyG83frY4' })
     const res = await POST(req)
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(500)
     const body = await res.json()
     expect(body.error).toContain('GOOGLE_MAPS_API_KEY')
   })
@@ -74,5 +75,32 @@ describe('POST /api/getPlaceDetails', () => {
     const req = makeRequest({ place_id: 'some_id' })
     const res = await POST(req)
     expect(res.status).toBe(500)
+  })
+
+  it('returns cached results for identical requests', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        result: { name: 'Test Restaurant', formatted_address: '123 Main St' },
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    // First request
+    const req1 = makeRequest({ place_id: 'ChIJN1t_tDeuEmsRUsoyG83frY4' })
+    const res1 = await POST(req1)
+    expect(res1.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    // Second identical request should use cache
+    const req2 = makeRequest({ place_id: 'ChIJN1t_tDeuEmsRUsoyG83frY4' })
+    const res2 = await POST(req2)
+    expect(res2.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(1) // Still 1, not 2
+
+    // Both responses should be identical
+    const body1 = await res1.json()
+    const body2 = await res2.json()
+    expect(body1).toEqual(body2)
   })
 })

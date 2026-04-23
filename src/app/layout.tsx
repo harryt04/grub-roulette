@@ -18,6 +18,17 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/site.webmanifest',
+  openGraph: {
+    title: 'Grub Roulette',
+    description: 'Randomly choose a restaurant near you',
+    type: 'website',
+    url: 'https://grub.harryt.dev',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Grub Roulette',
+    description: 'Randomly choose a restaurant near you',
+  },
 }
 
 // Palette CSS is injected as a raw <style> tag so Tailwind v4 cannot purge
@@ -126,20 +137,17 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <>
-      <html lang="en" suppressHydrationWarning className={inter.variable}>
-        <head>
-          <style dangerouslySetInnerHTML={{ __html: PALETTE_STYLES }} />
-        </head>
-        <body>
-          <PostHogProvider>
-            <Providers>
-              {children}
-              <Toaster />
-            </Providers>
-          </PostHogProvider>
-        </body>
-      </html>
-    </>
+    <html lang="en" suppressHydrationWarning>
+      <head />
+      <body className={inter.variable}>
+        <style dangerouslySetInnerHTML={{ __html: PALETTE_STYLES }} />
+        <PostHogProvider>
+          <Providers>
+            {children}
+            <Toaster />
+          </Providers>
+        </PostHogProvider>
+      </body>
+    </html>
   )
 }

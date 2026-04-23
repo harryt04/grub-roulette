@@ -130,6 +130,17 @@ describe('selectRandomUnusedPlace', () => {
     expect(result?.name).toBe('B')
   })
 
+  it('allows two restaurants with same name but different place_id', () => {
+    const map = new Map<string, GetRestaurantResponse>([
+      ['Burger King', { name: 'Burger King', place_id: 'bk_loc1' }],
+      ['Burger King', { name: 'Burger King', place_id: 'bk_loc2' }],
+    ])
+    // Mark only the first location as used
+    const result = selectRandomUnusedPlace(map, ['bk_loc1'], [])
+    expect(result).toBeDefined()
+    expect(result?.place_id).toBe('bk_loc2')
+  })
+
   it('uses Math.random to select from multiple eligible places', () => {
     // With random = 0.9, Math.floor(0.9 * 2) = 1, so second item is returned
     vi.spyOn(Math, 'random').mockReturnValue(0.9)

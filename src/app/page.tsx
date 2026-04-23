@@ -22,7 +22,7 @@ export default function Home() {
         <ThemeSwitcher />
       </div>
       <div className="spacer" />
-      <RestaurantFinder isMobile={false} />
+      <RestaurantFinder />
       <div className="spacer" />
       <Footer />
     </div>

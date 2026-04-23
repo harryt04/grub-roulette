@@ -96,21 +96,21 @@ afterEach(() => {
 
 describe('RestaurantFinder', () => {
   it('renders the keyword search input', () => {
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     expect(
       screen.getByPlaceholderText(/search \(optional\)/i),
     ).toBeInTheDocument()
   })
 
   it('renders the radius input', () => {
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     expect(
       screen.getByPlaceholderText(/search radius \(miles\)/i),
     ).toBeInTheDocument()
   })
 
   it('shows "Find a place to eat" button when location is available', () => {
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     expect(
       screen.getByRole('button', { name: /find a place to eat/i }),
     ).toBeInTheDocument()
@@ -122,7 +122,7 @@ describe('RestaurantFinder', () => {
       geoLocationError: null,
       geoLoading: true,
     })
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     expect(
       screen.queryByRole('button', { name: /find a place to eat/i }),
     ).not.toBeInTheDocument()
@@ -134,7 +134,7 @@ describe('RestaurantFinder', () => {
       geoLocationError: 'Geolocation permission denied',
       geoLoading: false,
     })
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     expect(screen.getByPlaceholderText(/zip code/i)).toBeInTheDocument()
   })
 
@@ -144,13 +144,13 @@ describe('RestaurantFinder', () => {
       geoLocationError: null,
       geoLoading: true,
     })
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     const zipInput = screen.getByPlaceholderText(/detecting your location/i)
     expect(zipInput).toBeDisabled()
   })
 
   it('fetches and displays a restaurant when the button is clicked', async () => {
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -163,7 +163,7 @@ describe('RestaurantFinder', () => {
   })
 
   it('shows "Get a different restaurant" button after a result is displayed', async () => {
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -178,7 +178,7 @@ describe('RestaurantFinder', () => {
 
   it('shows NOT_FOUND message when getRestaurants returns empty', async () => {
     mockGetRestaurants.mockResolvedValue([])
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -198,7 +198,7 @@ describe('RestaurantFinder', () => {
         opening_hours: { open_now: false },
       },
     ])
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -213,7 +213,7 @@ describe('RestaurantFinder', () => {
 
   it('blacklist button is disabled when NOT_FOUND message is shown', async () => {
     mockGetRestaurants.mockResolvedValue([])
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -227,7 +227,7 @@ describe('RestaurantFinder', () => {
   })
 
   it('adding to blacklist saves to localStorage', async () => {
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -250,7 +250,7 @@ describe('RestaurantFinder', () => {
       'grubroulette_blacklist',
       JSON.stringify([{ place_id: 'old', name: 'Old Place' }]),
     )
-    render(<RestaurantFinder isMobile={false} />)
+    render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -276,7 +276,7 @@ describe('RestaurantFinder', () => {
   })
 
   it('fetch effect has cleanup that prevents setState after unmount', async () => {
-    const { unmount } = render(<RestaurantFinder isMobile={false} />)
+    const { unmount } = render(<RestaurantFinder />)
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', { name: /find a place to eat/i }),
@@ -286,5 +286,71 @@ describe('RestaurantFinder', () => {
     unmount()
     // No error should occur about "state update on an unmounted component"
     expect(true).toBe(true)
+  })
+
+  // Accessibility tests
+  it('has a form element wrapping the inputs', () => {
+    render(<RestaurantFinder />)
+    const form = document.querySelector('form')
+    expect(form).toBeInTheDocument()
+    expect(form).toHaveClass('form-container')
+  })
+
+  it('has labels for all input fields', () => {
+    render(<RestaurantFinder />)
+    expect(screen.getByLabelText(/search keywords/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/search radius in miles/i)).toBeInTheDocument()
+  })
+
+  it('zip input has a label when shown', () => {
+    mockUseGeolocation.mockReturnValue({
+      location: null,
+      geoLocationError: 'Geolocation permission denied',
+      geoLoading: false,
+    })
+    render(<RestaurantFinder />)
+    expect(screen.getByLabelText(/zip code/i)).toBeInTheDocument()
+  })
+
+  it('pressing Enter in keywords input triggers search via form submission', async () => {
+    render(<RestaurantFinder />)
+    const keywordsInput = screen.getByPlaceholderText(
+      /search \(optional\)/i,
+    ) as HTMLInputElement
+    await act(async () => {
+      fireEvent.change(keywordsInput, { target: { value: 'pizza' } })
+      // Trigger form submission by pressing Enter
+      fireEvent.keyDown(keywordsInput, { key: 'Enter', code: 'Enter' })
+      // Dispatch form submit event directly on the form
+      const form = keywordsInput.closest('form')!
+      fireEvent.submit(form)
+    })
+    // Verify getRestaurants was called (it checks that keywords changed)
+    await waitFor(() => {
+      expect(mockGetRestaurants).toHaveBeenCalled()
+    })
+  })
+
+  it('pressing Enter in radius input triggers search via form submission', async () => {
+    render(<RestaurantFinder />)
+    const radiusInput = screen.getByPlaceholderText(
+      /search radius/i,
+    ) as HTMLInputElement
+    await act(async () => {
+      fireEvent.change(radiusInput, { target: { value: '20' } })
+      // Trigger form submission
+      const form = radiusInput.closest('form')!
+      fireEvent.submit(form)
+    })
+    await waitFor(() => {
+      expect(mockGetRestaurants).toHaveBeenCalled()
+    })
+  })
+
+  it('form has hidden submit button accessible by keyboard', () => {
+    render(<RestaurantFinder />)
+    const submitButton = screen.getByRole('button', { name: /search/i })
+    expect(submitButton).toHaveClass('sr-only')
+    expect(submitButton).toHaveAttribute('type', 'submit')
   })
 })
