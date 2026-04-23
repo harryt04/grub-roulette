@@ -8,6 +8,7 @@ export interface RawPlace {
   user_ratings_total?: number
   opening_hours?: { open_now?: boolean }
   business_status?: string
+  photos?: Array<{ photo_reference: string }>
 }
 
 /**
@@ -25,7 +26,7 @@ export function filterOpenPlaces(
 
 /**
  * Selects a random place from placesMap that is not in usedPlaces and not blacklisted.
- * Blacklist matching is by place_id OR by name (either match excludes the place).
+ * Deduplication by place_id (not name). Blacklist matching is by place_id OR by name.
  * Returns undefined when no eligible places remain.
  */
 export function selectRandomUnusedPlace(
@@ -35,7 +36,7 @@ export function selectRandomUnusedPlace(
 ): GetRestaurantResponse | undefined {
   const unused = Array.from(placesMap.values()).filter(
     (place) =>
-      !usedPlaces.includes(place.name) &&
+      !usedPlaces.includes(place.place_id) &&
       !blacklist.some(
         (b) => b.place_id === place.place_id || b.name === place.name,
       ),

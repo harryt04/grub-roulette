@@ -44,9 +44,7 @@ export function resetModuleState() {
   placeDetailsCache.clear()
 }
 
-export type RestaurantFinderProps = {
-  isMobile: boolean
-}
+export type RestaurantFinderProps = {}
 
 export default function RestaurantFinder(props: RestaurantFinderProps) {
   const { location, geoLocationError, geoLoading } = useGeolocation()
@@ -177,6 +175,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       googleMapsUrl: placeDetails.url,
       phone: placeDetails.formatted_phone_number || '',
       photos,
+      photoReferences,
       priceLevel: placeDetails.price_level,
       website: placeDetails.website || '',
     } as GetRestaurantResponse
@@ -240,10 +239,18 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     ? 'Get a different restaurant'
     : 'Find a place to eat'
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsAwaitingRestaurantResponse(true)
+  }
+
   return (
     <Card className="w-full max-w-md padding-override">
       <CardContent className="px-4 py-4">
-        <div className="form-container">
+        <form onSubmit={handleSearchSubmit} className="form-container">
+          <label htmlFor="keywords" className="sr-only">
+            Search keywords (optional)
+          </label>
           <Input
             id="keywords"
             placeholder="Search (optional) e.g. 'sushi' or 'italian'"
@@ -252,17 +259,25 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
             className="w-full"
           />
           {(geoLoading || geoLocationError) && (
-            <Input
-              id="zip"
-              placeholder={
-                geoLoading ? 'Detecting your location...' : 'ZIP code'
-              }
-              value={zip}
-              onChange={(event) => setZip(event.target.value.trim())}
-              className="w-full"
-              disabled={geoLoading}
-            />
+            <>
+              <label htmlFor="zip" className="sr-only">
+                ZIP code
+              </label>
+              <Input
+                id="zip"
+                placeholder={
+                  geoLoading ? 'Detecting your location...' : 'ZIP code'
+                }
+                value={zip}
+                onChange={(event) => setZip(event.target.value.trim())}
+                className="w-full"
+                disabled={geoLoading}
+              />
+            </>
           )}
+          <label htmlFor="radius" className="sr-only">
+            Search radius in miles
+          </label>
           <Input
             id="radius"
             placeholder="Search radius (miles)"
@@ -271,7 +286,10 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
             onChange={(event) => setRadius(Number(event.target.value))}
             className="w-full"
           />
-        </div>
+          <button type="submit" className="sr-only">
+            Search
+          </button>
+        </form>
 
         {(location || zip) && (
           <div className="get-restaurant-container">
@@ -361,10 +379,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
                 <div key={currentPlace.place_id} className="fade-in-container">
-                  <PlaceDetails
-                    place={currentPlace}
-                    isMobile={props.isMobile}
-                  />
+                  <PlaceDetails place={currentPlace} />
                 </div>
               )}
           </div>

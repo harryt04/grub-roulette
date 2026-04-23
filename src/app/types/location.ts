@@ -19,6 +19,7 @@ export type GetRestaurantResponse = {
   place_id: string
   phone?: string
   photos?: string[]
+  photoReferences?: string[]
   priceLevel?: number
   rating?: number
   totalRatings?: number
@@ -34,6 +35,8 @@ export const mapRestaurantResponse = (
     place_id: r.place_id,
     rating: r.rating,
     totalRatings: r.user_ratings_total,
+    photoReferences:
+      (r.photos as any[])?.map((p: any) => p?.photo_reference) || [],
   }))
 }
 
