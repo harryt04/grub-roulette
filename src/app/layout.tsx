@@ -128,7 +128,6 @@ export default function RootLayout({
   return (
     <>
       <html lang="en" suppressHydrationWarning className={inter.variable}>
-        {/* eslint-disable-next-line react/no-danger */}
         <head>
           <style dangerouslySetInnerHTML={{ __html: PALETTE_STYLES }} />
         </head>

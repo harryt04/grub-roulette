@@ -13,7 +13,6 @@ vi.mock('sonner', () => ({ toast: vi.fn() }))
 // Mock next/image
 vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
-    // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} />
   ),
 }))
@@ -117,10 +116,23 @@ describe('PlaceDetails', () => {
     expect(link).toHaveAttribute('href', 'tel:+15551234567')
   })
 
+  it('phone number renders as <a> tag not <Link>', () => {
+    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    const link = screen.getByRole('link', { name: '+15551234567' })
+    expect(link.tagName).toBe('A')
+  })
+
   it('renders the website showing only the main domain', () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
     // getMainDomain('https://www.example.com') → 'example.com'
     expect(screen.getByText('example.com')).toBeInTheDocument()
+  })
+
+  it('website link has rel="noopener noreferrer" security attribute', () => {
+    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    const websiteLink = screen.getByRole('link', { name: 'example.com' })
+    expect(websiteLink).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(websiteLink).toHaveAttribute('target', '_blank')
   })
 
   it('renders the closing time', () => {

@@ -41,7 +41,7 @@ const ImageModal = ({
   isOpen: boolean
   onClose: () => void
 }) => {
-  const [visible, setVisible] = useState(false) // controls mount
+  const visibleRef = useRef(false) // controls mount without re-renders
   const [animating, setAnimating] = useState<'in' | 'out' | 'idle'>('idle')
   const [zoom, setZoom] = useState(MIN_ZOOM)
   const [pan, setPan] = useState<Point>({ x: 0, y: 0 })
@@ -59,25 +59,28 @@ const ImageModal = ({
     if (isOpen) {
       setZoom(MIN_ZOOM)
       setPan({ x: 0, y: 0 })
-      setVisible(true)
-      // Let the element mount, then trigger enter animation
-      requestAnimationFrame(() => setAnimating('in'))
-    } else if (visible) {
+      visibleRef.current = true
+      // Let the element mount, then trigger enter animation and focus
+      requestAnimationFrame(() => {
+        setAnimating('in')
+        containerRef.current?.focus()
+      })
+    } else if (visibleRef.current) {
       setAnimating('out')
     }
-  }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   useEffect(() => {
-    if (!visible) return
+    if (!visibleRef.current) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [visible, onClose])
+  }, [onClose])
 
   const handleTransitionEnd = () => {
-    if (animating === 'out') setVisible(false)
+    if (animating === 'out') visibleRef.current = false
     setAnimating('idle')
   }
 
@@ -168,30 +171,27 @@ const ImageModal = ({
       setIsInteracting(false)
       if (!didMove.current) {
         // It was a tap — toggle zoom
-        setZoom((currentZoom) => {
-          if (currentZoom > 1) {
-            setPan({ x: 0, y: 0 })
-            return MIN_ZOOM
-          }
+        const currentZoom = zoom
+        if (currentZoom > 1) {
+          setZoom(MIN_ZOOM)
+          setPan({ x: 0, y: 0 })
+        } else {
           const rect = containerRef.current!.getBoundingClientRect()
           const focalX = e.clientX - rect.left - rect.width / 2
           const focalY = e.clientY - rect.top - rect.height / 2
-          setPan((p) => {
-            const { zoom: nz, pan: np } = applyZoom(
-              ZOOM_IN,
-              focalX,
-              focalY,
-              p,
-              currentZoom,
-            )
-            setZoom(nz)
-            return np
-          })
-          return ZOOM_IN
-        })
+          const { zoom: nz, pan: np } = applyZoom(
+            ZOOM_IN,
+            focalX,
+            focalY,
+            pan,
+            currentZoom,
+          )
+          setZoom(nz)
+          setPan(np)
+        }
       }
     },
-    [applyZoom],
+    [applyZoom, zoom, pan],
   )
 
   // ─── touch events ─────────────────────────────────────────────────────────
@@ -199,12 +199,19 @@ const ImageModal = ({
     didMove.current = false
     setIsInteracting(true)
     if (e.touches.length === 1) {
-      lastPointer.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-      lastPinchDist.current = null
+      const touch = e.touches[0]
+      if (touch) {
+        lastPointer.current = { x: touch.clientX, y: touch.clientY }
+        lastPinchDist.current = null
+      }
     } else if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX
-      const dy = e.touches[0].clientY - e.touches[1].clientY
-      lastPinchDist.current = Math.hypot(dx, dy)
+      const touch0 = e.touches[0]
+      const touch1 = e.touches[1]
+      if (touch0 && touch1) {
+        const dx = touch0.clientX - touch1.clientX
+        const dy = touch0.clientY - touch1.clientY
+        lastPinchDist.current = Math.hypot(dx, dy)
+      }
     }
   }, [])
 
@@ -213,46 +220,53 @@ const ImageModal = ({
       e.preventDefault()
       didMove.current = true
       if (e.touches.length === 1 && lastPinchDist.current === null) {
-        const dx = e.touches[0].clientX - lastPointer.current.x
-        const dy = e.touches[0].clientY - lastPointer.current.y
-        lastPointer.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        }
-        setZoom((currentZoom) => {
-          if (currentZoom <= 1) return currentZoom
-          setPan((p) => {
-            const { w, h } = containerSize()
-            return clampPan({ x: p.x + dx, y: p.y + dy }, currentZoom, w, h)
-          })
-          return currentZoom
-        })
-      } else if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX
-        const dy = e.touches[0].clientY - e.touches[1].clientY
-        const dist = Math.hypot(dx, dy)
-        if (lastPinchDist.current !== null) {
-          const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2
-          const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2
-          const rect = containerRef.current!.getBoundingClientRect()
-          const focalX = midX - rect.left - rect.width / 2
-          const focalY = midY - rect.top - rect.height / 2
-          const factor = dist / lastPinchDist.current
+        const touch0 = e.touches[0]
+        if (touch0) {
+          const dx = touch0.clientX - lastPointer.current.x
+          const dy = touch0.clientY - lastPointer.current.y
+          lastPointer.current = {
+            x: touch0.clientX,
+            y: touch0.clientY,
+          }
           setZoom((currentZoom) => {
-            const nextZoom = clamp(currentZoom * factor, MIN_ZOOM, MAX_ZOOM)
-            setPan((currentPan) => {
-              const scaleChange = nextZoom / currentZoom
+            if (currentZoom <= 1) return currentZoom
+            setPan((p) => {
               const { w, h } = containerSize()
-              const rawPan = {
-                x: focalX + (currentPan.x - focalX) * scaleChange,
-                y: focalY + (currentPan.y - focalY) * scaleChange,
-              }
-              return clampPan(rawPan, nextZoom, w, h)
+              return clampPan({ x: p.x + dx, y: p.y + dy }, currentZoom, w, h)
             })
-            return nextZoom
+            return currentZoom
           })
         }
-        lastPinchDist.current = dist
+      } else if (e.touches.length === 2) {
+        const touch0 = e.touches[0]
+        const touch1 = e.touches[1]
+        if (touch0 && touch1) {
+          const dx = touch0.clientX - touch1.clientX
+          const dy = touch0.clientY - touch1.clientY
+          const dist = Math.hypot(dx, dy)
+          if (lastPinchDist.current !== null) {
+            const midX = (touch0.clientX + touch1.clientX) / 2
+            const midY = (touch0.clientY + touch1.clientY) / 2
+            const rect = containerRef.current!.getBoundingClientRect()
+            const focalX = midX - rect.left - rect.width / 2
+            const focalY = midY - rect.top - rect.height / 2
+            const factor = dist / lastPinchDist.current
+            setZoom((currentZoom) => {
+              const nextZoom = clamp(currentZoom * factor, MIN_ZOOM, MAX_ZOOM)
+              setPan((currentPan) => {
+                const scaleChange = nextZoom / currentZoom
+                const { w, h } = containerSize()
+                const rawPan = {
+                  x: focalX + (currentPan.x - focalX) * scaleChange,
+                  y: focalY + (currentPan.y - focalY) * scaleChange,
+                }
+                return clampPan(rawPan, nextZoom, w, h)
+              })
+              return nextZoom
+            })
+          }
+          lastPinchDist.current = dist
+        }
       }
     },
     [containerSize],
@@ -263,28 +277,30 @@ const ImageModal = ({
       if (e.touches.length === 0 && !didMove.current) {
         // Single tap — toggle zoom
         const touch = e.changedTouches[0]
-        setZoom((currentZoom) => {
-          if (currentZoom > 1) {
-            setPan({ x: 0, y: 0 })
-            return MIN_ZOOM
-          }
-          const rect = containerRef.current!.getBoundingClientRect()
-          const focalX = touch.clientX - rect.left - rect.width / 2
-          const focalY = touch.clientY - rect.top - rect.height / 2
-          const nextZoom = ZOOM_IN
-          setPan((p) =>
-            clampPan(
-              {
-                x: focalX + (p.x - focalX) * (nextZoom / currentZoom),
-                y: focalY + (p.y - focalY) * (nextZoom / currentZoom),
-              },
-              nextZoom,
-              containerSize().w,
-              containerSize().h,
-            ),
-          )
-          return nextZoom
-        })
+        if (touch) {
+          setZoom((currentZoom) => {
+            if (currentZoom > 1) {
+              setPan({ x: 0, y: 0 })
+              return MIN_ZOOM
+            }
+            const rect = containerRef.current!.getBoundingClientRect()
+            const focalX = touch.clientX - rect.left - rect.width / 2
+            const focalY = touch.clientY - rect.top - rect.height / 2
+            const nextZoom = ZOOM_IN
+            setPan((p) =>
+              clampPan(
+                {
+                  x: focalX + (p.x - focalX) * (nextZoom / currentZoom),
+                  y: focalY + (p.y - focalY) * (nextZoom / currentZoom),
+                },
+                nextZoom,
+                containerSize().w,
+                containerSize().h,
+              ),
+            )
+            return nextZoom
+          })
+        }
       }
       if (e.touches.length < 2) lastPinchDist.current = null
       if (e.touches.length === 0) setIsInteracting(false)
@@ -294,7 +310,7 @@ const ImageModal = ({
 
   // Block body scroll while open
   useEffect(() => {
-    if (visible) {
+    if (visibleRef.current) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -302,10 +318,11 @@ const ImageModal = ({
     return () => {
       document.body.style.overflow = ''
     }
-  }, [visible])
+  }, [])
 
-  if (!visible || !src) return null
+  if (!visibleRef.current || !src) return null
 
+  const proxyUrl = `/api/getPhotos?reference=${encodeURIComponent(src)}`
   const isZoomed = zoom > 1
   const overlayOpacity = animating === 'in' ? 1 : animating === 'out' ? 0 : 1
   const contentScale = animating === 'in' ? 1 : animating === 'out' ? 0.92 : 1
@@ -365,6 +382,7 @@ const ImageModal = ({
       {/* Image container — full screen */}
       <div
         ref={containerRef}
+        tabIndex={-1}
         onWheel={onWheel}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
@@ -401,7 +419,7 @@ const ImageModal = ({
           }}
         >
           <Image
-            src={src}
+            src={proxyUrl}
             alt="photo"
             fill
             style={{ objectFit: 'contain' }}

@@ -9,9 +9,12 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/__tests__/setup.ts'],
     include: ['src/__tests__/**/*.test.{ts,tsx}'],
-    passWithNoTests: true,
     coverage: {
       reporter: ['text', 'lcov'],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+      },
     },
   },
   resolve: {

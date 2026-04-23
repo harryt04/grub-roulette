@@ -23,7 +23,7 @@ export default function ThemeSwitcher() {
     setMounted(true)
   }, [])
 
-  const active = PALETTES.find((p) => p.id === palette) ?? PALETTES[0]
+  const active = PALETTES.find((p) => p.id === palette) || PALETTES[0]!
   const isDark = resolvedTheme === 'dark'
 
   return (
