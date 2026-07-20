@@ -149,4 +149,28 @@ describe('mapRestaurantResponse', () => {
   it('returns an empty array for empty input', () => {
     expect(mapRestaurantResponse([])).toEqual([])
   })
+
+  it('maps photo references when photos are present', () => {
+    const raw = [
+      {
+        name: 'Photo Place',
+        place_id: 'photo_id',
+        vicinity: 'Photo Street',
+        photos: [
+          { photo_reference: 'ref_1' },
+          { photo_reference: 'ref_2' },
+        ],
+      },
+    ]
+
+    const result = mapRestaurantResponse(raw)
+    expect(result[0]?.photoReferences).toEqual(['ref_1', 'ref_2'])
+  })
+
+  it('returns empty photoReferences when photos are missing', () => {
+    const raw = [{ name: 'No Photos', place_id: 'no_photo_id', vicinity: 'Nowhere' }]
+
+    const result = mapRestaurantResponse(raw)
+    expect(result[0]?.photoReferences).toEqual([])
+  })
 })

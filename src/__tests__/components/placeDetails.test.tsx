@@ -64,10 +64,7 @@ const baseMockPlace: GetRestaurantResponse = {
   directionsUrl:
     'https://www.google.com/maps/dir/?api=1&destination=123%20Test%20St',
   priceLevel: 2,
-  photos: [
-    'https://maps.googleapis.com/photo?ref=A',
-    'https://maps.googleapis.com/photo?ref=B',
-  ],
+  photoReferences: ['PHOTO_REF_A', 'PHOTO_REF_B'],
 }
 
 describe('PlaceDetails', () => {
@@ -153,6 +150,14 @@ describe('PlaceDetails', () => {
     // Each photo renders via PhotoComponent which renders <img alt="Place photo">
     const images = screen.getAllByRole('img')
     expect(images).toHaveLength(2)
+    expect(images[0]).toHaveAttribute(
+      'src',
+      '/api/getPhotos?reference=PHOTO_REF_A',
+    )
+    expect(images[1]).toHaveAttribute(
+      'src',
+      '/api/getPhotos?reference=PHOTO_REF_B',
+    )
   })
 
   it('opens modal when a photo wrapper div is clicked', async () => {

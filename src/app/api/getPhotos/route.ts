@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchGooglePhoto } from '@/lib/google-maps'
 import { createTTLCache } from '../_utils/cache'
+import { GetPhotosSchema } from '../_utils/validate'
 
 interface CachedPhotoData {
   buffer: ArrayBuffer
@@ -23,14 +24,16 @@ export async function GET(req: NextRequest) {
   }
 
   const searchParams = req.nextUrl.searchParams
-  const photoReference = searchParams.get('reference')
-
-  if (!photoReference || photoReference === 'null') {
+  const validationResult = GetPhotosSchema.safeParse({
+    reference: searchParams.get('reference'),
+  })
+  if (!validationResult.success) {
     return NextResponse.json(
       { error: 'Missing required parameter: reference' },
       { status: 400 },
     )
   }
+  const { reference: photoReference } = validationResult.data
 
   // Check cache first
   const cachedPhoto = photoCache.get(photoReference)

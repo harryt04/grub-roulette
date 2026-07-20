@@ -43,8 +43,4 @@ export const MOCK_PLACE_DETAILS_RESPONSE = {
   photos: [{ photo_reference: 'MOCK_PHOTO_REF_1' }],
 }
 
-export const MOCK_PHOTOS_RESPONSE = [
-  'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=MOCK_PHOTO_REF_1&key=TEST',
-]
-
 export const MOCK_EMPTY_RESTAURANTS_RESPONSE = { results: [] }

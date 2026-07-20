@@ -64,26 +64,3 @@ export const getPlaceDetails = async (
     clearTimeout(timeoutId)
   }
 }
-
-export const getPhotos = async (
-  photoReferences: string[],
-): Promise<string[] | null> => {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 10_000)
-
-  try {
-    const response = await fetch('/api/getPhotos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ photos: photoReferences }),
-      signal: controller.signal,
-    })
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching photos:', error)
-    return null
-  } finally {
-    clearTimeout(timeoutId)
-  }
-}

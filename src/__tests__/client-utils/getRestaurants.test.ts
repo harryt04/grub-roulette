@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import {
-  getRestaurants,
-  getPlaceDetails,
-  getPhotos,
-} from '@/app/client-utils/getRestaurants'
+import { getRestaurants, getPlaceDetails } from '@/app/client-utils/getRestaurants'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -151,38 +147,5 @@ describe('getPlaceDetails', () => {
   it('returns null when fetch throws', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network')))
     expect(await getPlaceDetails('some_id')).toBeNull()
-  })
-})
-
-describe('getPhotos', () => {
-  it('returns JSON body (array of URLs) on success', async () => {
-    const urls = [
-      'https://maps.googleapis.com/photo?ref=A',
-      'https://maps.googleapis.com/photo?ref=B',
-    ]
-    mockFetch(urls)
-    const result = await getPhotos(['REF_A', 'REF_B'])
-    expect(result).toEqual(urls)
-  })
-
-  it('returns null when response is not ok', async () => {
-    mockFetch({}, false, 400)
-    expect(await getPhotos(['REF_A'])).toBeNull()
-  })
-
-  it('returns null when fetch throws', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network')))
-    expect(await getPhotos(['REF_A'])).toBeNull()
-  })
-
-  it('POSTs to /api/getPhotos', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue([]),
-    })
-    vi.stubGlobal('fetch', fetchMock)
-    await getPhotos(['REF'])
-    expect(fetchMock.mock.calls[0]![0]).toBe('/api/getPhotos')
-    expect((fetchMock.mock.calls[0]![1] as RequestInit).method).toBe('POST')
   })
 })

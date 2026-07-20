@@ -200,4 +200,61 @@ describe('POST /api/getRestaurants', () => {
     const body2 = await res2.json()
     expect(body1).toEqual(body2)
   })
+
+  it('reuses cached ZIP geocode result for repeated ZIP requests within TTL', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          results: [{ location: { latitude: 40.7, longitude: -74.0 } }],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi
+          .fn()
+          .mockResolvedValue({ results: [{ name: 'Burger Joint' }], status: 'OK' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi
+          .fn()
+          .mockResolvedValue({ results: [{ name: 'Sushi Spot' }], status: 'OK' }),
+      })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const firstRequest = makeRequest({
+      zip: '10001',
+      radius: 10,
+      radiusUnits: 'miles',
+    })
+    const firstResponse = await POST(firstRequest)
+
+    expect(firstResponse.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+
+    const secondRequest = makeRequest({
+      zip: '10001',
+      radius: 10,
+      radiusUnits: 'miles',
+      keywords: 'sushi',
+    })
+    const secondResponse = await POST(secondRequest)
+
+    expect(secondResponse.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+
+    const calledUrls = fetchMock.mock.calls.map((call) => String(call[0]))
+    const geocodeCalls = calledUrls.filter((url) =>
+      url.includes('geocode.googleapis.com/v4beta/geocode/address'),
+    )
+    const nearbySearchCalls = calledUrls.filter((url) =>
+      url.includes('maps.googleapis.com/maps/api/place/nearbysearch/json'),
+    )
+
+    expect(geocodeCalls).toHaveLength(1)
+    expect(nearbySearchCalls).toHaveLength(2)
+  })
 })

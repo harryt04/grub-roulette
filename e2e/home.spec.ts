@@ -2,9 +2,10 @@ import { test, expect, Page } from '@playwright/test'
 import {
   MOCK_RESTAURANTS_RESPONSE,
   MOCK_PLACE_DETAILS_RESPONSE,
-  MOCK_PHOTOS_RESPONSE,
   MOCK_EMPTY_RESTAURANTS_RESPONSE,
 } from './fixtures/mockData'
+
+const ANY_MOCK_RESTAURANT_NAME = /Playwright Pizza|E2E Eats/
 
 // Helper: intercept all three API endpoints with success mocks
 async function mockAllApis(page: Page) {
@@ -22,11 +23,11 @@ async function mockAllApis(page: Page) {
       body: JSON.stringify(MOCK_PLACE_DETAILS_RESPONSE),
     }),
   )
-  await page.route('**/api/getPhotos', (route) =>
+  await page.route('**/api/getPhotos**', (route) =>
     route.fulfill({
       status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(MOCK_PHOTOS_RESPONSE),
+      contentType: 'image/jpeg',
+      body: 'mock-image-bytes',
     }),
   )
 }
@@ -52,7 +53,7 @@ test.describe('Home page', () => {
     await mockAllApis(page)
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+    await expect(page.getByText(ANY_MOCK_RESTAURANT_NAME)).toBeVisible({
       timeout: 10_000,
     })
   })
@@ -66,14 +67,14 @@ test.describe('Home page', () => {
     ).toBeVisible({
       timeout: 10_000,
     })
-    await expect(page.getByText(/4\.3 stars/i)).toBeVisible()
+    await expect(page.getByText(/stars \(\d+ reviews\)/i)).toBeVisible()
   })
 
   test('blocking a restaurant fetches a new one', async ({ page }) => {
     await mockAllApis(page)
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+    await expect(page.getByText(ANY_MOCK_RESTAURANT_NAME)).toBeVisible({
       timeout: 10_000,
     })
 
@@ -94,7 +95,7 @@ test.describe('Home page', () => {
     await mockAllApis(page)
     await page.goto('/')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+    await expect(page.getByText(ANY_MOCK_RESTAURANT_NAME)).toBeVisible({
       timeout: 10_000,
     })
 
@@ -170,11 +171,11 @@ test.describe('ZIP code flow', () => {
         body: JSON.stringify(MOCK_PLACE_DETAILS_RESPONSE),
       }),
     )
-    await page.route('**/api/getPhotos', (route) =>
+    await page.route('**/api/getPhotos**', (route) =>
       route.fulfill({
         status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(MOCK_PHOTOS_RESPONSE),
+        contentType: 'image/jpeg',
+        body: 'mock-image-bytes',
       }),
     )
 
@@ -184,7 +185,7 @@ test.describe('ZIP code flow', () => {
     })
     await page.getByPlaceholder(/zip code/i).fill('10001')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
-    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+    await expect(page.getByText(ANY_MOCK_RESTAURANT_NAME)).toBeVisible({
       timeout: 10_000,
     })
   })

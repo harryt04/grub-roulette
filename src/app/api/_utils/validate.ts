@@ -20,8 +20,15 @@ export const GetPlaceDetailsSchema = z.object({
 
 export type GetPlaceDetailsRequest = z.infer<typeof GetPlaceDetailsSchema>
 
+export const GetPhotoReferenceSchema = z
+  .string()
+  .min(1, 'reference is required')
+  .refine((reference) => reference !== 'null', {
+    message: 'reference is required',
+  })
+
 export const GetPhotosSchema = z.object({
-  photos: z.array(z.string()).min(1, 'photos must be a non-empty array'),
+  reference: GetPhotoReferenceSchema,
 })
 
 export type GetPhotosRequest = z.infer<typeof GetPhotosSchema>

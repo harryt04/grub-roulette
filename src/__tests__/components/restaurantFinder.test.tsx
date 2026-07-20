@@ -11,7 +11,6 @@ vi.mock('@/app/hooks/useGeoLocation', () => ({
 vi.mock('@/app/client-utils/getRestaurants', () => ({
   getRestaurants: vi.fn(),
   getPlaceDetails: vi.fn(),
-  getPhotos: vi.fn(),
 }))
 
 // Mock next-themes
@@ -36,7 +35,6 @@ import useGeolocation from '@/app/hooks/useGeoLocation'
 import {
   getRestaurants,
   getPlaceDetails,
-  getPhotos,
 } from '@/app/client-utils/getRestaurants'
 import RestaurantFinder, {
   resetModuleState,
@@ -45,7 +43,6 @@ import RestaurantFinder, {
 const mockUseGeolocation = useGeolocation as ReturnType<typeof vi.fn>
 const mockGetRestaurants = getRestaurants as ReturnType<typeof vi.fn>
 const mockGetPlaceDetails = getPlaceDetails as ReturnType<typeof vi.fn>
-const mockGetPhotos = getPhotos as ReturnType<typeof vi.fn>
 
 const MOCK_LOCATION = { latitude: 40.7128, longitude: -74.006 }
 
@@ -87,7 +84,6 @@ beforeEach(() => {
 
   mockGetRestaurants.mockResolvedValue(MOCK_RESTAURANT_API_RESULT)
   mockGetPlaceDetails.mockResolvedValue(MOCK_PLACE_DETAILS)
-  mockGetPhotos.mockResolvedValue(['https://maps.googleapis.com/photo?ref=A'])
 })
 
 afterEach(() => {

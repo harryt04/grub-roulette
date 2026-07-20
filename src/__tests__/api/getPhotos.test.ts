@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET, clearCache } from '@/app/api/getPhotos/route'
+import { GetPhotosSchema } from '@/app/api/_utils/validate'
 
 const makeRequest = (reference: string) => {
   const url = new URL(
@@ -83,6 +84,27 @@ describe('GET /api/getPhotos', () => {
     expect(res.headers.get('Content-Type')).toBe('image/jpeg')
     const body = await res.text()
     expect(body).toBe('fake image data')
+  })
+
+  it('validates the reference query through shared validation schema', async () => {
+    const safeParseSpy = vi.spyOn(GetPhotosSchema, 'safeParse')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response('image', {
+          status: 200,
+          headers: {
+            'content-type': 'image/jpeg',
+          },
+        }),
+      ),
+    )
+
+    const req = makeRequest('VALID_REF')
+    const res = await GET(req)
+
+    expect(res.status).toBe(200)
+    expect(safeParseSpy).toHaveBeenCalledWith({ reference: 'VALID_REF' })
   })
 
   it('forwards status code from Google API on failure', async () => {

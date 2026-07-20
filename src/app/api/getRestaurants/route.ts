@@ -8,10 +8,17 @@ interface CachedRestaurantResponse {
   status: string
 }
 
+interface CachedGeocodeResponse {
+  latitude: number
+  longitude: number
+}
+
 const restaurantCache = createTTLCache<CachedRestaurantResponse>(3600000)
+const geocodeCache = createTTLCache<CachedGeocodeResponse>(3600000)
 
 export function clearCache() {
   restaurantCache.clear()
+  geocodeCache.clear()
 }
 
 export async function POST(req: NextRequest) {
@@ -57,33 +64,43 @@ export async function POST(req: NextRequest) {
         )
       }
 
-      const geocodeResponse = await fetch(
-        `${geocodeEndpoint}?address.postalCode=${encodeURIComponent(zip)}&key=${apiKey}`,
-        {
-          next: { revalidate: 3600 },
-        },
-      )
-
-      const geocodeData = await geocodeResponse.json()
-
-      if (!geocodeResponse.ok || geocodeData.status === 'ZERO_RESULTS') {
-        return NextResponse.json(
-          { error: geocodeData.error_message || 'Unable to geocode ZIP code' },
-          { status: 400 },
+      const cachedGeocode = geocodeCache.get(zip)
+      if (cachedGeocode) {
+        finalLatitude = cachedGeocode.latitude
+        finalLongitude = cachedGeocode.longitude
+      } else {
+        const geocodeResponse = await fetch(
+          `${geocodeEndpoint}?address.postalCode=${encodeURIComponent(zip)}&key=${apiKey}`,
+          {
+            next: { revalidate: 3600 },
+          },
         )
+
+        const geocodeData = await geocodeResponse.json()
+
+        if (!geocodeResponse.ok || geocodeData.status === 'ZERO_RESULTS') {
+          return NextResponse.json(
+            { error: geocodeData.error_message || 'Unable to geocode ZIP code' },
+            { status: 400 },
+          )
+        }
+
+        const location = geocodeData.results?.[0]?.location
+
+        if (!location) {
+          return NextResponse.json(
+            { error: 'Unable to determine coordinates for ZIP code' },
+            { status: 400 },
+          )
+        }
+
+        finalLatitude = location.latitude
+        finalLongitude = location.longitude
+        geocodeCache.set(zip, {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        })
       }
-
-      const location = geocodeData.results?.[0]?.location
-
-      if (!location) {
-        return NextResponse.json(
-          { error: 'Unable to determine coordinates for ZIP code' },
-          { status: 400 },
-        )
-      }
-
-      finalLatitude = location.latitude
-      finalLongitude = location.longitude
     } catch (error) {
       console.error('Error geocoding ZIP code:', error)
       return NextResponse.json(

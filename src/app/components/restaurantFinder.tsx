@@ -12,11 +12,7 @@ import {
 import { RefreshCw, Ban, RotateCcw, Loader2 } from 'lucide-react'
 
 import useGeolocation from '../hooks/useGeoLocation'
-import {
-  getPhotos,
-  getPlaceDetails,
-  getRestaurants,
-} from '../client-utils/getRestaurants'
+import { getPlaceDetails, getRestaurants } from '../client-utils/getRestaurants'
 import {
   buildGoogleMapsUrl,
   getClosingTime,
@@ -160,11 +156,6 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       (photo: any) => photo?.photo_reference,
     )
 
-    const photos =
-      photoReferences && photoReferences.length > 0
-        ? await getPhotos(photoReferences)
-        : []
-
     const thePlaceToBe = {
       ...place,
       address: placeDetails.formatted_address || '',
@@ -174,7 +165,6 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       ),
       googleMapsUrl: placeDetails.url,
       phone: placeDetails.formatted_phone_number || '',
-      photos,
       photoReferences,
       priceLevel: placeDetails.price_level,
       website: placeDetails.website || '',

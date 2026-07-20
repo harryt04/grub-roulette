@@ -1,68 +1,31 @@
 import js from '@eslint/js'
-import typescriptEslint from '@typescript-eslint/eslint-plugin'
-import typescriptParser from '@typescript-eslint/parser'
+import { FlatCompat } from '@eslint/eslintrc'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+})
 
 export default [
   {
     ignores: ['node_modules/', '.next/'],
   },
-  js.configs.recommended,
+  ...compat.config({
+    extends: ['next/core-web-vitals', 'next/typescript'],
+  }),
   {
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      parser: typescriptParser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-      globals: {
-        // Node.js globals
-        process: 'readonly',
-        global: 'readonly',
-        // Browser globals
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        localStorage: 'readonly',
-        console: 'readonly',
-        // Web APIs
-        Request: 'readonly',
-        RequestInit: 'readonly',
-        Response: 'readonly',
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        fetch: 'readonly',
-        AbortController: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        requestAnimationFrame: 'readonly',
-        HTMLDivElement: 'readonly',
-        HTMLButtonElement: 'readonly',
-        HTMLInputElement: 'readonly',
-        KeyboardEvent: 'readonly',
-        // React
-        React: 'readonly',
-        // Geolocation
-        GeolocationPositionError: 'readonly',
-        GeolocationPosition: 'readonly',
-      },
-    },
-    plugins: {
-      '@typescript-eslint': typescriptEslint,
-    },
     rules: {
       semi: ['warn', 'never'],
-      'no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_' },
-      ],
+      '@typescript-eslint/no-empty-object-type': 'warn',
       '@next/next/no-img-element': 'off',
       'react/no-danger': 'off',
+      'react/no-unescaped-entities': 'off',
     },
   },
   {

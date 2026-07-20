@@ -129,15 +129,15 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
             Share
           </Button>
         </div>
-        {place.photos && (
+        {place.photoReferences && (
           <Masonry
             breakpointCols={breakpointColumnsObj}
             className="imageGallery"
             columnClassName="imageGalleryColumn"
           >
-            {place.photos.map((photoReference) => (
+            {place.photoReferences.map((photoReference, index) => (
               <div
-                key={photoReference}
+                key={place.photoReferences?.[index] ?? index}
                 onClick={() => openModal(photoReference)}
               >
                 <PhotoComponent
