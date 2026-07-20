@@ -3,13 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { RefreshCw, Ban, RotateCcw, Loader2 } from 'lucide-react'
+import { RefreshCw, Loader2, RotateCcw } from 'lucide-react'
 
 import useGeolocation from '../hooks/useGeoLocation'
 import {
@@ -231,106 +225,68 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     : 'Find a place to eat'
 
   return (
-    <Card className="w-full max-w-md padding-override">
-      <CardContent className="px-4 py-4">
-        <div className="form-container">
-          <Input
-            id="keywords"
-            placeholder="Search (optional) e.g. 'sushi' or 'italian'"
-            value={keywords}
-            onChange={(event) => setKeywords(event.target.value)}
-            className="w-full"
-          />
-          {(geoLoading || geoLocationError) && (
+    <>
+      <Card className="w-full max-w-md padding-override lg:max-w-none">
+        <CardContent className="px-4 py-4">
+          <div className="form-container">
             <Input
-              id="zip"
-              placeholder={
-                geoLoading ? 'Detecting your location...' : 'ZIP code'
-              }
-              value={zip}
-              onChange={(event) => setZip(event.target.value.trim())}
+              id="keywords"
+              placeholder="Search (optional) e.g. 'sushi' or 'italian'"
+              value={keywords}
+              onChange={(event) => setKeywords(event.target.value)}
               className="w-full"
-              disabled={geoLoading}
             />
-          )}
-          <Input
-            id="radius"
-            placeholder="Search radius (miles)"
-            type="number"
-            value={Number(radius).toString()}
-            onChange={(event) => setRadius(Number(event.target.value))}
-            className="w-full"
-          />
-        </div>
-
-        {(location || zip) && (
-          <div className="get-restaurant-container">
-            {currentPlace && (
-              <div className="blacklist-container">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleResetBlacklist}
-                          aria-label="Reset blocked places"
-                        >
-                          <RotateCcw className="h-5 w-5" />
-                        </Button>
-                      }
-                    />
-                    <TooltipContent>Reset blocked places</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleAddToBlacklist}
-                          disabled={
-                            currentPlace.name === NOT_FOUND ||
-                            currentPlace.name === SEEN_ALL_PLACES
-                          }
-                          aria-label="Don't show me this place again"
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Ban className="h-5 w-5" />
-                        </Button>
-                      }
-                    />
-                    <TooltipContent>
-                      Don&apos;t show me this place again
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+            {(geoLoading || geoLocationError) && (
+              <Input
+                id="zip"
+                placeholder={
+                  geoLoading ? 'Detecting your location...' : 'ZIP code'
+                }
+                value={zip}
+                onChange={(event) => setZip(event.target.value.trim())}
+                className="w-full"
+                disabled={geoLoading}
+              />
             )}
-
-            <Button
-              disabled={loading}
-              onClick={() => setIsAwaitingRestaurantResponse(true)}
-              variant="default"
+            <Input
+              id="radius"
+              placeholder="Search radius (miles)"
+              type="number"
+              value={Number(radius).toString()}
+              onChange={(event) => setRadius(Number(event.target.value))}
               className="w-full"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              {getNewRestaurantString}
-            </Button>
+            />
+          </div>
 
-            {currentPlace &&
-              remainingPlacesCount >= 0 &&
-              placesMap.size > 0 && (
-                <p className="text-xs text-muted-foreground remaining-places-text">
-                  Remaining places: {remainingPlacesCount}
-                </p>
-              )}
+          {(location || zip) && (
+            <div className="get-restaurant-container">
+              <Button
+                disabled={loading}
+                onClick={() => setIsAwaitingRestaurantResponse(true)}
+                variant="default"
+                className="w-full font-heading text-base rounded-xl shadow-[var(--shadow-cta)]"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {getNewRestaurantString}
+              </Button>
 
+              {currentPlace &&
+                remainingPlacesCount >= 0 &&
+                placesMap.size > 0 && (
+                  <p className="text-xs text-muted-foreground remaining-places-text">
+                    Remaining places: {remainingPlacesCount}
+                  </p>
+                )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {(location || zip) && (
+        <Card className="w-full max-w-md padding-override lg:max-w-none mt-6 lg:mt-0">
+          <CardContent className="px-4 py-4">
             {loading && (
-              <div className="loading-spinner">
+              <div className="loading-spinner center">
                 <Loader2 className="h-8 w-8 animate-spin" />
               </div>
             )}
@@ -339,27 +295,44 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
               currentPlace &&
               (currentPlace.name === NOT_FOUND ||
                 currentPlace.name === SEEN_ALL_PLACES) && (
-                <div className="placeDetails">
+                <div className="placeDetails text-center">
                   <div className="spacer"></div>
-                  <h3 className="text-xl font-semibold sm:text-2xl">
+                  <h3 className="font-heading text-xl font-semibold sm:text-2xl">
                     {currentPlace.name}
                   </h3>
                   <OnlyOpenPlaces />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleResetBlacklist}
+                    aria-label="Reset blocked places"
+                    className="mt-3 rounded-full"
+                  >
+                    <RotateCcw className="h-5 w-5" />
+                  </Button>
                 </div>
               )}
-            {currentPlace &&
+            {!loading &&
+              currentPlace &&
               currentPlace.name !== NOT_FOUND &&
               currentPlace.name !== SEEN_ALL_PLACES && (
                 <div key={currentPlace.place_id} className="fade-in-container">
                   <PlaceDetails
                     place={currentPlace}
                     isMobile={props.isMobile}
+                    onResetBlacklist={handleResetBlacklist}
+                    onAddToBlacklist={handleAddToBlacklist}
                   />
                 </div>
               )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            {!loading && !currentPlace && (
+              <p className="text-sm text-muted-foreground text-center py-6">
+                Ready when you are — hit the button to find somewhere to eat.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </>
   )
 }

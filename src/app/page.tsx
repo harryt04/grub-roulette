@@ -5,25 +5,30 @@ import Image from 'next/image'
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 pb-8">
-      <div className="flex flex-col items-center pt-8 pb-2">
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen flex flex-col items-center px-4 pb-8 lg:px-8">
+      <div className="flex flex-col items-center pt-10 pb-3 text-center">
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-[var(--shadow-cta)]">
           <Image
             src="/android-chrome-512x512.png"
-            width={48}
-            height={48}
+            width={44}
+            height={44}
             alt="logo"
-            className="logo shrink-0"
+            className="rounded-full"
           />
-          <h1 className="text-3xl font-bold">GrubRoulette</h1>
         </div>
+        <h1 className="font-heading pt-4 text-3xl font-bold sm:text-4xl">
+          GrubRoulette
+        </h1>
+        <p className="max-w-xs pt-1 text-sm text-muted-foreground">
+          Can&apos;t decide where to eat? Let fate pick for you.
+        </p>
       </div>
-      <div className="py-4">
+      <div className="py-3">
         <ThemeSwitcher />
       </div>
-      <div className="spacer" />
-      <RestaurantFinder isMobile={false} />
-      <div className="spacer" />
+      <div className="w-full max-w-md lg:max-w-5xl lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+        <RestaurantFinder isMobile={false} />
+      </div>
       <Footer />
     </div>
   )

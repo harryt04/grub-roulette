@@ -22,8 +22,19 @@ vi.mock('next-themes', () => ({
 
 // Mock PlaceDetails to simplify
 vi.mock('@/app/components/placeDetails', () => ({
-  PlaceDetails: ({ place }: any) => (
-    <div data-testid="place-details">{place.name}</div>
+  PlaceDetails: ({ place, onResetBlacklist, onAddToBlacklist }: any) => (
+    <div data-testid="place-details">
+      {place.name}
+      <button onClick={onResetBlacklist} aria-label="Reset blocked places">
+        Reset
+      </button>
+      <button
+        onClick={onAddToBlacklist}
+        aria-label="Don't show me this place again"
+      >
+        Blacklist
+      </button>
+    </div>
   ),
 }))
 
@@ -208,7 +219,7 @@ describe('RestaurantFinder', () => {
     )
   })
 
-  it('blacklist button is disabled when NOT_FOUND message is shown', async () => {
+  it('shows a working Reset blocked places button when NOT_FOUND message is shown', async () => {
     mockGetRestaurants.mockResolvedValue([])
     render(<RestaurantFinder isMobile={false} />)
     await act(async () => {
@@ -218,8 +229,8 @@ describe('RestaurantFinder', () => {
     })
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: /don't show me this place again/i }),
-      ).toBeDisabled(),
+        screen.getByRole('button', { name: /reset blocked places/i }),
+      ).toBeInTheDocument(),
     )
   })
 

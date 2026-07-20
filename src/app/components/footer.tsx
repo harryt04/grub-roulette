@@ -10,7 +10,11 @@ const Footer = () => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="BuyMeACoffee"
-        className={cn(buttonVariants({ variant: 'default' }), 'footer-button')}
+        className={cn(
+          buttonVariants({ variant: 'default' }),
+          'footer-button',
+          'rounded-full',
+        )}
       >
         <DollarSign className="mr-2 h-4 w-4" />
         Tip Jar
@@ -20,7 +24,11 @@ const Footer = () => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub"
-        className={cn(buttonVariants({ variant: 'outline' }), 'footer-button')}
+        className={cn(
+          buttonVariants({ variant: 'outline' }),
+          'footer-button',
+          'rounded-full',
+        )}
       >
         <GitFork className="mr-2 h-4 w-4" />
         View source code
@@ -30,7 +38,11 @@ const Footer = () => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="BugReport"
-        className={cn(buttonVariants({ variant: 'outline' }), 'footer-button')}
+        className={cn(
+          buttonVariants({ variant: 'outline' }),
+          'footer-button',
+          'rounded-full',
+        )}
       >
         <Bug className="mr-2 h-4 w-4" />
         Report Issue / Feature Request

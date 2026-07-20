@@ -337,7 +337,7 @@ const ImageModal = ({
           top: 16,
           right: 16,
           zIndex: 10,
-          background: 'rgba(0,0,0,0.45)',
+          background: 'rgba(44,40,35,0.55)',
           border: 'none',
           borderRadius: '50%',
           width: 40,

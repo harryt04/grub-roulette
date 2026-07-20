@@ -107,7 +107,11 @@ describe('PlaceDetails', () => {
 
   it('renders the rating and review count', () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
-    expect(screen.getByText('4.5 stars (200 reviews)')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        (_, element) => element?.textContent === '⭐ 4.5 stars (200 reviews)',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders the phone number as a tel: link', () => {
@@ -145,18 +149,22 @@ describe('PlaceDetails', () => {
 
   it('opens modal when a photo wrapper div is clicked', async () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
-    // DOM structure: <div onClick> > PhotoComponent > <div> > <img>
-    // images[0] is the <img>; its parentElement is the inner <div> inside PhotoComponent,
-    // and parentElement.parentElement is the <div onClick> handler we need to click.
+    // The first photo renders as a non-clickable hero image at the top of the
+    // card; only photos from index 1 onward render inside the clickable
+    // Masonry gallery. DOM structure for a gallery photo:
+    // <div onClick> > PhotoComponent > <div> > <img>
+    // images[1] is that gallery <img>; its parentElement is the inner <div>
+    // inside PhotoComponent, and parentElement.parentElement is the
+    // <div onClick> handler we need to click.
     const images = screen.getAllByRole('img')
-    fireEvent.click(images[0].parentElement!.parentElement!)
+    fireEvent.click(images[1].parentElement!.parentElement!)
     expect(screen.getByTestId('modal')).toBeInTheDocument()
   })
 
   it('closes modal when onClose is called', () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
     const images = screen.getAllByRole('img')
-    fireEvent.click(images[0].parentElement!.parentElement!)
+    fireEvent.click(images[1].parentElement!.parentElement!)
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument()
   })
