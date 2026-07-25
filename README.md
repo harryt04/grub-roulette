@@ -16,7 +16,7 @@ A simple, free, and open-source web app that helps you find a random restaurant 
 
 ## Contributing
 
-Contributions are welcome! Follow the steps below to set up the project locally and start contributing.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Follow the steps below to set up the project locally and start contributing.
 
 ### Prerequisites
 
