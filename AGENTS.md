@@ -121,7 +121,7 @@ All three are `POST` handlers:
 
 | Route | Input | Notes |
 |---|---|---|
-| `/api/getRestaurants` | `lat/lng` OR `zip`, radius+units, optional keywords | ZIP triggers Geocoding API call first |
+| `/api/getRestaurants` | `lat/lng` OR `locationQuery`, radius+units, optional keywords | Manual location triggers Geocoding API call and overrides browser coordinates |
 | `/api/getPlaceDetails` | `place_id` | Returns detailed place info |
 | `/api/getPhotos` | `photo_references[]` | Returns signed Google Maps photo URLs |
 
@@ -145,7 +145,7 @@ All three are `POST` handlers:
 ### E2E tests (Playwright — Chromium only)
 
 - All API routes are mocked via `page.route()` — see `e2e/fixtures/mockData.ts`
-- Both geolocation-granted and geolocation-denied (ZIP fallback) flows are tested
+- Both geolocation-granted and geolocation-denied (manual location fallback) flows are tested
 - Playwright config webServer command is `npm run start` (not `dev`) — a build is required
 
 ---

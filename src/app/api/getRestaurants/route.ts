@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const {
     latitude,
     longitude,
-    zip,
+    locationQuery,
     radius,
     radiusUnits = 'miles',
     keywords,
@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
   let finalLatitude = latitude
   let finalLongitude = longitude
 
-  // If ZIP is provided but lat/lng are not, geocode the ZIP
-  if (zip && (!latitude || !longitude)) {
+  // A manual location always overrides browser-provided coordinates.
+  if (locationQuery?.trim()) {
     try {
       const geocodeEndpoint = `https://geocode.googleapis.com/v4beta/geocode/address`
       const apiKey = process.env.GOOGLE_MAPS_API_KEY
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       }
 
       const geocodeResponse = await fetch(
-        `${geocodeEndpoint}?address.postalCode=${encodeURIComponent(zip)}&key=${apiKey}`,
+        `${geocodeEndpoint}?address.addressLines=${encodeURIComponent(locationQuery.trim())}&key=${apiKey}`,
         {
           next: { revalidate: 3600 },
         },
@@ -48,7 +48,11 @@ export async function POST(req: NextRequest) {
 
       if (!geocodeResponse.ok || geocodeData.status === 'ZERO_RESULTS') {
         return NextResponse.json(
-          { error: geocodeData.error_message || 'Unable to geocode ZIP code' },
+          {
+            error:
+              geocodeData.error_message ||
+              'Unable to determine the supplied location',
+          },
           { status: 400 },
         )
       }
@@ -57,7 +61,9 @@ export async function POST(req: NextRequest) {
 
       if (!location) {
         return NextResponse.json(
-          { error: 'Unable to determine coordinates for ZIP code' },
+          {
+            error: 'Unable to determine coordinates for the supplied location',
+          },
           { status: 400 },
         )
       }
@@ -65,9 +71,9 @@ export async function POST(req: NextRequest) {
       finalLatitude = location.latitude
       finalLongitude = location.longitude
     } catch (error) {
-      console.error('Error geocoding ZIP code:', error)
+      console.error('Error geocoding location:', error)
       return NextResponse.json(
-        { error: 'Error geocoding ZIP code' },
+        { error: 'Error geocoding location' },
         { status: 500 },
       )
     }
@@ -77,7 +83,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          'Missing required parameters (latitude/longitude or ZIP code, and radius)',
+          'Missing required parameters (latitude/longitude or location query, and radius)',
       },
       { status: 400 },
     )

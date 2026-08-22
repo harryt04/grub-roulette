@@ -113,7 +113,7 @@ describe('RestaurantFinder', () => {
     ).toBeInTheDocument()
   })
 
-  it('does NOT show the action buttons when location is absent and no zip', () => {
+  it('does NOT show the action buttons when location is absent and no manual query', () => {
     mockUseGeolocation.mockReturnValue({
       location: null,
       geoLocationError: null,
@@ -125,25 +125,48 @@ describe('RestaurantFinder', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('shows ZIP input when geoLocationError is set', () => {
+  it('shows the location input when geoLocationError is set', () => {
     mockUseGeolocation.mockReturnValue({
       location: null,
       geoLocationError: 'Geolocation permission denied',
       geoLoading: false,
     })
     render(<RestaurantFinder isMobile={false} />)
-    expect(screen.getByPlaceholderText(/zip code/i)).toBeInTheDocument()
+    expect(
+      screen.getByPlaceholderText(/location or zip code/i),
+    ).toBeInTheDocument()
   })
 
-  it('shows disabled ZIP input while geoLoading', () => {
+  it('keeps the location input enabled while geoLoading', () => {
     mockUseGeolocation.mockReturnValue({
       location: null,
       geoLocationError: null,
       geoLoading: true,
     })
     render(<RestaurantFinder isMobile={false} />)
-    const zipInput = screen.getByPlaceholderText(/detecting your location/i)
-    expect(zipInput).toBeDisabled()
+    const locationInput = screen.getByPlaceholderText(/location or zip code/i)
+    expect(locationInput).toBeEnabled()
+  })
+
+  it('uses a manual location instead of browser coordinates', async () => {
+    mockGetRestaurants.mockResolvedValue([])
+    render(<RestaurantFinder isMobile={false} />)
+
+    fireEvent.change(screen.getByPlaceholderText(/location or zip code/i), {
+      target: { value: 'Ure, Colorado' },
+    })
+    fireEvent.click(
+      screen.getByRole('button', { name: /find a place to eat/i }),
+    )
+
+    await waitFor(() => expect(mockGetRestaurants).toHaveBeenCalled())
+    expect(mockGetRestaurants).toHaveBeenCalledWith(
+      expect.objectContaining({
+        locationQuery: 'Ure, Colorado',
+        latitude: undefined,
+        longitude: undefined,
+      }),
+    )
   })
 
   it('fetches and displays a restaurant when the button is clicked', async () => {

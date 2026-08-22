@@ -21,7 +21,7 @@ const mockFetch = (data: unknown, ok = true, status = 200) => {
 }
 
 describe('getRestaurants', () => {
-  it('returns null when both lat/lng and zip are absent', async () => {
+  it('returns null when both lat/lng and location query are absent', async () => {
     const result = await getRestaurants({ radius: 15 })
     expect(result).toBeNull()
   })
@@ -45,30 +45,24 @@ describe('getRestaurants', () => {
     expect(result).toEqual([{ name: 'Test Restaurant' }])
   })
 
-  it('returns data.results on success with zip', async () => {
+  it('returns data.results on success with a location query', async () => {
     mockFetch({ results: [{ name: 'Zip Restaurant' }] })
-    const result = await getRestaurants({ zip: '10001', radius: 10 })
+    const result = await getRestaurants({ locationQuery: '10001', radius: 10 })
     expect(result).toEqual([{ name: 'Zip Restaurant' }])
   })
 
-  it('returns [] when response is not ok', async () => {
+  it('throws the API error when response is not ok', async () => {
     mockFetch({}, false, 500)
-    const result = await getRestaurants({
-      latitude: 40,
-      longitude: -74,
-      radius: 10,
-    })
-    expect(result).toEqual([])
+    await expect(
+      getRestaurants({ latitude: 40, longitude: -74, radius: 10 }),
+    ).rejects.toThrow('Unable to find restaurants')
   })
 
-  it('returns [] when fetch throws', async () => {
+  it('throws when fetch throws', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network')))
-    const result = await getRestaurants({
-      latitude: 40,
-      longitude: -74,
-      radius: 10,
-    })
-    expect(result).toEqual([])
+    await expect(
+      getRestaurants({ latitude: 40, longitude: -74, radius: 10 }),
+    ).rejects.toThrow('Network')
   })
 
   it('POSTs to /api/getRestaurants', async () => {
@@ -80,6 +74,21 @@ describe('getRestaurants', () => {
     await getRestaurants({ latitude: 40, longitude: -74, radius: 10 })
     expect(fetchMock.mock.calls[0][0]).toBe('/api/getRestaurants')
     expect(fetchMock.mock.calls[0][1].method).toBe('POST')
+  })
+
+  it('POSTs a manual location query without requiring coordinates', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ results: [] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await getRestaurants({ locationQuery: 'Ure, Colorado', radius: 10 })
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+      locationQuery: 'Ure, Colorado',
+      radius: 10,
+    })
   })
 })
 

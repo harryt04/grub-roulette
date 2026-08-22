@@ -43,9 +43,10 @@ export type RestaurantFinderProps = {
 }
 
 export default function RestaurantFinder(props: RestaurantFinderProps) {
-  const { location, geoLocationError, geoLoading } = useGeolocation()
-  const [zip, setZip] = useState('')
+  const { location, geoLoading } = useGeolocation()
+  const [locationQuery, setLocationQuery] = useState('')
   const [keywords, setKeywords] = useState('')
+  const [searchError, setSearchError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [isAwaitingRestaurantResponse, setIsAwaitingRestaurantResponse] =
     useState(false)
@@ -63,7 +64,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
 
   useEffect(() => {
     resetUI()
-  }, [radius, keywords, location, zip])
+  }, [radius, keywords, location, locationQuery])
 
   const resetUI = () => {
     placesMap.clear()
@@ -85,9 +86,9 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
 
       if (placesMap.size === 0) {
         const restaurants = await getRestaurants({
-          latitude: location?.latitude,
-          longitude: location?.longitude,
-          zip: zip || undefined,
+          latitude: locationQuery ? undefined : location?.latitude,
+          longitude: locationQuery ? undefined : location?.longitude,
+          locationQuery: locationQuery || undefined,
           radius,
           radiusUnits: 'miles',
           keywords,
@@ -181,22 +182,31 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
       setCurrentPlace(thePlaceToBe)
       usedPlaces.push(thePlaceToBe.name)
     },
-    [location, radius, keywords, blacklist, zip],
+    [location, locationQuery, radius, keywords, blacklist],
   )
 
   useEffect(() => {
-    // Don't attempt a fetch until geolocation has either resolved or failed
-    if (isAwaitingRestaurantResponse && !geoLoading) {
-      if (!location && !zip) {
+    // Manual input can be used while browser geolocation is still pending.
+    if (isAwaitingRestaurantResponse && (!geoLoading || locationQuery.trim())) {
+      if (!location && !locationQuery.trim()) {
         // Geolocation finished but we have neither a location nor a ZIP — nothing to fetch
         setLoading(false)
         setIsAwaitingRestaurantResponse(false)
         return
       }
-      getRestaurant().finally(() => {
-        setLoading(false)
-        setIsAwaitingRestaurantResponse(false)
-      })
+      getRestaurant()
+        .catch((error: unknown) => {
+          setSearchError(
+            error instanceof Error
+              ? error.message
+              : 'Unable to find restaurants for this location',
+          )
+          setCurrentPlace(undefined)
+        })
+        .finally(() => {
+          setLoading(false)
+          setIsAwaitingRestaurantResponse(false)
+        })
     }
   }, [
     blacklist,
@@ -204,7 +214,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
     isAwaitingRestaurantResponse,
     geoLoading,
     location,
-    zip,
+    locationQuery,
   ])
 
   const handleAddToBlacklist = () => {
@@ -238,21 +248,22 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
             id="keywords"
             placeholder="Search (optional) e.g. 'sushi' or 'italian'"
             value={keywords}
-            onChange={(event) => setKeywords(event.target.value)}
+            onChange={(event) => {
+              setSearchError(null)
+              setKeywords(event.target.value)
+            }}
             className="w-full"
           />
-          {(geoLoading || geoLocationError) && (
-            <Input
-              id="zip"
-              placeholder={
-                geoLoading ? 'Detecting your location...' : 'ZIP code'
-              }
-              value={zip}
-              onChange={(event) => setZip(event.target.value.trim())}
-              className="w-full"
-              disabled={geoLoading}
-            />
-          )}
+          <Input
+            id="location"
+            placeholder="Location or ZIP code"
+            value={locationQuery}
+            onChange={(event) => {
+              setSearchError(null)
+              setLocationQuery(event.target.value)
+            }}
+            className="w-full"
+          />
           <Input
             id="radius"
             placeholder="Search radius (miles)"
@@ -263,7 +274,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
           />
         </div>
 
-        {(location || zip) && (
+        {(location || locationQuery.trim()) && (
           <div className="get-restaurant-container">
             {currentPlace && (
               <div className="blacklist-container">
@@ -313,13 +324,22 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
 
             <Button
               disabled={loading}
-              onClick={() => setIsAwaitingRestaurantResponse(true)}
+              onClick={() => {
+                setSearchError(null)
+                setIsAwaitingRestaurantResponse(true)
+              }}
               variant="default"
               className="w-full"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               {getNewRestaurantString}
             </Button>
+
+            {searchError && (
+              <p className="text-sm text-destructive" role="alert">
+                {searchError}
+              </p>
+            )}
 
             {currentPlace &&
               remainingPlacesCount >= 0 &&

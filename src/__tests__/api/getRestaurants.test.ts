@@ -29,7 +29,7 @@ afterEach(() => {
 })
 
 describe('POST /api/getRestaurants', () => {
-  it('returns 400 when latitude, longitude, and zip are all missing', async () => {
+  it('returns 400 when coordinates and location query are all missing', async () => {
     const req = makeRequest({ radius: 15, radiusUnits: 'miles' })
     const res = await POST(req)
     expect(res.status).toBe(400)
@@ -97,7 +97,7 @@ describe('POST /api/getRestaurants', () => {
     expect(res.status).toBe(500)
   })
 
-  it('geocodes ZIP when lat/lng are absent and returns 200', async () => {
+  it('geocodes a location query and returns 200', async () => {
     // First fetch call = geocode, second = Places API
     const fetchMock = vi
       .fn()
@@ -115,13 +115,18 @@ describe('POST /api/getRestaurants', () => {
       })
     vi.stubGlobal('fetch', fetchMock)
 
-    const req = makeRequest({ zip: '10001', radius: 10, radiusUnits: 'miles' })
+    const req = makeRequest({
+      locationQuery: 'Ure, Colorado',
+      radius: 10,
+      radiusUnits: 'miles',
+    })
     const res = await POST(req)
     expect(res.status).toBe(200)
     expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls[0][0]).toContain('Ure%2C%20Colorado')
   })
 
-  it('returns 400 when ZIP geocoding returns ZERO_RESULTS', async () => {
+  it('returns 400 when location geocoding returns ZERO_RESULTS', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -131,17 +136,52 @@ describe('POST /api/getRestaurants', () => {
           .mockResolvedValue({ status: 'ZERO_RESULTS', results: [] }),
       }),
     )
-    const req = makeRequest({ zip: '00000', radius: 10, radiusUnits: 'miles' })
+    const req = makeRequest({
+      locationQuery: 'Not a real place',
+      radius: 10,
+      radiusUnits: 'miles',
+    })
     const res = await POST(req)
     expect(res.status).toBe(400)
   })
 
-  it('returns 500 when GOOGLE_MAPS_API_KEY is missing during ZIP geocoding', async () => {
+  it('returns 500 when GOOGLE_MAPS_API_KEY is missing during geocoding', async () => {
     vi.unstubAllEnvs()
     vi.stubEnv('GOOGLE_MAPS_API_KEY', '')
-    const req = makeRequest({ zip: '10001', radius: 10, radiusUnits: 'miles' })
+    const req = makeRequest({
+      locationQuery: '10001',
+      radius: 10,
+      radiusUnits: 'miles',
+    })
     const res = await POST(req)
     expect(res.status).toBe(500)
+  })
+
+  it('manual location overrides browser coordinates', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          results: [{ location: { latitude: 39, longitude: -108 } }],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ results: [] }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const req = makeRequest({
+      latitude: 40.7,
+      longitude: -74,
+      locationQuery: 'Ure, Colorado',
+      radius: 10,
+      radiusUnits: 'miles',
+    })
+    await POST(req)
+
+    expect(fetchMock.mock.calls[1][0]).toContain('location=39,-108')
   })
 
   it('uses custom keywords when provided', async () => {

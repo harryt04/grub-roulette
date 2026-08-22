@@ -1,7 +1,11 @@
 import { GetRestaurantRequest } from '../types/location'
 
 export const getRestaurants = async (options: GetRestaurantRequest) => {
-  if ((!options.latitude || !options.longitude) && !options.zip) return null
+  if (
+    (!options.latitude || !options.longitude) &&
+    !options.locationQuery?.trim()
+  )
+    return null
   if (!options.radius) return null
 
   try {
@@ -11,18 +15,24 @@ export const getRestaurants = async (options: GetRestaurantRequest) => {
       body: JSON.stringify({
         latitude: options.latitude,
         longitude: options.longitude,
-        zip: options.zip,
+        locationQuery: options.locationQuery,
         radius: options.radius,
         radiusUnits: options.radiusUnits,
         keywords: options.keywords,
       }),
     })
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => null)
+      throw new Error(
+        errorBody?.error ||
+          `Unable to find restaurants (HTTP ${response.status})`,
+      )
+    }
     const data = await response.json()
     return data.results
   } catch (error) {
     console.error('Error fetching restaurants:', JSON.stringify(error))
-    return []
+    throw error
   }
 }
 

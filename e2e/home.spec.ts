@@ -57,6 +57,28 @@ test.describe('Home page', () => {
     })
   })
 
+  test('manual location overrides browser coordinates', async ({ page }) => {
+    await mockAllApis(page)
+    await page.goto('/')
+
+    let requestBody: Record<string, unknown> | undefined
+    page.on('request', (request) => {
+      if (request.url().endsWith('/api/getRestaurants')) {
+        requestBody = request.postDataJSON()
+      }
+    })
+
+    await page.getByPlaceholder(/location or zip code/i).fill('Ure, Colorado')
+    await page.getByRole('button', { name: /find a place to eat/i }).click()
+    await expect(page.getByText('Playwright Pizza')).toBeVisible({
+      timeout: 10_000,
+    })
+
+    expect(requestBody).toMatchObject({ locationQuery: 'Ure, Colorado' })
+    expect(requestBody).not.toHaveProperty('latitude')
+    expect(requestBody).not.toHaveProperty('longitude')
+  })
+
   test('restaurant card shows address and rating', async ({ page }) => {
     await mockAllApis(page)
     await page.goto('/')
@@ -141,14 +163,14 @@ test.describe('Home page', () => {
   })
 })
 
-test.describe('ZIP code flow', () => {
+test.describe('Manual location flow', () => {
   test.beforeEach(async ({ context }) => {
     await context.grantPermissions([])
   })
 
-  test('shows ZIP input when geolocation is denied', async ({ page }) => {
+  test('shows location input when geolocation is denied', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByPlaceholder(/zip code/i)).toBeVisible({
+    await expect(page.getByPlaceholder(/location or zip code/i)).toBeVisible({
       timeout: 5_000,
     })
   })
@@ -179,10 +201,10 @@ test.describe('ZIP code flow', () => {
     )
 
     await page.goto('/')
-    await expect(page.getByPlaceholder(/zip code/i)).toBeVisible({
+    await expect(page.getByPlaceholder(/location or zip code/i)).toBeVisible({
       timeout: 5_000,
     })
-    await page.getByPlaceholder(/zip code/i).fill('10001')
+    await page.getByPlaceholder(/location or zip code/i).fill('10001')
     await page.getByRole('button', { name: /find a place to eat/i }).click()
     await expect(page.getByText('Playwright Pizza')).toBeVisible({
       timeout: 10_000,
