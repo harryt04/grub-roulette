@@ -12,11 +12,32 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Palette, Sun, Moon } from 'lucide-react'
+import { Monitor, Palette, Sun, Moon } from 'lucide-react'
+
+const THEME_OPTIONS = [
+  {
+    id: 'system',
+    label: 'System',
+    description: 'Follow your device setting',
+    icon: Monitor,
+  },
+  {
+    id: 'light',
+    label: 'Light Mode',
+    description: 'Always use light mode',
+    icon: Sun,
+  },
+  {
+    id: 'dark',
+    label: 'Dark Mode',
+    description: 'Always use dark mode',
+    icon: Moon,
+  },
+] as const
 
 export default function ThemeSwitcher() {
   const { palette, setPalette } = usePalette()
-  const { resolvedTheme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -24,7 +45,6 @@ export default function ThemeSwitcher() {
   }, [])
 
   const active = PALETTES.find((p) => p.id === palette) ?? PALETTES[0]
-  const isDark = resolvedTheme === 'dark'
 
   return (
     <DropdownMenu>
@@ -70,24 +90,29 @@ export default function ThemeSwitcher() {
         </DropdownMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuLabel>Display</DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            className="gap-3 cursor-pointer py-2.5"
-            disabled={!mounted}
-          >
-            {mounted && isDark ? (
-              <Sun className="h-4 w-4 shrink-0" />
-            ) : (
-              <Moon className="h-4 w-4 shrink-0" />
-            )}
-            <span className="font-medium text-sm">
-              {mounted
-                ? isDark
-                  ? 'Switch to Light Mode'
-                  : 'Switch to Dark Mode'
-                : 'Toggle Dark Mode'}
-            </span>
-          </DropdownMenuItem>
+          {THEME_OPTIONS.map((option) => {
+            const Icon = option.icon
+
+            return (
+              <DropdownMenuItem
+                key={option.id}
+                onClick={() => setTheme(option.id)}
+                className="gap-3 cursor-pointer py-2.5"
+                disabled={!mounted}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="flex flex-col min-w-0">
+                  <span className="font-medium text-sm">{option.label}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {option.description}
+                  </span>
+                </span>
+                {mounted && theme === option.id && (
+                  <span className="ml-auto text-xs font-bold shrink-0">✓</span>
+                )}
+              </DropdownMenuItem>
+            )
+          })}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

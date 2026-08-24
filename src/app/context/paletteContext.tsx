@@ -70,7 +70,12 @@ export function PaletteProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(STORAGE_KEY) as PaletteId | null
     if (stored && PALETTES.some((p) => p.id === stored)) {
       setPaletteState(stored)
+      return
     }
+
+    const randomPalette = PALETTES[Math.floor(Math.random() * PALETTES.length)]
+    setPaletteState(randomPalette.id)
+    localStorage.setItem(STORAGE_KEY, randomPalette.id)
   }, [])
 
   // Apply palette via data-palette attribute on <html>
