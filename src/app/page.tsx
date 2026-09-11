@@ -19,8 +19,8 @@ export default function Home() {
         </div>
         <p className="mt-2 text-center text-sm text-muted-foreground">
           Find a local mom-and-pop gem or discover somewhere new. Sometimes
-          it&apos;s a jackpot, sometimes it&apos;s not—that&apos;s the beauty of
-          trying new things. Grub Roulette helps you take the chance.
+          it&apos;s a jackpot, sometimes it&apos;s not. That&apos;s the beauty
+          of trying new things. Grub Roulette helps you take the chance.
         </p>
       </div>
       <div className="py-4">
