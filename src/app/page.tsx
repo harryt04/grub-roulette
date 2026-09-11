@@ -17,6 +17,9 @@ export default function Home() {
           />
           <h1 className="text-3xl font-bold">GrubRoulette</h1>
         </div>
+        <p className="mt-2 text-center text-sm text-muted-foreground">
+          A random restaurant: hit or miss, like Russian Roulette.
+        </p>
       </div>
       <div className="py-4">
         <ThemeSwitcher />
