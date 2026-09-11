@@ -10,7 +10,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
-      scriptProps={{ async: true }}
     >
       <PaletteProvider>{children}</PaletteProvider>
     </ThemeProvider>
