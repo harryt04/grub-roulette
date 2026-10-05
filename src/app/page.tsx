@@ -17,7 +17,7 @@ export default function Home() {
           />
           <h1 className="text-3xl font-bold">GrubRoulette</h1>
         </div>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-md px-2 text-center text-sm leading-relaxed text-balance text-muted-foreground sm:text-base">
           Find a local mom-and-pop gem or discover somewhere new. Sometimes
           it&apos;s a jackpot, sometimes it&apos;s not. That&apos;s the beauty
           of trying new things. Grub Roulette helps you take the chance.
