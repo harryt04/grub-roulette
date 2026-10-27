@@ -6,12 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "npx eslint src; prettier --check .",
+    "lint": "pnpm exec eslint src && prettier --check .",
     "prettify": "prettier --write .",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
-    "ciTests": "npx prettier --check . && npx eslint src && npx tsc --noEmit && npm run build && npm run test:unit",
+    "ciTests": "pnpm exec prettier --check . && pnpm exec eslint src && pnpm exec tsc --noEmit && pnpm run build && pnpm run test:unit",
     "fixLint": "prettier --write . && eslint --fix src"
   },
   "dependencies": {
@@ -48,5 +48,6 @@
     "prettier": "^3.3.3",
     "typescript": "^5",
     "vitest": "^4.1.4"
-  }
+  },
+  "packageManager": "pnpm@11.24.0"
 }
