@@ -6,6 +6,12 @@ import {
   MOCK_EMPTY_RESTAURANTS_RESPONSE,
 } from './fixtures/mockData'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0
+  })
+})
+
 // Helper: intercept all three API endpoints with success mocks
 async function mockAllApis(page: Page) {
   await page.route('**/api/getRestaurants', (route) =>

@@ -5,6 +5,12 @@ import {
   MOCK_PHOTOS_RESPONSE,
 } from './fixtures/mockData'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0
+  })
+})
+
 test.use({ viewport: { width: 375, height: 812 } })
 
 test.describe('Mobile layout', () => {
