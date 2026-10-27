@@ -16,33 +16,34 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     env:
-      NODE_VERSION: '22'
+      NODE_VERSION: '24'
       NEXT_PUBLIC_POSTHOG_KEY: ''
       NEXT_PUBLIC_POSTHOG_HOST: https://us.i.posthog.com
       GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          cache: pnpm
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Prettier check
-        run: npx prettier --check .
+        run: pnpm exec prettier --check .
       - name: ESLint
-        run: npm run lint
+        run: pnpm run lint
       - name: TypeScript type-check
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Unit tests
-        run: npm run test:unit
+        run: pnpm run test:unit
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
       - name: E2E tests
-        run: npx playwright test
+        run: pnpm exec playwright test
         env:
           CI: true
       - name: Upload Playwright HTML report

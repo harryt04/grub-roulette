@@ -6,6 +6,12 @@ import {
   MOCK_EMPTY_RESTAURANTS_RESPONSE,
 } from './fixtures/mockData'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0
+  })
+})
+
 // Helper: intercept all three API endpoints with success mocks
 async function mockAllApis(page: Page) {
   await page.route('**/api/getRestaurants', (route) =>
@@ -149,17 +155,16 @@ test.describe('Home page', () => {
     await mockAllApis(page)
     await page.goto('/')
     const html = page.locator('html')
-    const initialClass = await html.getAttribute('class')
-    // Open the theme switcher dropdown
     await page.getByRole('button', { name: /change color theme/i }).click()
-    // Click the dark/light mode toggle item inside the dropdown
     await page
-      .getByRole('menuitem', {
-        name: /switch to dark mode|switch to light mode|toggle dark mode/i,
-      })
+      .getByRole('menuitem', { name: /Dark Mode Always use dark mode/i })
       .click()
-    const newClass = await html.getAttribute('class')
-    expect(newClass).not.toBe(initialClass)
+    await expect(html).toHaveClass(/dark/)
+    await page.getByRole('button', { name: /change color theme/i }).click()
+    await page
+      .getByRole('menuitem', { name: /Light Mode Always use light mode/i })
+      .click()
+    await expect(html).toHaveClass(/light/)
   })
 })
 

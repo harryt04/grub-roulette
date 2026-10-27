@@ -8,7 +8,7 @@ Agent quick-reference for this repo. Every entry here is something you'd likely 
 
 - **Next.js** (App Router, RSC) + **React 18** + **TypeScript 5** (strict)
 - **Tailwind CSS v4** via `@tailwindcss/postcss` — no `tailwind.config.js`; config lives in `globals.css`
-- **shadcn/ui** with `style: "base-nova"` — built on **`@base-ui/react`**, NOT Radix UI. The `TooltipTrigger` uses a `render` prop (`render={<Button />}`) not `asChild`. Add components with `npx shadcn@latest add <name>` (they'll come in as base-nova variants).
+- **shadcn/ui** with `style: "base-nova"` — built on **`@base-ui/react`**, NOT Radix UI. The `TooltipTrigger` uses a `render` prop (`render={<Button />}`) not `asChild`. Add components with `pnpm exec shadcn@latest add <name>` (they'll come in as base-nova variants).
 - **Vitest** (unit) + **Playwright** (e2e, Chromium only)
 - **PostHog** analytics proxied through `/ingest/` (configured in `next.config.js` rewrites)
 
@@ -17,29 +17,29 @@ Agent quick-reference for this repo. Every entry here is something you'd likely 
 ## Commands
 
 ```sh
-npm run dev           # dev server
-npm run build         # production build
-npm run start         # production server (requires build first)
-npm run lint          # eslint + prettier check (both must pass)
-npm run prettify      # auto-format with prettier
-npm run test:unit     # vitest, run once
-npm run test:unit:watch  # vitest, watch mode
-npm run test:e2e      # playwright (requires a running server on :3000)
-npx tsc --noEmit      # type-check — there is NO npm typecheck script
+pnpm run dev           # dev server
+pnpm run build         # production build
+pnpm run start         # production server (requires build first)
+pnpm run lint          # eslint + prettier check (both must pass)
+pnpm run prettify      # auto-format with prettier
+pnpm run test:unit     # vitest, run once
+pnpm run test:unit:watch  # vitest, watch mode
+pnpm run test:e2e      # playwright (requires a running server on :3000)
+pnpm exec tsc --noEmit      # type-check — there is NO npm typecheck script
 ```
 
 ### Run a single unit test
 
 ```sh
-npx vitest run src/__tests__/lib/restaurant-logic.test.ts
-npx vitest run -t "filterOpenPlaces"   # by test name
+pnpm exec vitest run src/__tests__/lib/restaurant-logic.test.ts
+pnpm exec vitest run -t "filterOpenPlaces"   # by test name
 ```
 
 ### Run a single e2e spec
 
 ```sh
-npx playwright test e2e/home.spec.ts
-npx playwright test -g "page loads with correct title"
+pnpm exec playwright test e2e/home.spec.ts
+pnpm exec playwright test -g "page loads with correct title"
 ```
 
 ---
@@ -53,14 +53,14 @@ prettier check → eslint → tsc --noEmit → build → unit tests → e2e (2 s
 Run this locally before pushing if you want to catch failures early:
 
 ```sh
-npm run lint && npx tsc --noEmit && npm run test:unit
+pnpm run lint && pnpm exec tsc --noEmit && pnpm run test:unit
 ```
 
 E2E runs in CI automatically after the above. To run e2e locally, build first:
 
 ```sh
-npm run build && npm run start   # then in another terminal:
-npm run test:e2e
+pnpm run build && pnpm run start   # then in another terminal:
+pnpm run test:e2e
 ```
 
 ---
@@ -146,7 +146,7 @@ All three are `POST` handlers:
 
 - All API routes are mocked via `page.route()` — see `e2e/fixtures/mockData.ts`
 - Both geolocation-granted and geolocation-denied (manual location fallback) flows are tested
-- Playwright config webServer command is `npm run start` (not `dev`) — a build is required
+- Playwright config webServer command is `pnpm run start` (not `dev`) — a build is required
 
 ---
 
@@ -156,13 +156,13 @@ Target branch: **`master`**
 
 1. Fork or branch from `master`
 2. `cp .env.local.example .env.local` and add your `GOOGLE_MAPS_API_KEY`
-3. `npm install && npm run dev`
+3. `pnpm install && pnpm run dev`
 4. Make your changes with tests where applicable
-5. Before pushing (optional but recommended): `npm run lint && npx tsc --noEmit && npm run test:unit`
+5. Before pushing (optional but recommended): `pnpm run lint && pnpm exec tsc --noEmit && pnpm run test:unit`
 6. Open a PR targeting `master` — CI will run the full check suite automatically
 
 When adding shadcn components, use the CLI so they come in as base-nova variants:
 ```sh
-npx shadcn@latest add <component-name>
+pnpm exec shadcn@latest add <component-name>
 ```
 Edit components in `src/components/ui/` directly — they are project-owned copies.

@@ -43,7 +43,7 @@ You'll need a [Google Maps API key](https://developers.google.com/maps/documenta
 3. **Install dependencies:**
 
    ```sh
-   npm install
+   pnpm install
    ```
 
 4. **Configure environment variables:**
@@ -61,19 +61,19 @@ You'll need a [Google Maps API key](https://developers.google.com/maps/documenta
 5. **Run the app:**
 
    ```sh
-   npm run dev
+   pnpm run dev
    ```
 
 ### Testing
 
 ```sh
-npm run test:unit          # run unit tests once
-npm run test:unit:watch    # run unit tests in watch mode
+pnpm run test:unit          # run unit tests once
+pnpm run test:unit:watch    # run unit tests in watch mode
 
 # E2E tests require a production build:
-npm run build && npm run start
+pnpm run build && pnpm run start
 # then in another terminal:
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 ### Before Submitting a PR
@@ -82,7 +82,7 @@ You can verify your changes locally before pushing — or push and let CI handle
 
 **Local check (optional but faster feedback):**
 ```sh
-npm run lint && npx tsc --noEmit && npm run test:unit
+pnpm run lint && pnpm exec tsc --noEmit && pnpm run test:unit
 ```
 
 **CI will automatically run on every PR:**
@@ -101,3 +101,15 @@ npm run lint && npx tsc --noEmit && npm run test:unit
 ---
 
 Thank you for contributing to Grub Roulette!
+
+## Package manager
+
+Use pnpm 11.24.0, pinned in `package.json`. Install it with
+`npm install --global pnpm@11.24.0` if pnpm is not available.
+Run `pnpm install --frozen-lockfile` after cloning. Commit `pnpm-lock.yaml`
+when dependencies change; do not generate npm or Yarn lockfiles.
+
+## Node.js runtime
+
+Use Node.js 24 for local development, validation, and deployment.
+The runtime is declared in `package.json` and `.nvmrc`.
