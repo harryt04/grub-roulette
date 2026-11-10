@@ -85,12 +85,12 @@ You can verify your changes locally before pushing — or push and let CI handle
 pnpm run lint && pnpm exec tsc --noEmit && pnpm run test:unit
 ```
 
-**CI will automatically run on every PR:**
+**CI will automatically run on every PR (as parallel jobs):**
 - Prettier + ESLint
 - TypeScript type-check
 - Production build
 - Unit tests
-- E2E tests (2 shards, Chromium)
+- E2E tests (Chromium)
 
 ### Submit a Pull Request
 
@@ -114,3 +114,8 @@ when dependencies change; do not generate npm or Yarn lockfiles.
 Use Node.js 26 (Active LTS) for local development, validation, and deployment.
 The runtime is declared in `package.json` (`engines`) and `.nvmrc`, which pins
 the validated patch release (26.13.0).
+
+With nvm installed, run `nvm install` and `nvm use` from the repository root.
+CI reads the same checked-in `.nvmrc` through `actions/setup-node`'s
+`node-version-file` input. Update `.nvmrc` when changing the validated Node
+version, keeping `package.json`'s supported major version aligned.
