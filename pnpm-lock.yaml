@@ -4842,7 +4842,7 @@ snapshots:
       '@typescript-eslint/visitor-keys': 8.55.0
       debug: 4.4.3(supports-color@7.2.0)
       minimatch: 9.0.9
-      semver: 7.8.6
+      semver: 7.7.4
       tinyglobby: 0.2.15
       ts-api-utils: 2.4.0(typescript@5.4.5)
       typescript: 5.4.5
@@ -7017,7 +7017,8 @@ snapshots:
 
   semver@7.7.4: {}
 
-  semver@7.8.6: {}
+  semver@7.8.6:
+    optional: true
 
   send@1.2.1(supports-color@7.2.0):
     dependencies:
@@ -7518,7 +7519,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
-      postcss: 8.5.23
+      postcss: 8.5.10
       rolldown: 1.0.0-rc.15
       tinyglobby: 0.2.15
     optionalDependencies:
