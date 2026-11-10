@@ -114,3 +114,8 @@ when dependencies change; do not generate npm or Yarn lockfiles.
 Use Node.js 26 (Active LTS) for local development, validation, and deployment.
 The runtime is declared in `package.json` (`engines`) and `.nvmrc`, which pins
 the validated patch release (26.13.0).
+
+With nvm installed, run `nvm install` and `nvm use` from the repository root.
+CI reads the same checked-in `.nvmrc` through `actions/setup-node`'s
+`node-version-file` input. Update `.nvmrc` when changing the validated Node
+version, keeping `package.json`'s supported major version aligned.
