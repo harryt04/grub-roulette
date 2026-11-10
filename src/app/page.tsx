@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 pb-8">
+    <main className="min-h-screen flex flex-col items-center px-4 pb-8">
       <div className="flex flex-col items-center pt-8 pb-2">
         <div className="flex items-center gap-3">
           <Image
@@ -30,6 +30,6 @@ export default function Home() {
       <RestaurantFinder isMobile={false} />
       <div className="spacer" />
       <Footer />
-    </div>
+    </main>
   )
 }

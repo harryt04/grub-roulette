@@ -53,7 +53,7 @@ export default function ThemeSwitcher() {
           <Button
             variant="outline"
             size="sm"
-            aria-label="Change color theme"
+            aria-label={`Change color theme, ${active.label}`}
             className="min-w-[9rem] justify-start"
           >
             <Palette className="h-4 w-4 shrink-0" />
