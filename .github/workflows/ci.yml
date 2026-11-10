@@ -99,3 +99,14 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  ci:
+    # Branch protection requires a check named "CI"; this gate reports the result of the parallel jobs under that name.
+    name: CI
+    if: always()
+    needs: [checks, unit, e2e]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require all CI jobs to succeed
+        run: |
+          [ "${{ needs.checks.result }}" = success ] && [ "${{ needs.unit.result }}" = success ] && [ "${{ needs.e2e.result }}" = success ]
