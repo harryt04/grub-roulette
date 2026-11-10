@@ -45,7 +45,7 @@ importers:
         version: 1.0.16(react@18.2.0)
       shadcn:
         specifier: ^4.3.0
-        version: 4.3.0(@types/node@20.19.39)(supports-color@7.2.0)(typescript@5.4.5)
+        version: 4.3.0(@types/node@26.6.6)(supports-color@7.2.0)(typescript@5.4.5)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -72,8 +72,8 @@ importers:
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/node':
-        specifier: ^20
-        version: 20.19.39
+        specifier: ^26
+        version: 26.6.6
       '@types/react':
         specifier: ^18
         version: 18.2.79
@@ -82,7 +82,7 @@ importers:
         version: 18.2.25
       '@vitejs/plugin-react':
         specifier: ^6.0.1
-        version: 6.0.1(vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1))
+        version: 6.0.1(vite@8.0.8(@types/node@26.6.6)(jiti@2.6.1))
       eslint:
         specifier: ^8
         version: 8.57.1(supports-color@7.2.0)
@@ -100,7 +100,7 @@ importers:
         version: 5.4.5
       vitest:
         specifier: ^4.1.4
-        version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@20.19.39)(jsdom@29.0.2(@noble/hashes@1.8.0))(msw@2.13.4(@types/node@20.19.39)(typescript@5.4.5))(vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1))
+        version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@26.6.6)(jsdom@29.0.2(@noble/hashes@1.8.0))(msw@2.13.4(@types/node@26.6.6)(typescript@5.4.5))(vite@8.0.8(@types/node@26.6.6)(jiti@2.6.1))
 
 packages:
   '@aashutoshrathi/word-wrap@1.2.6':
@@ -1206,6 +1206,7 @@ packages:
         integrity: sha512-xWQgL0Bmctsalg6PaXExmzdedSp3gyKV8mQBwK/j9VGdCDu2fmXIb2gAehBKbkXCpJ4HPkgv3QfoJWRT4dHWbw==,
       }
     engines: { node: ^18.19.0 || >=20.6.0 }
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
@@ -1715,6 +1716,12 @@ packages:
     resolution:
       {
         integrity: sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==,
+      }
+
+  '@types/node@26.6.6':
+    resolution:
+      {
+        integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==,
       }
 
   '@types/prop-types@15.7.15':
@@ -5908,6 +5915,12 @@ packages:
         integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==,
       }
 
+  undici-types@8.9.0:
+    resolution:
+      {
+        integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==,
+      }
+
   undici@7.25.0:
     resolution:
       {
@@ -6731,30 +6744,30 @@ snapshots:
 
   '@inquirer/ansi@2.0.5': {}
 
-  '@inquirer/confirm@6.0.12(@types/node@20.19.39)':
+  '@inquirer/confirm@6.0.12(@types/node@26.6.6)':
     dependencies:
-      '@inquirer/core': 11.1.9(@types/node@20.19.39)
-      '@inquirer/type': 4.0.5(@types/node@20.19.39)
+      '@inquirer/core': 11.1.9(@types/node@26.6.6)
+      '@inquirer/type': 4.0.5(@types/node@26.6.6)
     optionalDependencies:
-      '@types/node': 20.19.39
+      '@types/node': 26.6.6
 
-  '@inquirer/core@11.1.9(@types/node@20.19.39)':
+  '@inquirer/core@11.1.9(@types/node@26.6.6)':
     dependencies:
       '@inquirer/ansi': 2.0.5
       '@inquirer/figures': 2.0.5
-      '@inquirer/type': 4.0.5(@types/node@20.19.39)
+      '@inquirer/type': 4.0.5(@types/node@26.6.6)
       cli-width: 4.1.0
       fast-wrap-ansi: 0.2.0
       mute-stream: 3.0.0
       signal-exit: 4.1.0
     optionalDependencies:
-      '@types/node': 20.19.39
+      '@types/node': 26.6.6
 
   '@inquirer/figures@2.0.5': {}
 
-  '@inquirer/type@4.0.5(@types/node@20.19.39)':
+  '@inquirer/type@4.0.5(@types/node@26.6.6)':
     optionalDependencies:
-      '@types/node': 20.19.39
+      '@types/node': 26.6.6
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -7192,6 +7205,10 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/node@26.6.6':
+    dependencies:
+      undici-types: 8.9.0
+
   '@types/prop-types@15.7.15': {}
 
   '@types/react-dom@18.2.25':
@@ -7366,10 +7383,10 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vitejs/plugin-react@6.0.1(vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1))':
+  '@vitejs/plugin-react@6.0.1(vite@8.0.8(@types/node@26.6.6)(jiti@2.6.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-rc.7
-      vite: 8.0.8(@types/node@20.19.39)(jiti@2.6.1)
+      vite: 8.0.8(@types/node@26.6.6)(jiti@2.6.1)
 
   '@vitest/expect@4.1.4':
     dependencies:
@@ -7380,14 +7397,14 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.4(msw@2.13.4(@types/node@20.19.39)(typescript@5.4.5))(vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1))':
+  '@vitest/mocker@4.1.4(msw@2.13.4(@types/node@26.6.6)(typescript@5.4.5))(vite@8.0.8(@types/node@26.6.6)(jiti@2.6.1))':
     dependencies:
       '@vitest/spy': 4.1.4
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      msw: 2.13.4(@types/node@20.19.39)(typescript@5.4.5)
-      vite: 8.0.8(@types/node@20.19.39)(jiti@2.6.1)
+      msw: 2.13.4(@types/node@26.6.6)(typescript@5.4.5)
+      vite: 8.0.8(@types/node@26.6.6)(jiti@2.6.1)
 
   '@vitest/pretty-format@4.1.4':
     dependencies:
@@ -8948,9 +8965,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@2.13.4(@types/node@20.19.39)(typescript@5.4.5):
+  msw@2.13.4(@types/node@26.6.6)(typescript@5.4.5):
     dependencies:
-      '@inquirer/confirm': 6.0.12(@types/node@20.19.39)
+      '@inquirer/confirm': 6.0.12(@types/node@26.6.6)
       '@mswjs/interceptors': 0.41.4
       '@open-draft/deferred-promise': 3.0.0
       '@types/statuses': 2.0.6
@@ -9276,7 +9293,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 20.19.39
+      '@types/node': 26.6.6
       long: 5.3.2
 
   proxy-addr@2.0.7:
@@ -9512,7 +9529,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@4.3.0(@types/node@20.19.39)(supports-color@7.2.0)(typescript@5.4.5):
+  shadcn@4.3.0(@types/node@26.6.6)(supports-color@7.2.0)(typescript@5.4.5):
     dependencies:
       '@babel/core': 7.29.0(supports-color@7.2.0)
       '@babel/parser': 7.29.0
@@ -9533,7 +9550,7 @@ snapshots:
       fuzzysort: 3.1.0
       https-proxy-agent: 7.0.6(supports-color@7.2.0)
       kleur: 4.1.5
-      msw: 2.13.4(@types/node@20.19.39)(typescript@5.4.5)
+      msw: 2.13.4(@types/node@26.6.6)(typescript@5.4.5)
       node-fetch: 3.3.2
       open: 11.0.0
       ora: 8.2.0
@@ -9887,6 +9904,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
+  undici-types@8.9.0: {}
+
   undici@7.25.0: {}
 
   unicorn-magic@0.3.0: {}
@@ -9941,7 +9960,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1):
+  vite@8.0.8(@types/node@26.6.6)(jiti@2.6.1):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
@@ -9949,14 +9968,14 @@ snapshots:
       rolldown: 1.0.0-rc.15
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 20.19.39
+      '@types/node': 26.6.6
       fsevents: 2.3.3
       jiti: 2.6.1
 
-  vitest@4.1.4(@opentelemetry/api@1.9.0)(@types/node@20.19.39)(jsdom@29.0.2(@noble/hashes@1.8.0))(msw@2.13.4(@types/node@20.19.39)(typescript@5.4.5))(vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1)):
+  vitest@4.1.4(@opentelemetry/api@1.9.0)(@types/node@26.6.6)(jsdom@29.0.2(@noble/hashes@1.8.0))(msw@2.13.4(@types/node@26.6.6)(typescript@5.4.5))(vite@8.0.8(@types/node@26.6.6)(jiti@2.6.1)):
     dependencies:
       '@vitest/expect': 4.1.4
-      '@vitest/mocker': 4.1.4(msw@2.13.4(@types/node@20.19.39)(typescript@5.4.5))(vite@8.0.8(@types/node@20.19.39)(jiti@2.6.1))
+      '@vitest/mocker': 4.1.4(msw@2.13.4(@types/node@26.6.6)(typescript@5.4.5))(vite@8.0.8(@types/node@26.6.6)(jiti@2.6.1))
       '@vitest/pretty-format': 4.1.4
       '@vitest/runner': 4.1.4
       '@vitest/snapshot': 4.1.4
@@ -9973,11 +9992,11 @@ snapshots:
       tinyexec: 1.1.1
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vite: 8.0.8(@types/node@20.19.39)(jiti@2.6.1)
+      vite: 8.0.8(@types/node@26.6.6)(jiti@2.6.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
-      '@types/node': 20.19.39
+      '@types/node': 26.6.6
       jsdom: 29.0.2(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - msw
