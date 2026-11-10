@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '24'
+  NODE_VERSION: '26'
 
 # Three independent jobs run in parallel; wall time is the slowest one (e2e)
 # instead of the sum of every step. Each job pays ~15s of setup/install.
