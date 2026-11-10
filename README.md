@@ -85,12 +85,12 @@ You can verify your changes locally before pushing — or push and let CI handle
 pnpm run lint && pnpm exec tsc --noEmit && pnpm run test:unit
 ```
 
-**CI will automatically run on every PR:**
+**CI will automatically run on every PR (as parallel jobs):**
 - Prettier + ESLint
 - TypeScript type-check
 - Production build
 - Unit tests
-- E2E tests (2 shards, Chromium)
+- E2E tests (Chromium)
 
 ### Submit a Pull Request
 

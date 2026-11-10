@@ -5,9 +5,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // GitHub-hosted ubuntu-24.04 runners have 4 vCPUs; the app server shares them.
+  workers: process.env.CI ? 2 : undefined,
+  // CI uploads playwright-report/ on failure, so emit the HTML report there.
   reporter: process.env.CI
-    ? [['blob'], ['list']]
+    ? [['list'], ['html', { open: 'never' }]]
     : [['html', { open: 'never' }]],
   use: {
     baseURL: 'http://localhost:3000',

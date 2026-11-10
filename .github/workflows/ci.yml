@@ -11,16 +11,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  ci:
-    name: CI
-    runs-on: ubuntu-24.04
-    env:
-      NODE_VERSION: '24'
-      NEXT_PUBLIC_POSTHOG_KEY: ''
-      NEXT_PUBLIC_POSTHOG_HOST: https://us.i.posthog.com
-      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+env:
+  NODE_VERSION: '24'
 
+# Three independent jobs run in parallel; wall time is the slowest one (e2e)
+# instead of the sum of every step. Each job pays ~15s of setup/install.
+jobs:
+  checks:
+    name: Lint & type-check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -33,23 +33,72 @@ jobs:
       - name: Prettier check
         run: pnpm exec prettier --check .
       - name: ESLint
-        run: pnpm run lint
+        run: pnpm exec eslint src
       - name: TypeScript type-check
         run: pnpm exec tsc --noEmit
-      - name: Build
-        run: pnpm run build
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Unit tests
         run: pnpm run test:unit
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+
+  e2e:
+    name: Build & E2E
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_POSTHOG_KEY: ''
+      NEXT_PUBLIC_POSTHOG_HOST: https://us.i.posthog.com
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Resolve Playwright version
+        id: playwright
+        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.playwright.outputs.version }}-shell
+      # Only the headless shell is needed: tests run headless on bundled Chromium.
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 5
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        timeout-minutes: 5
+        run: pnpm exec playwright install-deps chromium
+      - name: Build
+        run: pnpm run build
       - name: E2E tests
+        timeout-minutes: 5
         run: pnpm exec playwright test
         env:
           CI: true
-      - name: Upload Playwright HTML report
-        if: always()
+      - name: Upload Playwright report
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-html-report
+          name: playwright-report
           path: playwright-report/
           retention-days: 14

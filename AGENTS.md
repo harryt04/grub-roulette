@@ -44,11 +44,17 @@ pnpm exec playwright test -g "page loads with correct title"
 
 ---
 
-## CI Order (mirrors what GitHub Actions runs)
+## CI Jobs (mirrors what GitHub Actions runs)
+
+Three jobs run in parallel (`.github/workflows/ci.yml`):
 
 ```
-prettier check → eslint → tsc --noEmit → build → unit tests → e2e (2 shards)
+checks: prettier check → eslint → tsc --noEmit
+unit:   vitest
+e2e:    build → playwright (Chromium headless shell, 2 workers, cached browsers)
 ```
+
+E2E is not sharded: the suite takes seconds, and each shard would repeat install, build and browser setup.
 
 Run this locally before pushing if you want to catch failures early:
 
