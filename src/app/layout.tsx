@@ -50,7 +50,7 @@ const PALETTE_STYLES = `
   /* 🫐 Electric Blue — cerulean hue (~245) */
   [data-palette="blue"] {
     --primary:            oklch(0.58 0.22 245);
-    --primary-foreground: oklch(0.98 0 0);
+    --primary-foreground: oklch(0.12 0.04 240);
     --accent:             oklch(0.80 0.18 85);
     --accent-foreground:  oklch(0.12 0 0);
     --ring:               oklch(0.58 0.22 245);
@@ -61,7 +61,7 @@ const PALETTE_STYLES = `
   }
   .dark[data-palette="blue"] {
     --primary:            oklch(0.65 0.22 245);
-    --primary-foreground: oklch(0.98 0 0);
+    --primary-foreground: oklch(0.12 0.04 240);
     --accent:             oklch(0.76 0.18 85);
     --accent-foreground:  oklch(0.12 0 0);
     --ring:               oklch(0.65 0.22 245);
@@ -74,7 +74,7 @@ const PALETTE_STYLES = `
   /* 🌶️ Hot Sauce — coral hue (~28) */
   [data-palette="hotsauce"] {
     --primary:            oklch(0.68 0.2 28);
-    --primary-foreground: oklch(0.98 0 0);
+    --primary-foreground: oklch(0.12 0.04 240);
     --accent:             oklch(0.38 0.1 195);
     --accent-foreground:  oklch(0.98 0 0);
     --ring:               oklch(0.68 0.2 28);
@@ -85,7 +85,7 @@ const PALETTE_STYLES = `
   }
   .dark[data-palette="hotsauce"] {
     --primary:            oklch(0.72 0.21 28);
-    --primary-foreground: oklch(0.98 0 0);
+    --primary-foreground: oklch(0.12 0.04 240);
     --accent:             oklch(0.42 0.1 195);
     --accent-foreground:  oklch(0.98 0 0);
     --ring:               oklch(0.72 0.21 28);
