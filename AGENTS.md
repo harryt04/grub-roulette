@@ -8,7 +8,7 @@ Agent quick-reference for this repo. Every entry here is something you'd likely 
 
 - **Next.js** (App Router, RSC) + **React 19** + **TypeScript 5** (strict)
 - **Tailwind CSS v4** via `@tailwindcss/postcss` — no `tailwind.config.js`; config lives in `globals.css`
-- **shadcn/ui** with `style: "base-nova"` — built on **`@base-ui/react`**, NOT Radix UI. The `TooltipTrigger` uses a `render` prop (`render={<Button />}`) not `asChild`. Add components with `pnpm exec shadcn@latest add <name>` (they'll come in as base-nova variants).
+- **UI SDK** powers the interactive wrappers in `src/components/ui/`. They retain the shadcn base-nova styling and use `render={<Button />}` for trigger composition.
 - **Vitest** (unit) + **Playwright** (e2e, Chromium only)
 - **PostHog** analytics proxied through `/ingest/` (configured in `next.config.js` rewrites)
 
@@ -167,8 +167,14 @@ Target branch: **`master`**
 5. Before pushing (optional but recommended): `pnpm run lint && pnpm exec tsc --noEmit && pnpm run test:unit`
 6. Open a PR targeting `master` — CI will run the full check suite automatically
 
-When adding shadcn components, use the CLI so they come in as base-nova variants:
-```sh
-pnpm exec shadcn@latest add <component-name>
-```
-Edit components in `src/components/ui/` directly — they are project-owned copies.
+Edit the project-owned wrappers in `src/components/ui/` and consult the installed UI SDK documentation when adding behaviors.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

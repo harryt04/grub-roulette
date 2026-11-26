@@ -246,30 +246,34 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
         <div className="form-container">
           <Input
             id="keywords"
+            aria-label="Search keywords"
             placeholder="Search (optional) e.g. 'sushi' or 'italian'"
             value={keywords}
-            onChange={(event) => {
+            onValueChange={(value) => {
               setSearchError(null)
-              setKeywords(event.target.value)
+              setKeywords(value)
             }}
             className="w-full"
           />
           <Input
             id="location"
+            aria-label="Location or ZIP code"
+            data-agent-secret
             placeholder="Location or ZIP code"
             value={locationQuery}
-            onChange={(event) => {
+            onValueChange={(value) => {
               setSearchError(null)
-              setLocationQuery(event.target.value)
+              setLocationQuery(value)
             }}
             className="w-full"
           />
           <Input
             id="radius"
+            aria-label="Search radius (miles)"
             placeholder="Search radius (miles)"
             type="number"
             value={Number(radius).toString()}
-            onChange={(event) => setRadius(Number(event.target.value))}
+            onValueChange={(value) => setRadius(Number(value))}
             className="w-full"
           />
         </div>
@@ -285,6 +289,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                         <Button
                           variant="ghost"
                           size="icon"
+                          data-agent-confirm="Reset blocked places"
                           onClick={handleResetBlacklist}
                           aria-label="Reset blocked places"
                         >
@@ -302,6 +307,7 @@ export default function RestaurantFinder(props: RestaurantFinderProps) {
                         <Button
                           variant="ghost"
                           size="icon"
+                          data-agent-confirm="Block this place"
                           onClick={handleAddToBlacklist}
                           disabled={
                             currentPlace.name === NOT_FOUND ||

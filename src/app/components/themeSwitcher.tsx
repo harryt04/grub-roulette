@@ -72,7 +72,9 @@ export default function ThemeSwitcher() {
           {PALETTES.map((p) => (
             <DropdownMenuItem
               key={p.id}
-              onClick={() => setPalette(p.id as PaletteId)}
+              value={p.id}
+              label={p.label}
+              onSelect={() => setPalette(p.id as PaletteId)}
               className="gap-3 cursor-pointer py-2.5"
             >
               <span className="text-lg leading-none shrink-0">{p.icon}</span>
@@ -96,7 +98,9 @@ export default function ThemeSwitcher() {
             return (
               <DropdownMenuItem
                 key={option.id}
-                onClick={() => setTheme(option.id)}
+                value={option.id}
+                label={option.label}
+                onSelect={() => setTheme(option.id)}
                 className="gap-3 cursor-pointer py-2.5"
                 disabled={!mounted}
               >

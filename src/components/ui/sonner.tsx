@@ -1,7 +1,13 @@
 'use client'
 
-import { useTheme } from 'next-themes'
-import { Toaster as Sonner, type ToasterProps } from 'sonner'
+import {
+  Toast,
+  ToastAction,
+  ToastDescription,
+  ToastRegion,
+  ToastTitle,
+  type ToastRegionProps,
+} from '@ui-sdk/react/toast'
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -9,37 +15,38 @@ import {
   OctagonXIcon,
   Loader2Icon,
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = 'system' } = useTheme()
-
-  return (
-    <Sonner
-      theme={theme as ToasterProps['theme']}
-      className="toaster group"
-      icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
-      }}
-      style={
-        {
-          '--normal-bg': 'var(--popover)',
-          '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
-          '--border-radius': 'var(--radius)',
-        } as React.CSSProperties
-      }
-      toastOptions={{
-        classNames: {
-          toast: 'cn-toast',
-        },
-      }}
-      {...props}
-    />
-  )
+const icons = {
+  default: null,
+  success: CircleCheckIcon,
+  info: InfoIcon,
+  warning: TriangleAlertIcon,
+  error: OctagonXIcon,
+  loading: Loader2Icon,
 }
 
-export { Toaster }
+export function Toaster({ className, ...props }: ToastRegionProps) {
+  return (
+    <ToastRegion
+      side="bottom"
+      align="end"
+      className={cn('toaster group', className)}
+      {...props}
+    >
+      {({ type }) => {
+        const Icon = icons[type]
+        return (
+          <Toast className="flex items-center gap-2 rounded-lg border border-border bg-popover p-4 text-sm text-popover-foreground shadow-lg">
+            {Icon && <Icon aria-hidden="true" className="size-4" />}
+            <div>
+              <ToastTitle />
+              <ToastDescription />
+            </div>
+            <ToastAction />
+          </Toast>
+        )
+      }}
+    </ToastRegion>
+  )
+}

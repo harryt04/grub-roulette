@@ -7,8 +7,8 @@ vi.mock('next-themes', () => ({
   useTheme: vi.fn(() => ({ resolvedTheme: 'light' })),
 }))
 
-// Mock sonner
-vi.mock('sonner', () => ({ toast: vi.fn() }))
+// Mock toast delivery
+vi.mock('@ui-sdk/react/toast', () => ({ toast: vi.fn() }))
 
 // Mock next/image
 vi.mock('next/image', () => ({

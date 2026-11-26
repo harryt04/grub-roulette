@@ -152,7 +152,7 @@ describe('RestaurantFinder', () => {
     mockGetRestaurants.mockResolvedValue([])
     render(<RestaurantFinder isMobile={false} />)
 
-    fireEvent.change(screen.getByPlaceholderText(/location or zip code/i), {
+    fireEvent.input(screen.getByPlaceholderText(/location or zip code/i), {
       target: { value: 'Ure, Colorado' },
     })
     fireEvent.click(
