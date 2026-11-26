@@ -6,7 +6,7 @@ Agent quick-reference for this repo. Every entry here is something you'd likely 
 
 ## Stack
 
-- **Next.js** (App Router, RSC) + **React 18** + **TypeScript 5** (strict)
+- **Next.js** (App Router, RSC) + **React 19** + **TypeScript 5** (strict)
 - **Tailwind CSS v4** via `@tailwindcss/postcss` — no `tailwind.config.js`; config lives in `globals.css`
 - **shadcn/ui** with `style: "base-nova"` — built on **`@base-ui/react`**, NOT Radix UI. The `TooltipTrigger` uses a `render` prop (`render={<Button />}`) not `asChild`. Add components with `pnpm exec shadcn@latest add <name>` (they'll come in as base-nova variants).
 - **Vitest** (unit) + **Playwright** (e2e, Chromium only)
