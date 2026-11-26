@@ -7,7 +7,7 @@ vi.mock('next-themes', () => ({
   useTheme: vi.fn(() => ({ resolvedTheme: 'light' })),
 }))
 
-// Mock toast delivery
+// Mock toast delivery (re-exported by @/components/ui/sonner)
 vi.mock('@ui-sdk/react/toast', () => ({ toast: vi.fn() }))
 
 // Mock next/image
@@ -143,20 +143,24 @@ describe('PlaceDetails', () => {
     expect(images).toHaveLength(2)
   })
 
-  it('opens modal when a photo wrapper div is clicked', async () => {
+  it('renders each photo as a named button', () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
-    // DOM structure: <div onClick> > PhotoComponent > <div> > <img>
-    // images[0] is the <img>; its parentElement is the inner <div> inside PhotoComponent,
-    // and parentElement.parentElement is the <div onClick> handler we need to click.
-    const images = screen.getAllByRole('img')
-    fireEvent.click(images[0].parentElement!.parentElement!)
+    const first = screen.getByRole('button', { name: 'View photo 1 of 2' })
+    const second = screen.getByRole('button', { name: 'View photo 2 of 2' })
+    expect(first).toHaveAttribute('type', 'button')
+    expect(first).toContainElement(screen.getAllByRole('img')[0])
+    expect(second).toContainElement(screen.getAllByRole('img')[1])
+  })
+
+  it('opens modal when a photo button is clicked', async () => {
+    render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
+    fireEvent.click(screen.getByRole('button', { name: 'View photo 1 of 2' }))
     expect(screen.getByTestId('modal')).toBeInTheDocument()
   })
 
   it('closes modal when onClose is called', () => {
     render(<PlaceDetails place={baseMockPlace} isMobile={false} />)
-    const images = screen.getAllByRole('img')
-    fireEvent.click(images[0].parentElement!.parentElement!)
+    fireEvent.click(screen.getByRole('button', { name: 'View photo 1 of 2' }))
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument()
   })

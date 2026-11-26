@@ -1,121 +1,103 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
 // Mock next/image
 vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
+    // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} />
   ),
 }))
 
-// Mock createPortal to render inline in tests
-vi.mock('react-dom', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('react-dom')>()
-  return {
-    ...actual,
-    createPortal: (node: React.ReactNode) => node,
+import ImageModal from '@/app/components/modal'
+
+// The viewer is a UI SDK Dialog, which opens in the top layer. jsdom lacks the
+// Popover API and the scroll-lock helpers it uses, so add the stubs from
+// node_modules/@ui-sdk/core/skills/ui-sdk/references/testing.md. Placement,
+// focus trapping and focus return run in Chromium in e2e/photoViewer.spec.ts.
+beforeAll(() => {
+  HTMLElement.prototype.showPopover = function () {}
+  HTMLElement.prototype.hidePopover = function () {}
+  Element.prototype.getAnimations = () => []
+  Element.prototype.scrollIntoView = function () {}
+  Element.prototype.checkVisibility = () => true
+  Element.prototype.getClientRects = () => [] as unknown as DOMRectList
+  document.elementFromPoint = () => null
+  document.elementsFromPoint = () => []
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
   }
+  if (typeof CSS.supports !== 'function') {
+    Object.assign(CSS, { supports: () => false })
+  }
+  document.head.append(
+    Object.assign(document.createElement('style'), {
+      textContent: '[popover] { display: block !important }',
+    }),
+  )
 })
 
-import ImageModal from '@/app/components/modal'
+const SRC = 'https://example.com/img.jpg'
 
 describe('ImageModal', () => {
   it('does not render when isOpen is false', () => {
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={false}
-        onClose={vi.fn()}
-      />,
-    )
+    render(<ImageModal src={SRC} isOpen={false} onClose={vi.fn()} />)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('renders when isOpen is true', () => {
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={true}
-        onClose={vi.fn()}
-      />,
-    )
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  it('renders a modal dialog named "Photo viewer" when isOpen is true', async () => {
+    render(<ImageModal src={SRC} isOpen={true} onClose={vi.fn()} />)
+    const dialog = await screen.findByRole('dialog', { name: 'Photo viewer' })
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    expect(dialog).toHaveAccessibleDescription('Tap to zoom · Pinch to zoom')
   })
 
-  it('renders an image with the correct src', () => {
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={true}
-        onClose={vi.fn()}
-      />,
-    )
-    expect(screen.getByRole('img')).toHaveAttribute(
-      'src',
-      'https://example.com/img.jpg',
-    )
+  it('does not render when there is no photo', () => {
+    render(<ImageModal src={null} isOpen={true} onClose={vi.fn()} />)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('renders an image with the correct src', async () => {
+    render(<ImageModal src={SRC} isOpen={true} onClose={vi.fn()} />)
+    await screen.findByRole('dialog', { name: 'Photo viewer' })
+    expect(screen.getByRole('img')).toHaveAttribute('src', SRC)
   })
 
   it('image has alt text "photo"', () => {
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={true}
-        onClose={vi.fn()}
-      />,
-    )
+    render(<ImageModal src={SRC} isOpen={true} onClose={vi.fn()} />)
     expect(screen.getByAltText('photo')).toBeInTheDocument()
   })
 
-  it('calls onClose when the close button is clicked', () => {
+  it('calls onClose when the close button is clicked', async () => {
     const onClose = vi.fn()
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={true}
-        onClose={onClose}
-      />,
-    )
-    fireEvent.click(screen.getByLabelText('Close'))
-    expect(onClose).toHaveBeenCalled()
+    render(<ImageModal src={SRC} isOpen={true} onClose={onClose} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Close' }))
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('calls onClose when the Escape key is pressed', () => {
+  it('calls onClose when the Escape key is pressed', async () => {
     const onClose = vi.fn()
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={true}
-        onClose={onClose}
-      />,
-    )
-    fireEvent.keyDown(window, { key: 'Escape' })
-    expect(onClose).toHaveBeenCalled()
+    render(<ImageModal src={SRC} isOpen={true} onClose={onClose} />)
+    const dialog = await screen.findByRole('dialog', { name: 'Photo viewer' })
+    fireEvent.keyDown(dialog, { key: 'Escape' })
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('does not call onClose for other keys', () => {
+  it('does not call onClose for other keys', async () => {
     const onClose = vi.fn()
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={true}
-        onClose={onClose}
-      />,
-    )
-    fireEvent.keyDown(window, { key: 'Enter' })
-    fireEvent.keyDown(window, { key: 'ArrowLeft' })
+    render(<ImageModal src={SRC} isOpen={true} onClose={onClose} />)
+    const dialog = await screen.findByRole('dialog', { name: 'Photo viewer' })
+    fireEvent.keyDown(dialog, { key: 'Enter' })
+    fireEvent.keyDown(dialog, { key: 'ArrowLeft' })
     expect(onClose).not.toHaveBeenCalled()
   })
 
   it('does not call onClose on Escape when modal is closed', () => {
     const onClose = vi.fn()
-    render(
-      <ImageModal
-        src="https://example.com/img.jpg"
-        isOpen={false}
-        onClose={onClose}
-      />,
-    )
+    render(<ImageModal src={SRC} isOpen={false} onClose={onClose} />)
+    fireEvent.keyDown(document.body, { key: 'Escape' })
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(onClose).not.toHaveBeenCalled()
   })
