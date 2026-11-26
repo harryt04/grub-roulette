@@ -1,11 +1,12 @@
 import { GitFork, Bug, DollarSign } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/lib/button-variants'
 
 const Footer = () => {
   return (
     <div className="footer">
       <a
+        data-agent-confirm="Open the tip jar"
         href="https://buymeacoffee.com/harryt04"
         target="_blank"
         rel="noopener noreferrer"

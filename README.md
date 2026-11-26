@@ -5,7 +5,7 @@ A simple, free, and open-source web app that helps you find a random restaurant 
 ## Built With
 
 - [React](https://reactjs.org/) + [Next.js](https://nextjs.org/docs) (App Router)
-- [shadcn/ui](https://ui.shadcn.com/) (base-nova variant, built on [@base-ui/react](https://base-ui.com/))
+- [shadcn/ui](https://ui.shadcn.com/) (base-nova styling with [UI SDK](https://ui-sdk.dev/) behaviors)
 - [Tailwind CSS v4](https://tailwindcss.com/)
 - [Google Maps API](https://developers.google.com/maps)
 - [PostHog](https://posthog.com/) analytics
