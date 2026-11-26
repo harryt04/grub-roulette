@@ -169,6 +169,20 @@ Target branch: **`master`**
 
 Edit the project-owned wrappers in `src/components/ui/` and consult the installed UI SDK documentation when adding behaviors.
 
+## UI SDK
+
+Interactive components in `src/components/ui/` are built on [UI SDK](https://ui-sdk.dev) (`@ui-sdk/react` + `@ui-sdk/core`, beta), a behavior library from shadcn and Vercel. It supplies keyboard, focus, popup, selection and ARIA behavior; the wrappers keep this project's shadcn-style exports and Tailwind classes.
+
+- **Read the installed docs first.** UI SDK is newer than most models' training data. Read `node_modules/@ui-sdk/react/docs/llms.txt` and `node_modules/@ui-sdk/core/skills/ui-sdk/SKILL.md` (or run `npx skills@latest add vercel-labs/ui --skill ui-sdk`) before writing or changing a component. Do not guess the API from Radix or Base UI.
+- **Imports are per component:** `import { Dialog, DialogContent } from "@ui-sdk/react/dialog"`. App code imports from `src/components/ui/`, not from `@ui-sdk/react` directly.
+- **Adding a component:** check the UI SDK catalog first and wrap its parts in `src/components/ui/` with this project's styles. Do not run `shadcn add` for a component UI SDK ships, and do not regenerate existing wrappers with the shadcn CLI; both would bring Radix or Base UI back. Build a missing component from `@ui-sdk/core` behaviors (`definePrimitive`, `createParts`) only when no shipped component fits.
+- **Styling:** UI SDK owns its `data-slot` names and state attributes, so style against those or add your own marker attribute. `src/app/globals.css` imports `@ui-sdk/core/web.css` into the `components` layer; its dialog styles already centre content, so do not add centring margins.
+- **Controlled inputs** take `onValueChange`; without it, agent edits do not reach React state.
+- **Agent bridge:** `src/app/components/agentBridge.tsx` mounts `createAgent()` and `registerTools()` (WebMCP) once at the app root, so a browser agent can read and drive the page through `snapshot`, `act` and `query`. Its `allow` function is a deny-by-default allow list. When you add an interactive control, decide whether agents may use it and update `allow`; mark irreversible actions `data-agent-confirm`, sensitive fields `data-agent-secret`, and content agents should not see `data-agent-hidden`.
+- **Beta:** pin exact versions and upgrade both packages together; APIs may change before general availability.
+- **Composition:** use `render={<Button />}` for triggers. Toasts use the UI SDK `ToastRegion` behind the existing `Toaster` export.
+- **Tests:** `e2e/agent.spec.ts` and `src/__tests__/components/agentBridge.test.tsx` cover the bridge; update them when the allow list changes.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
