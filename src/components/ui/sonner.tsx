@@ -50,3 +50,5 @@ export function Toaster({ className, ...props }: ToastRegionProps) {
     </ToastRegion>
   )
 }
+
+export { toast } from '@ui-sdk/react/toast'

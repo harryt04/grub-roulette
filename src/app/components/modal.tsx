@@ -1,7 +1,13 @@
 'use client'
 import Image from 'next/image'
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 const ZOOM_IN = 3
 const MIN_ZOOM = 1
@@ -36,13 +42,14 @@ const ImageModal = ({
   src,
   isOpen,
   onClose,
+  finalFocus,
 }: {
   src: string | null
   isOpen: boolean
   onClose: () => void
+  /** Where focus goes after the viewer closes, such as the photo that opened it. */
+  finalFocus?: () => HTMLElement | null
 }) => {
-  const [visible, setVisible] = useState(false) // controls mount
-  const [animating, setAnimating] = useState<'in' | 'out' | 'idle'>('idle')
   const [zoom, setZoom] = useState(MIN_ZOOM)
   const [pan, setPan] = useState<Point>({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
@@ -54,32 +61,19 @@ const ImageModal = ({
   const didMove = useRef(false) // distinguish tap from drag
   const [isInteracting, setIsInteracting] = useState(false)
 
-  // ─── open / close lifecycle ───────────────────────────────────────────────
+  // Keep the last photo on screen while the dialog animates out.
+  const [shownSrc, setShownSrc] = useState(src)
+  if (src && src !== shownSrc) setShownSrc(src)
+
+  // ─── open lifecycle ───────────────────────────────────────────────────────
+  // Every opening starts unzoomed. Focus, Escape, outside presses, scroll
+  // locking and focus return belong to the UI SDK Dialog.
   useEffect(() => {
     if (isOpen) {
       setZoom(MIN_ZOOM)
       setPan({ x: 0, y: 0 })
-      setVisible(true)
-      // Let the element mount, then trigger enter animation
-      requestAnimationFrame(() => setAnimating('in'))
-    } else if (visible) {
-      setAnimating('out')
     }
-  }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!visible) return
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [visible, onClose])
-
-  const handleTransitionEnd = () => {
-    if (animating === 'out') setVisible(false)
-    setAnimating('idle')
-  }
+  }, [isOpen])
 
   // ─── zoom helpers ─────────────────────────────────────────────────────────
   const containerSize = useCallback((): { w: number; h: number } => {
@@ -292,147 +286,102 @@ const ImageModal = ({
     [containerSize],
   )
 
-  // Block body scroll while open
-  useEffect(() => {
-    if (visible) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [visible])
-
-  if (!visible || !src) return null
-
   const isZoomed = zoom > 1
-  const overlayOpacity = animating === 'in' ? 1 : animating === 'out' ? 0 : 1
-  const contentScale = animating === 'in' ? 1 : animating === 'out' ? 0.92 : 1
-  const contentOpacity = animating === 'in' ? 1 : animating === 'out' ? 0 : 1
 
-  return createPortal(
-    <div
-      aria-modal
-      role="dialog"
-      aria-label="Photo viewer"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        backgroundColor: `rgba(0,0,0,${overlayOpacity * 0.95})`,
-        transition: 'background-color 280ms cubic-bezier(0.4,0,0.2,1)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        touchAction: 'none',
+  return (
+    <Dialog
+      open={isOpen && !!src}
+      onOpenChange={(open) => {
+        if (!open) onClose()
       }}
-      onTransitionEnd={handleTransitionEnd}
     >
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        style={{
-          position: 'absolute',
-          top: 16,
-          right: 16,
-          zIndex: 10,
-          background: 'rgba(0,0,0,0.45)',
-          border: 'none',
-          borderRadius: '50%',
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          backdropFilter: 'blur(8px)',
-          opacity: contentOpacity,
-          transition: 'opacity 280ms cubic-bezier(0.4,0,0.2,1)',
-        }}
-        aria-label="Close"
+      <DialogContent
+        showCloseButton={false}
+        initialFocus="[data-photo-viewer-close]"
+        finalFocus={finalFocus}
+        data-photo-viewer=""
+        className="block h-dvh max-h-none w-screen max-w-none gap-0 overflow-hidden rounded-none border-0 bg-black/95 p-0 ring-0 duration-300 sm:max-w-none"
+        style={{ touchAction: 'none' }}
       >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path
-            d="M2 2l14 14M16 2L2 16"
-            stroke="white"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
+        <DialogTitle className="sr-only">Photo viewer</DialogTitle>
 
-      {/* Image container — full screen */}
-      <div
-        ref={containerRef}
-        onWheel={onWheel}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={() => {
-          pointerDown.current = false
-        }}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        style={{
-          position: 'relative',
-          width: '100vw',
-          height: '100dvh',
-          overflow: 'hidden',
-          cursor: isZoomed ? 'grab' : 'zoom-in',
-          opacity: contentOpacity,
-          transform: `scale(${contentScale})`,
-          transition:
-            'opacity 280ms cubic-bezier(0.4,0,0.2,1), transform 280ms cubic-bezier(0.4,0,0.2,1)',
-        }}
-      >
+        <DialogClose
+          data-photo-viewer-close=""
+          aria-label="Close"
+          className="absolute top-4 right-4 z-10 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-black/45 backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M2 2l14 14M16 2L2 16"
+              stroke="white"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </DialogClose>
+
+        {/* Image container — full screen */}
         <div
+          ref={containerRef}
+          onWheel={onWheel}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={() => {
+            pointerDown.current = false
+          }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
           style={{
-            position: 'absolute',
-            inset: 0,
-            transformOrigin: 'center center',
-            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-            // Only animate on zoom toggles, not during drag/pinch
-            transition: isInteracting
-              ? 'none'
-              : 'transform 300ms cubic-bezier(0.4,0,0.2,1)',
-            willChange: 'transform',
+            position: 'relative',
+            width: '100vw',
+            height: '100dvh',
+            overflow: 'hidden',
+            cursor: isZoomed ? 'grab' : 'zoom-in',
           }}
         >
-          <Image
-            src={src}
-            alt="photo"
-            fill
-            style={{ objectFit: 'contain' }}
-            draggable={false}
-            className="select-none pointer-events-none"
-            priority
-          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              transformOrigin: 'center center',
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              // Only animate on zoom toggles, not during drag/pinch
+              transition: isInteracting
+                ? 'none'
+                : 'transform 300ms cubic-bezier(0.4,0,0.2,1)',
+              willChange: 'transform',
+            }}
+          >
+            {shownSrc && (
+              <Image
+                src={shownSrc}
+                alt="photo"
+                fill
+                style={{ objectFit: 'contain' }}
+                draggable={false}
+                className="select-none pointer-events-none"
+                priority
+              />
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Tap hint — fades out once zoomed */}
-      {!isZoomed && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            color: 'rgba(255,255,255,0.45)',
-            fontSize: 13,
-            pointerEvents: 'none',
-            opacity: contentOpacity,
-            transition: 'opacity 280ms',
-            letterSpacing: '0.02em',
-          }}
-        >
-          Tap to zoom · Pinch to zoom
-        </div>
-      )}
-    </div>,
-    document.body,
+        {/* Tap hint — hidden once zoomed */}
+        {!isZoomed && (
+          <DialogDescription className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 text-[13px] tracking-[0.02em] text-white/45">
+            Tap to zoom · Pinch to zoom
+          </DialogDescription>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }
 

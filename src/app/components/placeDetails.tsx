@@ -1,9 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { GetRestaurantResponse } from '../types/location'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { toast } from '@ui-sdk/react/toast'
+import { toast } from '@/components/ui/sonner'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { MapPin, Share } from 'lucide-react'
@@ -25,8 +25,10 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const openedFrom = useRef<HTMLElement | null>(null)
 
-  const openModal = (image: string) => {
+  const openModal = (image: string, from: HTMLElement) => {
+    openedFrom.current = from
     setSelectedImage(image)
     setIsModalOpen(true)
   }
@@ -127,10 +129,16 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
             className="imageGallery"
             columnClassName="imageGalleryColumn"
           >
-            {place.photos.map((photo) => (
-              <div key={photo} onClick={() => openModal(photo)}>
+            {place.photos.map((photo, index, photos) => (
+              <button
+                key={photo}
+                type="button"
+                aria-label={`View photo ${index + 1} of ${photos.length}`}
+                className="block w-full cursor-zoom-in rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                onClick={(event) => openModal(photo, event.currentTarget)}
+              >
                 <PhotoComponent photoUrl={photo} />
-              </div>
+              </button>
             ))}
           </Masonry>
         )}
@@ -139,6 +147,7 @@ export const PlaceDetails = (props: PlaceDetailsProps) => {
         src={selectedImage}
         isOpen={isModalOpen}
         onClose={closeModal}
+        finalFocus={() => openedFrom.current}
       />
     </>
   )
